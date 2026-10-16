@@ -6,6 +6,13 @@ The graph is driven entirely by the deterministic controller: a conditional rout
 ``next_step`` and dispatches to the matching executable node, or ends (pausing durably at
 the checkpoint) when the next step is a blocking interrupt or a terminal state. Each
 executable node runs its registered handler and increments the bounded step counter.
+
+The ``verify`` node is backed by the deterministic verification gate (prompt 12,
+``app.verification`` via ``app.handlers.make_verify_handler``): it persists one named
+rule-result set and records the verification id on the state. A failed verification is
+surfaced to the human review gate rather than auto-advancing to a recommendation — pass/fail
+is never an LLM decision (CONSTRAINTS rule 5). The router/handler wiring is unchanged, so
+all existing callers of ``build_graph`` are preserved.
 """
 from __future__ import annotations
 

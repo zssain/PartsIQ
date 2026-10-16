@@ -61,7 +61,14 @@ Completed through 11 (offline-faithful; live infra BLOCKED and reported, never f
 - Added langgraph 1.1.3 + langgraph-checkpoint-postgres 3.0.4 to the lock. Full regression run_checks --prompt 00..11 all exit 0; verify_kit PASSED.
 - BLOCKED throughout: live Supabase Auth/DB/RLS, Redis, pgvector + BGE-M3 (torch not installed), live OpenAI, Postgres LangGraph checkpointer. Concrete DB/HTTP wiring for runtime is deferred to where its service exists.
 
-Next: execute prompt 12 (Deterministic verification) per prompts/README.md, on its own branch.
+Completed through 12 (Deterministic verification):
+- orchestrator/app/verification.py: seven NAMED pure checks (current_revision, catalogue_version, candidate_membership, configuration_membership, source_evidence, quantity, allocation) over typed (VerifiedFacts, VerificationEvidence). Aggregate allocation recomputed across all items sharing a (part, warehouse) so an oversold plan split across items is caught. Canonical fact hash = SHA256 over sorted JSON with Decimals rendered as decimal strings and item/allocation lists ordered (stable, order-independent). verify_facts (pure) + verify_current/run_verification persist exactly one result per (enquiry, revision) through an injected store. resolve_source_reference parses the version-specific catalogue citation (F28). No LLM in the pass/fail path (ADR-003).
+- Failure codes map: unknown part->INCOMPATIBLE (candidate membership), hidden extra item->UNRESOLVED_ITEM, incompatible part->INCOMPATIBLE (configuration membership), stale catalogue->STALE_CATALOGUE, stale revision->STALE_REVISION, oversold->OVERALLOCATION, missing stock->STALE_STOCK, inconsistent/absent shortage or non-positive quantity->INVALID_QUANTITY, missing/mismatched citation->MISSING_EVIDENCE.
+- Wiring: handlers.make_verify_handler(store) adapts the gate into the graph verify node (sets verification_id + phase "verified", routes to human review); graph.py docstring records the connection. No controller change; build_graph signature preserved.
+- Verification (exit 0): run_checks --prompt 12 -> test_12.py PASS (24); orchestrator suite PASS (22, 1 skip) incl. test_f46; search suite PASS (75) incl. test_f28; 00-12 regression all exit 0; ruff clean; verify_kit PASSED; gateway suite PASS (15, unaffected).
+- BLOCKED (reported, not faked): the live verification_results Postgres adapter (UNIQUE(enquiry_id,revision)) and the F29 evidence-viewer UI binding (a later feature prompt) remain integration work; tested here only through an in-memory store + typed fixtures.
+
+Next: execute prompt 13 (Reply specialist and renderer) per prompts/README.md, on its own branch.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 

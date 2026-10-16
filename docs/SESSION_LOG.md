@@ -90,3 +90,11 @@
 3. Design: deterministic code owns candidate restriction + clarification; the LLM only phrases explanation and cannot override low confidence or inject incompatible parts. BLOCKED: live search service HTTP + OpenAI.
 4. Next: prompt 12 (deterministic verification).
 5. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 12 (deterministic verification)
+1. Work: added orchestrator/app/verification.py (seven named pure checks: current_revision, catalogue_version, candidate_membership, configuration_membership, source_evidence, quantity, allocation; aggregate allocation recomputed across items sharing a part+warehouse; canonical sorted-JSON/decimal-string SHA256; resolve_source_reference for F28 version-specific citations; verify_facts pure + verify_current/run_verification persist one result per (enquiry,revision) via an injected store). Modified handlers.py (make_verify_handler adapts the gate into the graph verify node) and graph.py (docstring records the connection; signature preserved). No LLM decides pass/fail (ADR-003).
+2. Verification (exit 0): run_checks --prompt 12 -> test_12.py PASS (24); orchestrator suite PASS (22, 1 skip) incl. test_f46; search suite PASS (75) incl. test_f28; 00-12 foundation regression all exit 0; ruff clean; verify_kit PASSED; gateway suite PASS (15, unaffected).
+3. Design: the five F46 failure scenarios each fail a specific named rule (unknown part/hidden extra item -> candidate membership; incompatible part -> configuration membership; stale catalogue -> catalogue version; oversold -> allocation aggregate). F28 citation resolves to a version-specific document+page; a mismatched version/absent citation fails the source-evidence rule (MISSING_EVIDENCE). No new package; no schema change (verification_results already migrated in prompt 03); no controller change.
+4. BLOCKED: live verification_results Postgres adapter and the F29 evidence-viewer UI binding (later feature prompt).
+5. Next: prompt 13 (reply specialist and renderer).
+6. Model/version: claude-opus-4-8[1m].
