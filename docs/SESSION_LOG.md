@@ -106,3 +106,11 @@
 4. BLOCKED: live OpenAI + live drafts Postgres adapter.
 5. Next: prompt 14 (approval and revision transactions).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 14 (approval and revision transactions)
+1. Work: added approval.py (approve/reject over an injected ReviewRepository port: assigned/own-session auth else 404; expected-revision + verified-fact-hash binding; stock refresh + re-verify; staff edits via validate_slots; idempotent double-click; rejection without publication) and revisions.py (revise over a RevisionRepository port: increment revision + immutable snapshot, history untouched). Updated graph.py/handlers.py docstrings (REVIEW interrupt resolved out-of-band).
+2. Verification (exit 0): run_checks --prompt 14 -> test_14.py PASS (13); orchestrator suite PASS (36, 1 skip) incl. test_f40/test_f47; run_checks --feature F49 -> test_f49.py PASS (3); ruff clean.
+3. Design: publication is coupled to its approved decision and bounded one-per-revision by the committed schema; audit append shares the approval transaction (failure rolls back). No LLM authorizes publication; no worker/specialist write path publishes.
+4. BLOCKED: live locked Postgres transaction + triggers (unique publication, immutability, append-only, UPDATE/DELETE/TRUNCATE rejection); tested via a fake repo mirroring those constraints.
+5. Next: prompt 15 (worker leases and sweeper).
+6. Model/version: claude-opus-4-8[1m].

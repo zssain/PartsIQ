@@ -75,7 +75,14 @@ Completed through 13 (Reply specialist and renderer):
 - Verification (exit 0): run_checks --prompt 13 -> test_13.py PASS (16); orchestrator suite PASS (28, 1 skip) incl. test_f45; ruff clean.
 - BLOCKED: live OpenAI structured output and the live drafts Postgres adapter (UNIQUE(enquiry_id,revision)); tested here with a fake client + in-memory store.
 
-Next: execute prompt 14 (Approval and revision transactions) per prompts/README.md, on its own branch.
+Completed through 14 (Approval and revision transactions):
+- orchestrator/app/approval.py: approve/reject over an injected ReviewRepository port (the locked single transaction). Enforces assigned-reviewer/own-demo-session authorization (else 404), expected-revision match, draft-id match, binding to the verified fact hash (canonical_facts_sha256), stock refresh + re-verification (changed plan blocked), staff prose edits through validate_slots, and idempotent replay (double-click publishes once; key reuse with a different payload -> IDEMPOTENCY_MISMATCH). reject records a reason and never publishes.
+- orchestrator/app/revisions.py: revise over a RevisionRepository port; owner/assigned/own-session authorization, expected-revision check, then increment revision + immutable snapshot + status processing (historical approval never mutated, F40).
+- Publication coupling and one-recommendation-per-revision are enforced by the committed schema (messages CHECK + messages_one_publication_idx, review_decisions_idempotency_idx); audit append is in the same transaction and its failure rolls back the approval. graph.py/handlers.py docstrings record that the REVIEW interrupt is resolved out-of-band by these route-invoked services.
+- Verification (exit 0): run_checks --prompt 14 -> test_14.py PASS (13); orchestrator suite PASS (36, 1 skip) incl. test_f40/test_f47; run_checks --feature F49 -> tests/acceptance/test_f49.py PASS (3); ruff clean.
+- BLOCKED: the live locked Postgres transaction, the unique-publication/immutability/append-only triggers and application-role UPDATE/DELETE/TRUNCATE rejection are integration-only; tested here with a fake repository that mirrors those constraints.
+
+Next: execute prompt 15 (Worker leases and sweeper) per prompts/README.md, on its own branch.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 

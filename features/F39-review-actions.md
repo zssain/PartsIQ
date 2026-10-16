@@ -28,6 +28,7 @@ review_decisions. Exact columns,keys,indexes and policies are in TECH_SPEC.md se
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 14 | approve/reject decision logic implemented (approval.py); double-click once, stale/failed-verification blocked. UI action test (test_f39.py) owned by prompt 20. | prompt/14 |
 
 ## Verification evidence
 Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.

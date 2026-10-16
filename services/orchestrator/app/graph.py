@@ -14,8 +14,11 @@ surfaced to the human review gate rather than auto-advancing to a recommendation
 is never an LLM decision (CONSTRAINTS rule 5). The ``draft`` node is backed by the reply
 specialist + code renderer (prompt 13, via ``app.handlers.make_draft_handler``): the model
 fills prose slots only and code inserts every fact; a provider/credit failure routes to
-staff authoring instead of a faked reply (F45). The router/handler wiring is unchanged, so
-all existing callers of ``build_graph`` are preserved.
+staff authoring instead of a faked reply (F45). The ``review`` step is a blocking interrupt
+(the graph ends and pauses durably): it is resolved out-of-band by ``app.approval`` (approve
+/reject) and corrections by ``app.revisions`` (prompt 14), which publish/append under a
+locked transaction and start a new revision thread — the graph never auto-publishes. The
+router/handler wiring is unchanged, so all existing callers of ``build_graph`` are preserved.
 """
 from __future__ import annotations
 

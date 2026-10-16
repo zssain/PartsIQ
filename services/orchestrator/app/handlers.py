@@ -2,9 +2,11 @@
 
 WorkflowHandlers holds the async specialist callables the executable graph nodes call.
 Each takes and returns EnquiryState. Blocking states (await_ocr, confirm, clarify,
-review) are graph interrupts, NOT handlers. Production startup fails readiness until
-every required handler is registered — we never ship runnable fake-success nodes
-(prompt 09). Test doubles are injected only by tests.
+review) are graph interrupts, NOT handlers: the ``review`` interrupt is resolved out-of-band
+by the route-invoked approval/rejection/revision services (prompt 14, app.approval and
+app.revisions), which hold the enquiry lock and own publication. Production startup fails
+readiness until every required handler is registered — we never ship runnable fake-success
+nodes (prompt 09). Test doubles are injected only by tests.
 """
 from __future__ import annotations
 
