@@ -1,0 +1,1991 @@
+{
+  ".gitignore": {
+    "creator": "00",
+    "kind": "source"
+  },
+  "README.md": {
+    "creator": "00",
+    "kind": "source",
+    "modifiers": [
+      "F68"
+    ]
+  },
+  ".env.example": {
+    "creator": "00",
+    "kind": "source"
+  },
+  "docker-compose.yml": {
+    "creator": "00",
+    "kind": "source"
+  },
+  "data/.gitkeep": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/requirements.txt": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/Dockerfile": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "06",
+      "24"
+    ]
+  },
+  "services/search/requirements-dev.txt": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/pytest.ini": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/requirements-embeddings.txt": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/gateway/requirements.txt": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/gateway/Dockerfile": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "24"
+    ]
+  },
+  "services/gateway/requirements-dev.txt": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/gateway/pytest.ini": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/app/identification.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/app/fulfilment.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/app/schemas.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "06"
+    ]
+  },
+  "services/search/app/routes.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "06",
+      "F35"
+    ]
+  },
+  "services/search/app/repository.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "06"
+    ]
+  },
+  "services/search/app/service.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "06"
+    ]
+  },
+  "services/search/app/lexical.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/app/config.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "06"
+    ]
+  },
+  "services/search/app/__init__.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/app/main.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "06"
+    ]
+  },
+  "services/search/tests/test_text.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/tests/test_lexical.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/tests/test_fulfilment.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/tests/__init__.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/search/tests/test_identification.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/gateway/app/rate_limit.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "08"
+    ]
+  },
+  "services/gateway/app/routes.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "07"
+    ]
+  },
+  "services/gateway/app/routing.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/gateway/app/proxy.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "08"
+    ]
+  },
+  "services/gateway/app/security.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "07"
+    ]
+  },
+  "services/gateway/app/config.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/gateway/app/__init__.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/gateway/app/main.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "07",
+      "08"
+    ]
+  },
+  "services/gateway/tests/test_routing.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/gateway/tests/test_security.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "services/gateway/tests/__init__.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "db/migrations/001_initial_schema.sql": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "db/migrations/002_search_and_fulfilment.sql": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "libs/partsiq_common/pyproject.toml": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "libs/partsiq_common/partsiq_common/embeddings.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "06"
+    ]
+  },
+  "libs/partsiq_common/partsiq_common/logging.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "libs/partsiq_common/partsiq_common/health.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "libs/partsiq_common/partsiq_common/text.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "libs/partsiq_common/partsiq_common/db.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "libs/partsiq_common/partsiq_common/app_factory.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "libs/partsiq_common/partsiq_common/config.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "libs/partsiq_common/partsiq_common/__init__.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "libs/partsiq_common/partsiq_common/middleware.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "tools/catalog/Dockerfile": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "tools/catalog/pytest.ini": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "tools/catalog/requirements-embeddings.txt": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "tools/catalog/tests/test_catalog.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "tools/catalog/tests/__init__.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "tools/catalog/catalog/dataset.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "tools/catalog/catalog/__main__.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "F59"
+    ]
+  },
+  "tools/catalog/catalog/embedder.py": {
+    "creator": "00",
+    "kind": "legacy",
+    "modifiers": [
+      "06"
+    ]
+  },
+  "tools/catalog/catalog/loader.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "tools/catalog/catalog/validator.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "tools/catalog/catalog/generator.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "tools/catalog/catalog/__init__.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "tools/catalog/catalog/blueprint.py": {
+    "creator": "00",
+    "kind": "legacy"
+  },
+  "apps/web/tests/features/f01.test.tsx": {
+    "creator": "18",
+    "kind": "test"
+  },
+  "tests/acceptance/test_f02.py": {
+    "creator": "19",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f03.py": {
+    "creator": "20",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f04.py": {
+    "creator": "22",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f05.py": {
+    "creator": "19",
+    "kind": "test"
+  },
+  "apps/web/tests/features/f06.test.tsx": {
+    "creator": "F06",
+    "kind": "test"
+  },
+  "apps/web/tests/features/f07.test.tsx": {
+    "creator": "F07",
+    "kind": "test"
+  },
+  "apps/web/tests/features/f08.test.tsx": {
+    "creator": "F08",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f09.py": {
+    "creator": "19",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f10.py": {
+    "creator": "10",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f11.py": {
+    "creator": "19",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f12.py": {
+    "creator": "09",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f13.py": {
+    "creator": "19",
+    "kind": "test"
+  },
+  "services/worker/tests/features/test_f14.py": {
+    "creator": "16",
+    "kind": "test"
+  },
+  "apps/web/tests/features/f15.test.tsx": {
+    "creator": "19",
+    "kind": "test"
+  },
+  "services/worker/tests/features/test_f16.py": {
+    "creator": "F16",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f17.py": {
+    "creator": "F17",
+    "kind": "test"
+  },
+  "apps/web/tests/features/f18.test.tsx": {
+    "creator": "20",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f19.py": {
+    "creator": "F19",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f20.py": {
+    "creator": "06",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f21.py": {
+    "creator": "06",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f22.py": {
+    "creator": "06",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f23.py": {
+    "creator": "06",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f24.py": {
+    "creator": "06",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f25.py": {
+    "creator": "06",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f26.py": {
+    "creator": "11",
+    "kind": "test"
+  },
+  "apps/web/tests/features/f27.test.tsx": {
+    "creator": "20",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f28.py": {
+    "creator": "12",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f29.py": {
+    "creator": "F29",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f30.py": {
+    "creator": "06",
+    "kind": "test"
+  },
+  "apps/web/tests/features/f31.test.tsx": {
+    "creator": "F31",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f32.py": {
+    "creator": "20",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f33.py": {
+    "creator": "06",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f34.py": {
+    "creator": "06",
+    "kind": "test"
+  },
+  "services/search/tests/features/test_f35.py": {
+    "creator": "F35",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f36.py": {
+    "creator": "F36",
+    "kind": "test"
+  },
+  "apps/web/tests/features/f37.test.tsx": {
+    "creator": "20",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f38.py": {
+    "creator": "F38",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f39.py": {
+    "creator": "20",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f40.py": {
+    "creator": "14",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f41.py": {
+    "creator": "F41",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f42.py": {
+    "creator": "F42",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f43.py": {
+    "creator": "F43",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f44.py": {
+    "creator": "F44",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f45.py": {
+    "creator": "13",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f46.py": {
+    "creator": "12",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f47.py": {
+    "creator": "14",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f48.py": {
+    "creator": "F48",
+    "kind": "test"
+  },
+  "tests/acceptance/test_f49.py": {
+    "creator": "14",
+    "kind": "test"
+  },
+  "services/orchestrator/tests/features/test_f50.py": {
+    "creator": "09",
+    "kind": "test"
+  },
+  "services/worker/tests/features/test_f51.py": {
+    "creator": "15",
+    "kind": "test"
+  },
+  "services/worker/tests/features/test_f52.py": {
+    "creator": "15",
+    "kind": "test"
+  },
+  "apps/web/tests/features/f53.test.tsx": {
+    "creator": "22",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f54.py": {
+    "creator": "22",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f55.py": {
+    "creator": "F55",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f56.py": {
+    "creator": "F56",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f57.py": {
+    "creator": "F57",
+    "kind": "test"
+  },
+  "services/worker/tests/features/test_f58.py": {
+    "creator": "F58",
+    "kind": "test"
+  },
+  "tests/acceptance/test_f59.py": {
+    "creator": "F59",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f60.py": {
+    "creator": "F60",
+    "kind": "test"
+  },
+  "services/worker/tests/features/test_f61.py": {
+    "creator": "20",
+    "kind": "test"
+  },
+  "tests/acceptance/test_f62.py": {
+    "creator": "21",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f63.py": {
+    "creator": "F63",
+    "kind": "test"
+  },
+  "tests/acceptance/test_f64.py": {
+    "creator": "23",
+    "kind": "test"
+  },
+  "services/gateway/tests/features/test_f65.py": {
+    "creator": "F65",
+    "kind": "test"
+  },
+  "tests/acceptance/test_f66.py": {
+    "creator": "25",
+    "kind": "test"
+  },
+  "tests/acceptance/test_f67.py": {
+    "creator": "23",
+    "kind": "test"
+  },
+  "tests/acceptance/test_f68.py": {
+    "creator": "F68",
+    "kind": "test"
+  },
+  "tests/acceptance/test_f69.py": {
+    "creator": "F69",
+    "kind": "test"
+  },
+  "pyproject.toml": {
+    "creator": "00",
+    "kind": "source"
+  },
+  ".python-version": {
+    "creator": "00",
+    "kind": "source"
+  },
+  ".nvmrc": {
+    "creator": "00",
+    "kind": "source"
+  },
+  "services/orchestrator/pyproject.toml": {
+    "creator": "00",
+    "kind": "source"
+  },
+  "services/worker/pyproject.toml": {
+    "creator": "00",
+    "kind": "source"
+  },
+  "tools/verify_env.py": {
+    "creator": "00",
+    "kind": "source"
+  },
+  "tools/run_checks.py": {
+    "creator": "00",
+    "kind": "source"
+  },
+  "tools/check_release_eligibility.py": {
+    "creator": "00",
+    "kind": "source"
+  },
+  "uv.lock": {
+    "creator": "00",
+    "kind": "source"
+  },
+  "tests/foundations/test_00.py": {
+    "creator": "00",
+    "kind": "test"
+  },
+  "libs/partsiq_common/partsiq_common/contracts.py": {
+    "creator": "01",
+    "kind": "source"
+  },
+  "libs/partsiq_common/partsiq_common/audit.py": {
+    "creator": "01",
+    "kind": "source"
+  },
+  "libs/partsiq_common/partsiq_common/errors.py": {
+    "creator": "01",
+    "kind": "source"
+  },
+  "libs/partsiq_common/partsiq_common/ai/client.py": {
+    "creator": "01",
+    "kind": "source",
+    "modifiers": [
+      "23"
+    ]
+  },
+  "libs/partsiq_common/partsiq_common/ai/budget.py": {
+    "creator": "01",
+    "kind": "source",
+    "modifiers": [
+      "23"
+    ]
+  },
+  "libs/partsiq_common/partsiq_common/telemetry.py": {
+    "creator": "01",
+    "kind": "source",
+    "modifiers": [
+      "23"
+    ]
+  },
+  "libs/partsiq_common/partsiq_common/security_context.py": {
+    "creator": "01",
+    "kind": "source"
+  },
+  "libs/partsiq_common/partsiq_common/ai/prices.json": {
+    "creator": "01",
+    "kind": "source"
+  },
+  "tests/foundations/test_01.py": {
+    "creator": "01",
+    "kind": "test"
+  },
+  "supabase/config.toml": {
+    "creator": "02",
+    "kind": "source"
+  },
+  "supabase/migrations/20261011000100_legacy_catalogue.sql": {
+    "creator": "02",
+    "kind": "source"
+  },
+  "supabase/migrations/20261011000200_legacy_search.sql": {
+    "creator": "02",
+    "kind": "source"
+  },
+  "tests/foundations/test_02.py": {
+    "creator": "02",
+    "kind": "test"
+  },
+  "supabase/migrations/20261011000300_application.sql": {
+    "creator": "03",
+    "kind": "source"
+  },
+  "supabase/migrations/20261011000400_rls.sql": {
+    "creator": "03",
+    "kind": "source"
+  },
+  "tools/checkpoints_setup.py": {
+    "creator": "03",
+    "kind": "source"
+  },
+  "tools/schema_receipt.py": {
+    "creator": "03",
+    "kind": "source"
+  },
+  "tests/integration/conftest.py": {
+    "creator": "03",
+    "kind": "source"
+  },
+  "tests/foundations/test_03.py": {
+    "creator": "03",
+    "kind": "test"
+  },
+  "supabase/migrations/20261011000500_storage.sql": {
+    "creator": "04",
+    "kind": "source"
+  },
+  "services/gateway/app/storage.py": {
+    "creator": "04",
+    "kind": "source"
+  },
+  "services/worker/app/storage.py": {
+    "creator": "04",
+    "kind": "source"
+  },
+  "tests/foundations/test_04.py": {
+    "creator": "04",
+    "kind": "test"
+  },
+  "tools/demo/build_scenarios.py": {
+    "creator": "05",
+    "kind": "source"
+  },
+  "tools/demo/scenarios.json": {
+    "creator": "05",
+    "kind": "source"
+  },
+  "tools/demo/nameplates/manifest.json": {
+    "creator": "05",
+    "kind": "source"
+  },
+  "tools/demo/catalogue_evidence/manifest.json": {
+    "creator": "05",
+    "kind": "source"
+  },
+  "tools/demo/render_assets.py": {
+    "creator": "05",
+    "kind": "source"
+  },
+  "tools/demo/scenarios/mixed_photo.json": {
+    "creator": "05",
+    "kind": "source"
+  },
+  "tools/demo/scenarios/missing_serial.json": {
+    "creator": "05",
+    "kind": "source"
+  },
+  "tools/demo/scenarios/incompatible_number.json": {
+    "creator": "05",
+    "kind": "source"
+  },
+  "tools/demo/scenarios/local_shortage.json": {
+    "creator": "05",
+    "kind": "source"
+  },
+  "tests/foundations/test_05.py": {
+    "creator": "05",
+    "kind": "test"
+  },
+  "services/search/app/embedding_ingestion.py": {
+    "creator": "06",
+    "kind": "source"
+  },
+  "services/search/tests/test_characterization.py": {
+    "creator": "06",
+    "kind": "source"
+  },
+  "tests/foundations/test_06.py": {
+    "creator": "06",
+    "kind": "test"
+  },
+  "services/gateway/app/auth.py": {
+    "creator": "07",
+    "kind": "source"
+  },
+  "services/gateway/app/permissions.py": {
+    "creator": "07",
+    "kind": "source"
+  },
+  "services/gateway/app/demo.py": {
+    "creator": "07",
+    "kind": "source"
+  },
+  "tests/foundations/test_07.py": {
+    "creator": "07",
+    "kind": "test"
+  },
+  "services/gateway/app/enquiries.py": {
+    "creator": "08",
+    "kind": "source"
+  },
+  "services/gateway/app/uploads.py": {
+    "creator": "08",
+    "kind": "source"
+  },
+  "services/gateway/app/api_v1.py": {
+    "creator": "08",
+    "kind": "source",
+    "modifiers": [
+      "F19",
+      "F29",
+      "F36",
+      "F41",
+      "F42",
+      "F43",
+      "F55",
+      "F56",
+      "F57",
+      "F60",
+      "F63",
+      "F65",
+      "F58",
+      "F59",
+      "F38",
+      "F44",
+      "16"
+    ]
+  },
+  "tests/foundations/test_08.py": {
+    "creator": "08",
+    "kind": "test"
+  },
+  "services/orchestrator/app/main.py": {
+    "creator": "09",
+    "kind": "source"
+  },
+  "services/orchestrator/app/state.py": {
+    "creator": "09",
+    "kind": "source"
+  },
+  "services/orchestrator/app/controller.py": {
+    "creator": "09",
+    "kind": "source"
+  },
+  "services/orchestrator/app/graph.py": {
+    "creator": "09",
+    "kind": "source",
+    "modifiers": [
+      "10",
+      "11",
+      "12",
+      "13",
+      "14"
+    ]
+  },
+  "services/orchestrator/app/events.py": {
+    "creator": "09",
+    "kind": "source"
+  },
+  "services/orchestrator/app/routes.py": {
+    "creator": "09",
+    "kind": "source",
+    "modifiers": [
+      "F17",
+      "F38",
+      "F44",
+      "F48"
+    ]
+  },
+  "services/orchestrator/app/handlers.py": {
+    "creator": "09",
+    "kind": "source",
+    "modifiers": [
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "F17",
+      "F38",
+      "F44",
+      "F48"
+    ]
+  },
+  "services/orchestrator/app/runner.py": {
+    "creator": "09",
+    "kind": "source"
+  },
+  "tests/foundations/test_09.py": {
+    "creator": "09",
+    "kind": "test"
+  },
+  "services/orchestrator/app/specialists/intake.py": {
+    "creator": "10",
+    "kind": "source"
+  },
+  "services/orchestrator/app/prompts/intake.txt": {
+    "creator": "10",
+    "kind": "source"
+  },
+  "tests/foundations/test_10.py": {
+    "creator": "10",
+    "kind": "test"
+  },
+  "services/orchestrator/app/specialists/parts.py": {
+    "creator": "11",
+    "kind": "source"
+  },
+  "services/orchestrator/app/tools.py": {
+    "creator": "11",
+    "kind": "source"
+  },
+  "services/orchestrator/app/search_client.py": {
+    "creator": "11",
+    "kind": "source"
+  },
+  "tests/foundations/test_11.py": {
+    "creator": "11",
+    "kind": "test"
+  },
+  "services/orchestrator/app/verification.py": {
+    "creator": "12",
+    "kind": "source"
+  },
+  "tests/foundations/test_12.py": {
+    "creator": "12",
+    "kind": "test"
+  },
+  "services/orchestrator/app/specialists/reply.py": {
+    "creator": "13",
+    "kind": "source"
+  },
+  "services/orchestrator/app/rendering.py": {
+    "creator": "13",
+    "kind": "source"
+  },
+  "services/orchestrator/app/prompts/reply.txt": {
+    "creator": "13",
+    "kind": "source"
+  },
+  "tests/foundations/test_13.py": {
+    "creator": "13",
+    "kind": "test"
+  },
+  "services/orchestrator/app/approval.py": {
+    "creator": "14",
+    "kind": "source",
+    "modifiers": [
+      "F35"
+    ]
+  },
+  "services/orchestrator/app/revisions.py": {
+    "creator": "14",
+    "kind": "source"
+  },
+  "tests/foundations/test_14.py": {
+    "creator": "14",
+    "kind": "test"
+  },
+  "services/worker/app/main.py": {
+    "creator": "15",
+    "kind": "source"
+  },
+  "services/worker/app/dispatcher.py": {
+    "creator": "15",
+    "kind": "source",
+    "modifiers": [
+      "16",
+      "17",
+      "F16",
+      "F58",
+      "F59"
+    ]
+  },
+  "services/worker/app/leases.py": {
+    "creator": "15",
+    "kind": "source"
+  },
+  "services/worker/app/sweeper.py": {
+    "creator": "15",
+    "kind": "source"
+  },
+  "services/worker/app/internal.py": {
+    "creator": "15",
+    "kind": "source"
+  },
+  "tests/foundations/test_15.py": {
+    "creator": "15",
+    "kind": "test"
+  },
+  "services/worker/app/jobs/nameplate.py": {
+    "creator": "16",
+    "kind": "source"
+  },
+  "tests/foundations/test_16.py": {
+    "creator": "16",
+    "kind": "test"
+  },
+  "services/worker/app/jobs/export_pdf.py": {
+    "creator": "17",
+    "kind": "source"
+  },
+  "services/worker/app/templates/enquiry_summary.html": {
+    "creator": "17",
+    "kind": "source"
+  },
+  "tests/foundations/test_17.py": {
+    "creator": "17",
+    "kind": "test"
+  },
+  "apps/web/package.json": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/tsconfig.json": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/next.config.ts": {
+    "creator": "18",
+    "kind": "source",
+    "modifiers": [
+      "F07"
+    ]
+  },
+  "apps/web/postcss.config.mjs": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/eslint.config.mjs": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/vitest.config.ts": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/app/layout.tsx": {
+    "creator": "18",
+    "kind": "source",
+    "modifiers": [
+      "F06",
+      "F07",
+      "F08"
+    ]
+  },
+  "apps/web/app/page.tsx": {
+    "creator": "18",
+    "kind": "source",
+    "modifiers": [
+      "F06",
+      "F07",
+      "F08",
+      "F16",
+      "F17",
+      "F19",
+      "F36",
+      "F55",
+      "F56",
+      "F57",
+      "F58",
+      "F59",
+      "F60",
+      "F63",
+      "F65"
+    ]
+  },
+  "apps/web/app/login/page.tsx": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/styles/tokens.css": {
+    "creator": "18",
+    "kind": "source",
+    "modifiers": [
+      "F06",
+      "F08"
+    ]
+  },
+  "apps/web/lib/api.ts": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/lib/auth.ts": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/components/BrandLogo.tsx": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/lib/contracts.ts": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/pnpm-lock.yaml": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/tests/setup.ts": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "apps/web/playwright.config.ts": {
+    "creator": "18",
+    "kind": "source"
+  },
+  "tests/foundations/test_18.py": {
+    "creator": "18",
+    "kind": "test"
+  },
+  "apps/web/app/chat/[id]/page.tsx": {
+    "creator": "19",
+    "kind": "source"
+  },
+  "apps/web/app/demo/page.tsx": {
+    "creator": "19",
+    "kind": "source"
+  },
+  "apps/web/components/chat/Chat.tsx": {
+    "creator": "19",
+    "kind": "source",
+    "modifiers": [
+      "F16",
+      "F17"
+    ]
+  },
+  "apps/web/components/chat/UploadCard.tsx": {
+    "creator": "19",
+    "kind": "source"
+  },
+  "apps/web/components/chat/OcrConfirmation.tsx": {
+    "creator": "19",
+    "kind": "source"
+  },
+  "apps/web/components/chat/Progress.tsx": {
+    "creator": "19",
+    "kind": "source"
+  },
+  "tests/foundations/test_19.py": {
+    "creator": "19",
+    "kind": "test"
+  },
+  "apps/web/app/staff/inbox/page.tsx": {
+    "creator": "20",
+    "kind": "source",
+    "modifiers": [
+      "F36"
+    ]
+  },
+  "apps/web/app/staff/enquiries/[id]/page.tsx": {
+    "creator": "20",
+    "kind": "source",
+    "modifiers": [
+      "F29",
+      "F31",
+      "F35",
+      "F38",
+      "F41",
+      "F42",
+      "F43",
+      "F44"
+    ]
+  },
+  "apps/web/components/review/Workspace.tsx": {
+    "creator": "20",
+    "kind": "source"
+  },
+  "apps/web/components/review/ApprovalControls.tsx": {
+    "creator": "20",
+    "kind": "source"
+  },
+  "apps/web/components/review/Timeline.tsx": {
+    "creator": "20",
+    "kind": "source"
+  },
+  "tests/foundations/test_20.py": {
+    "creator": "20",
+    "kind": "test"
+  },
+  "tools/evals/run.py": {
+    "creator": "21",
+    "kind": "source"
+  },
+  "tests/evals/cases.json": {
+    "creator": "21",
+    "kind": "source"
+  },
+  "tests/evals/test_scenarios.py": {
+    "creator": "21",
+    "kind": "source"
+  },
+  "tools/evals/__init__.py": {
+    "creator": "21",
+    "kind": "source"
+  },
+  "tests/foundations/test_21.py": {
+    "creator": "21",
+    "kind": "test"
+  },
+  "tests/integration/test_security_recovery.py": {
+    "creator": "22",
+    "kind": "source"
+  },
+  "tests/integration/test_rls.py": {
+    "creator": "22",
+    "kind": "source"
+  },
+  "tests/integration/test_budget_races.py": {
+    "creator": "22",
+    "kind": "source"
+  },
+  "tests/e2e/security.spec.ts": {
+    "creator": "22",
+    "kind": "source"
+  },
+  "tests/foundations/test_22.py": {
+    "creator": "22",
+    "kind": "test"
+  },
+  "services/gateway/app/metrics.py": {
+    "creator": "23",
+    "kind": "source"
+  },
+  "tools/credit_allowance.py": {
+    "creator": "23",
+    "kind": "source"
+  },
+  "tools/check_readiness.py": {
+    "creator": "23",
+    "kind": "source"
+  },
+  "tests/foundations/test_23.py": {
+    "creator": "23",
+    "kind": "test"
+  },
+  "docker-compose.prod.yml": {
+    "creator": "24",
+    "kind": "source"
+  },
+  "Caddyfile": {
+    "creator": "24",
+    "kind": "source"
+  },
+  "services/orchestrator/Dockerfile": {
+    "creator": "24",
+    "kind": "source"
+  },
+  "services/worker/Dockerfile": {
+    "creator": "24",
+    "kind": "source"
+  },
+  "infra/verify_images.py": {
+    "creator": "24",
+    "kind": "source"
+  },
+  "infra/images.lock.json": {
+    "creator": "24",
+    "kind": "source"
+  },
+  "tests/foundations/test_24.py": {
+    "creator": "24",
+    "kind": "test"
+  },
+  ".github/workflows/ci.yml": {
+    "creator": "25",
+    "kind": "source"
+  },
+  ".github/workflows/deploy-backend.yml": {
+    "creator": "25",
+    "kind": "source",
+    "modifiers": [
+      "26"
+    ]
+  },
+  "tools/ci_checks.py": {
+    "creator": "25",
+    "kind": "source"
+  },
+  "tests/foundations/test_25.py": {
+    "creator": "25",
+    "kind": "test"
+  },
+  "infra/ec2/bootstrap.sh": {
+    "creator": "26",
+    "kind": "source"
+  },
+  "infra/ec2/deploy.sh": {
+    "creator": "26",
+    "kind": "source"
+  },
+  "infra/ec2/rollback.sh": {
+    "creator": "26",
+    "kind": "source"
+  },
+  "infra/ec2/preflight.py": {
+    "creator": "26",
+    "kind": "source"
+  },
+  "tests/foundations/test_26.py": {
+    "creator": "26",
+    "kind": "test"
+  },
+  "infra/vercel/README.md": {
+    "creator": "27",
+    "kind": "source"
+  },
+  "tests/e2e/hosted.spec.ts": {
+    "creator": "27",
+    "kind": "source"
+  },
+  "tools/hosted_acceptance.py": {
+    "creator": "27",
+    "kind": "source"
+  },
+  "tests/foundations/test_27.py": {
+    "creator": "27",
+    "kind": "test"
+  },
+  "apps/web/lib/features/f06_responsive_layouts.ts": {
+    "creator": "F06",
+    "kind": "source"
+  },
+  "apps/web/components/features/ResponsiveShell.tsx": {
+    "creator": "F06",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f07_arabic_and_english_interface.ts": {
+    "creator": "F07",
+    "kind": "source"
+  },
+  "apps/web/components/features/LocaleSwitcher.tsx": {
+    "creator": "F07",
+    "kind": "source"
+  },
+  "apps/web/messages/en.json": {
+    "creator": "F07",
+    "kind": "source"
+  },
+  "apps/web/messages/ar.json": {
+    "creator": "F07",
+    "kind": "source"
+  },
+  "apps/web/i18n/request.ts": {
+    "creator": "F07",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f08_light_and_dark_themes.ts": {
+    "creator": "F08",
+    "kind": "source"
+  },
+  "apps/web/components/features/ThemeToggle.tsx": {
+    "creator": "F08",
+    "kind": "source"
+  },
+  "services/worker/app/features/f16_photo_quality_feedback.py": {
+    "creator": "F16",
+    "kind": "source"
+  },
+  "apps/web/components/features/PhotoQualityNotice.tsx": {
+    "creator": "F16",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f16_photo_quality_feedback.ts": {
+    "creator": "F16",
+    "kind": "source"
+  },
+  "services/orchestrator/app/features/f17_multi_part_enquiries.py": {
+    "creator": "F17",
+    "kind": "source"
+  },
+  "apps/web/components/features/ItemList.tsx": {
+    "creator": "F17",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f17_multi_part_enquiries.ts": {
+    "creator": "F17",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f19_enquiry_history.py": {
+    "creator": "F19",
+    "kind": "source"
+  },
+  "apps/web/components/features/HistoryList.tsx": {
+    "creator": "F19",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f19_enquiry_history.ts": {
+    "creator": "F19",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f29_evidence_page_viewer.py": {
+    "creator": "F29",
+    "kind": "source"
+  },
+  "apps/web/components/features/EvidenceViewer.tsx": {
+    "creator": "F29",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f29_evidence_page_viewer.ts": {
+    "creator": "F29",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f31_candidate_comparison.ts": {
+    "creator": "F31",
+    "kind": "source"
+  },
+  "apps/web/components/features/CandidateComparison.tsx": {
+    "creator": "F31",
+    "kind": "source"
+  },
+  "services/search/app/features/f35_stock_freshness.py": {
+    "creator": "F35",
+    "kind": "source"
+  },
+  "apps/web/components/features/StockFreshness.tsx": {
+    "creator": "F35",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f35_stock_freshness.ts": {
+    "creator": "F35",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f36_staff_inbox.py": {
+    "creator": "F36",
+    "kind": "source"
+  },
+  "apps/web/components/features/InboxFilters.tsx": {
+    "creator": "F36",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f36_staff_inbox.ts": {
+    "creator": "F36",
+    "kind": "source"
+  },
+  "services/orchestrator/app/features/f38_correct_extracted_details.py": {
+    "creator": "F38",
+    "kind": "source"
+  },
+  "apps/web/components/features/CorrectionEditor.tsx": {
+    "creator": "F38",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f38_correct_extracted_details.ts": {
+    "creator": "F38",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f41_internal_notes.py": {
+    "creator": "F41",
+    "kind": "source"
+  },
+  "apps/web/components/features/InternalNotes.tsx": {
+    "creator": "F41",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f41_internal_notes.ts": {
+    "creator": "F41",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f42_assignments.py": {
+    "creator": "F42",
+    "kind": "source"
+  },
+  "apps/web/components/features/AssignmentControl.tsx": {
+    "creator": "F42",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f42_assignments.ts": {
+    "creator": "F42",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f43_overdue_indicators.py": {
+    "creator": "F43",
+    "kind": "source"
+  },
+  "apps/web/components/features/OverdueBadge.tsx": {
+    "creator": "F43",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f43_overdue_indicators.ts": {
+    "creator": "F43",
+    "kind": "source"
+  },
+  "services/orchestrator/app/features/f44_conversation_summary.py": {
+    "creator": "F44",
+    "kind": "source"
+  },
+  "apps/web/components/features/ConversationSummary.tsx": {
+    "creator": "F44",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f44_conversation_summary.ts": {
+    "creator": "F44",
+    "kind": "source"
+  },
+  "services/orchestrator/app/features/f48_input_isolation.py": {
+    "creator": "F48",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f55_saved_machines.py": {
+    "creator": "F55",
+    "kind": "source"
+  },
+  "apps/web/components/features/SavedMachines.tsx": {
+    "creator": "F55",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f55_saved_machines.ts": {
+    "creator": "F55",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f56_repeat_enquiry.py": {
+    "creator": "F56",
+    "kind": "source"
+  },
+  "apps/web/components/features/RepeatEnquiry.tsx": {
+    "creator": "F56",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f56_repeat_enquiry.ts": {
+    "creator": "F56",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f57_catalogue_browser.py": {
+    "creator": "F57",
+    "kind": "source"
+  },
+  "apps/web/components/features/CatalogueBrowser.tsx": {
+    "creator": "F57",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f57_catalogue_browser.ts": {
+    "creator": "F57",
+    "kind": "source"
+  },
+  "services/worker/app/features/f58_catalogue_imports.py": {
+    "creator": "F58",
+    "kind": "source"
+  },
+  "apps/web/components/features/ImportWizard.tsx": {
+    "creator": "F58",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f58_catalogue_imports.ts": {
+    "creator": "F58",
+    "kind": "source"
+  },
+  "tools/catalog/catalog/versioning.py": {
+    "creator": "F59",
+    "kind": "source"
+  },
+  "apps/web/components/features/CatalogueVersions.tsx": {
+    "creator": "F59",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f59_catalogue_versioning.ts": {
+    "creator": "F59",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f60_missing_parts_queue.py": {
+    "creator": "F60",
+    "kind": "source"
+  },
+  "apps/web/components/features/MissingPartsQueue.tsx": {
+    "creator": "F60",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f60_missing_parts_queue.ts": {
+    "creator": "F60",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f63_metrics_dashboard.py": {
+    "creator": "F63",
+    "kind": "source"
+  },
+  "apps/web/components/features/MetricsDashboard.tsx": {
+    "creator": "F63",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f63_metrics_dashboard.ts": {
+    "creator": "F63",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f65_correction_feedback.py": {
+    "creator": "F65",
+    "kind": "source"
+  },
+  "apps/web/components/features/CorrectionFeedback.tsx": {
+    "creator": "F65",
+    "kind": "source"
+  },
+  "apps/web/lib/features/f65_correction_feedback.ts": {
+    "creator": "F65",
+    "kind": "source"
+  },
+  "docs/RECRUITER_GUIDE.md": {
+    "creator": "F68",
+    "kind": "source"
+  },
+  "docs/DEMO_SCRIPT.md": {
+    "creator": "F69",
+    "kind": "source"
+  },
+  "docs/RECORDING_CHECKLIST.md": {
+    "creator": "F69",
+    "kind": "source"
+  },
+  "tools/catalog/__init__.py": {
+    "creator": "00",
+    "kind": "package-marker"
+  },
+  "libs/partsiq_common/partsiq_common/ai/__init__.py": {
+    "creator": "01",
+    "kind": "package-marker"
+  },
+  "services/worker/app/__init__.py": {
+    "creator": "04",
+    "kind": "package-marker"
+  },
+  "services/orchestrator/app/__init__.py": {
+    "creator": "09",
+    "kind": "package-marker"
+  },
+  "services/orchestrator/app/specialists/__init__.py": {
+    "creator": "10",
+    "kind": "package-marker"
+  },
+  "services/worker/app/jobs/__init__.py": {
+    "creator": "16",
+    "kind": "package-marker"
+  },
+  "services/worker/app/features/__init__.py": {
+    "creator": "F16",
+    "kind": "package-marker"
+  },
+  "services/orchestrator/app/features/__init__.py": {
+    "creator": "F17",
+    "kind": "package-marker"
+  },
+  "services/gateway/app/features/__init__.py": {
+    "creator": "F19",
+    "kind": "package-marker"
+  },
+  "services/search/app/features/__init__.py": {
+    "creator": "F35",
+    "kind": "package-marker"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/Preview.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-1024.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-128.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-144.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-152.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-16.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-180.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-192.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-24.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-256.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-32.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-384.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-48.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-512.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-64.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-96.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-1024.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-128.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-144.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-152.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-16.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-180.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-192.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-24.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-256.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-32.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-384.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-48.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-512.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-64.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-96.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-1280.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-1740.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-320.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-640.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-1280.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-1740.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-320.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-640.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-hdpi-72.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-mdpi-48.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xhdpi-96.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xxhdpi-144.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xxxhdpi-192.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/google-play-512.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/ios-app-store-1024.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/social/partsiq-og-1200x630.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/social/partsiq-profile-1080.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/source/original-logo.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/source/transparent-logo.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/android-chrome-192x192.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/android-chrome-512x512.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/apple-touch-icon.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-16x16.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-32x32.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-48x48.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-96x96.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon.ico": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/maskable-icon-192x192.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/maskable-icon-512x512.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/site.webmanifest": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/fonts/NotoNaskhArabic-OFL.txt": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "services/worker/app/static/brand/fonts/NotoNaskhArabic-OFL.txt": {
+    "creator": "17",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/fonts/NotoNaskhArabic.ttf": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "services/worker/app/static/brand/fonts/NotoNaskhArabic.ttf": {
+    "creator": "17",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/fonts/NotoSans-OFL.txt": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "services/worker/app/static/brand/fonts/NotoSans-OFL.txt": {
+    "creator": "17",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/fonts/NotoSans.ttf": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "services/worker/app/static/brand/fonts/NotoSans.ttf": {
+    "creator": "17",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/fonts/NotoSansArabic-OFL.txt": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "services/worker/app/static/brand/fonts/NotoSansArabic-OFL.txt": {
+    "creator": "17",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/fonts/NotoSansArabic.ttf": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "services/worker/app/static/brand/fonts/NotoSansArabic.ttf": {
+    "creator": "17",
+    "kind": "brand-copy"
+  },
+  "apps/web/public/brand/logo-original.png": {
+    "creator": "18",
+    "kind": "brand-copy"
+  },
+  "services/worker/app/static/brand/logo-original.png": {
+    "creator": "17",
+    "kind": "brand-copy"
+  },
+  "services/gateway/app/features/f58_import_routes.py": {
+    "creator": "F58",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f59_publish_routes.py": {
+    "creator": "F59",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f38_correction_routes.py": {
+    "creator": "F38",
+    "kind": "source"
+  },
+  "services/gateway/app/features/f44_summary_routes.py": {
+    "creator": "F44",
+    "kind": "source"
+  },
+  "apps/web/app/history/page.tsx": {
+    "creator": "F19",
+    "kind": "source"
+  },
+  "apps/web/app/staff/catalogue/page.tsx": {
+    "creator": "F57",
+    "kind": "source"
+  },
+  "apps/web/app/staff/analytics/page.tsx": {
+    "creator": "F63",
+    "kind": "source"
+  },
+  "tools/apply_catalogue_schema.py": {
+    "creator": "02",
+    "kind": "source"
+  },
+  "services/gateway/app/ocr_confirmation.py": {
+    "creator": "16",
+    "kind": "source"
+  },
+  "services/worker/app/jobs/catalog_publish.py": {
+    "creator": "F59",
+    "kind": "source"
+  }
+}

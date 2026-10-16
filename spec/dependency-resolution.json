@@ -1,0 +1,17 @@
+{
+  "python": {
+    "command": "uv pip compile spec/python-requirements.in --python-version 3.12 --exclude-newer 2026-09-26",
+    "result": "resolved",
+    "runtime_tests": "not executed",
+    "target": "CPython 3.12 Linux x86_64 with explicitly pinned torch 2.10.0+cpu wheel",
+    "gpu_packages": "No nvidia packages in resolved lock"
+  },
+  "javascript": {
+    "command": "pnpm@10.30.3 install --lockfile-only --ignore-scripts --strict-peer-dependencies",
+    "result": "resolved after SSR0.8.0 correction",
+    "execution_node": "24.19.0",
+    "target_node": "22.22.0",
+    "limitation": "Lock resolution executed; target Node22 application build not executed."
+  },
+  "security_audit": "not a full vulnerability audit; run target-runtime security gate before exposure"
+}

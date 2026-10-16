@@ -1,0 +1,290 @@
+[
+  {
+    "name": "APP_ENV",
+    "default": "local",
+    "owner": "all",
+    "purpose": "local/test/production; no prod in tests"
+  },
+  {
+    "name": "NEXT_PUBLIC_SUPABASE_URL",
+    "default": "operator input",
+    "owner": "web",
+    "purpose": "dev/prod Auth endpoint"
+  },
+  {
+    "name": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "default": "operator input",
+    "owner": "web",
+    "purpose": "publishable key only"
+  },
+  {
+    "name": "NEXT_PUBLIC_API_BASE_URL",
+    "default": "operator input",
+    "owner": "web",
+    "purpose": "HTTPS gateway"
+  },
+  {
+    "name": "SUPABASE_URL",
+    "default": "operator input",
+    "owner": "gateway,worker",
+    "purpose": "project URL"
+  },
+  {
+    "name": "SUPABASE_JWT_ISSUER",
+    "default": "operator input",
+    "owner": "gateway",
+    "purpose": "exact issuer"
+  },
+  {
+    "name": "SUPABASE_JWKS_URL",
+    "default": "operator input",
+    "owner": "gateway",
+    "purpose": "trusted fixed JWKS URL"
+  },
+  {
+    "name": "SUPABASE_STORAGE_KEY",
+    "default": "operator secret",
+    "owner": "worker only",
+    "purpose": "private object signing/cleanup; not database REST"
+  },
+  {
+    "name": "DATABASE_URL",
+    "default": "operator secret",
+    "owner": "each service",
+    "purpose": "separate restricted login"
+  },
+  {
+    "name": "MIGRATION_DATABASE_URL",
+    "default": "operator secret",
+    "owner": "migration only",
+    "purpose": "DDL credential"
+  },
+  {
+    "name": "DATABASE_POOL_MAX",
+    "default": "4",
+    "owner": "each service",
+    "purpose": "bounded connections"
+  },
+  {
+    "name": "ALLOWED_ORIGINS",
+    "default": "operator input",
+    "owner": "gateway",
+    "purpose": "exact Vercel origins"
+  },
+  {
+    "name": "REDIS_URL",
+    "default": "redis://redis:6379/0",
+    "owner": "backend",
+    "purpose": "private dispatch and rate limits"
+  },
+  {
+    "name": "INTERNAL_SERVICE_TOKEN",
+    "default": "operator secret",
+    "owner": "internal services",
+    "purpose": "random32-byte minimum"
+  },
+  {
+    "name": "SEARCH_URL",
+    "default": "http://search:8000",
+    "owner": "gateway,orchestrator",
+    "purpose": "internal search"
+  },
+  {
+    "name": "ORCHESTRATOR_URL",
+    "default": "http://orchestrator:8000",
+    "owner": "gateway",
+    "purpose": "internal workflow"
+  },
+  {
+    "name": "WORKER_URL",
+    "default": "http://worker:8000",
+    "owner": "gateway",
+    "purpose": "authorized signing/import control"
+  },
+  {
+    "name": "OPENAI_API_KEY",
+    "default": "operator secret",
+    "owner": "orchestrator,worker",
+    "purpose": "owner key; never in browser"
+  },
+  {
+    "name": "OPENAI_MODEL_TEXT",
+    "default": "gpt-4.1-mini-2025-04-14",
+    "owner": "orchestrator",
+    "purpose": "pinned structured-output model"
+  },
+  {
+    "name": "OPENAI_MODEL_VISION",
+    "default": "gpt-4.1-mini-2025-04-14",
+    "owner": "worker",
+    "purpose": "pinned vision model"
+  },
+  {
+    "name": "AI_ENABLED",
+    "default": "false",
+    "owner": "AI services",
+    "purpose": "enable only after credit preflight"
+  },
+  {
+    "name": "AI_FREE_CREDIT_USD",
+    "default": "0",
+    "owner": "AI services",
+    "purpose": "owner-confirmed dedicated allowance"
+  },
+  {
+    "name": "AI_CREDIT_EXPIRES_AT",
+    "default": "operator input",
+    "owner": "AI services",
+    "purpose": "required UTC expiry when enabled"
+  },
+  {
+    "name": "AI_PAID_BUDGET_USD",
+    "default": "0",
+    "owner": "AI services",
+    "purpose": "must stay0"
+  },
+  {
+    "name": "AI_DAILY_ALLOWANCE_USD",
+    "default": "0",
+    "owner": "AI services",
+    "purpose": "required allowance within confirmed total"
+  },
+  {
+    "name": "AI_SESSION_ALLOWANCE_USD",
+    "default": "0",
+    "owner": "AI services",
+    "purpose": "required per-session limit"
+  },
+  {
+    "name": "BUDGET_TIMEZONE",
+    "default": "Asia/Kolkata",
+    "owner": "AI services",
+    "purpose": "daily reset timezone"
+  },
+  {
+    "name": "WORKFLOW_MAX_STEPS",
+    "default": "12",
+    "owner": "orchestrator",
+    "purpose": "bounded transition count"
+  },
+  {
+    "name": "TOOL_MAX_CALLS",
+    "default": "4",
+    "owner": "orchestrator",
+    "purpose": "per-stage tool bound"
+  },
+  {
+    "name": "UPLOAD_MAX_BYTES",
+    "default": "10485760",
+    "owner": "gateway,worker",
+    "purpose": "10MiB"
+  },
+  {
+    "name": "UPLOAD_MAX_PIXELS",
+    "default": "24000000",
+    "owner": "worker",
+    "purpose": "decode cap"
+  },
+  {
+    "name": "RATE_LIMIT_PER_MINUTE",
+    "default": "20",
+    "owner": "gateway",
+    "purpose": "per actor plus IP limiter"
+  },
+  {
+    "name": "DEMO_TTL_HOURS",
+    "default": "24",
+    "owner": "gateway,sweeper",
+    "purpose": "session expiry"
+  },
+  {
+    "name": "STOCK_MAX_AGE_SECONDS",
+    "default": "3600",
+    "owner": "search,approval",
+    "purpose": "demo freshness default"
+  },
+  {
+    "name": "NORMAL_REVIEW_HOURS",
+    "default": "24",
+    "owner": "gateway",
+    "purpose": "noncontractual deadline"
+  },
+  {
+    "name": "URGENT_REVIEW_HOURS",
+    "default": "2",
+    "owner": "gateway",
+    "purpose": "noncontractual deadline"
+  },
+  {
+    "name": "EMBEDDING_MODEL_REVISION",
+    "default": "5617a9f61b028005a4858fdac845db406aefb181",
+    "owner": "search only",
+    "purpose": "BAAI/bge-m3 revision"
+  },
+  {
+    "name": "LANGFUSE_ENABLED",
+    "default": "false",
+    "owner": "common telemetry",
+    "purpose": "optional free tracing"
+  },
+  {
+    "name": "LANGFUSE_PUBLIC_KEY",
+    "default": "operator input",
+    "owner": "backend",
+    "purpose": "not browser"
+  },
+  {
+    "name": "LANGFUSE_SECRET_KEY",
+    "default": "operator secret",
+    "owner": "backend",
+    "purpose": "redacted traces only"
+  },
+  {
+    "name": "LANGFUSE_BASE_URL",
+    "default": "operator input",
+    "owner": "backend",
+    "purpose": "selected free cloud region"
+  },
+  {
+    "name": "API_DOMAIN",
+    "default": "operator input",
+    "owner": "Caddy",
+    "purpose": "owned or no-cost DNS name"
+  },
+  {
+    "name": "RELEASE_SHA",
+    "default": "operator input",
+    "owner": "deployment",
+    "purpose": "immutable Git commit"
+  },
+  {
+    "name": "AWS_REGION",
+    "default": "ap-south-1",
+    "owner": "deployment",
+    "purpose": "verify free-plan service availability"
+  },
+  {
+    "name": "AWS_ACCOUNT_ID",
+    "default": "operator input",
+    "owner": "deployment",
+    "purpose": "never invent account ID"
+  },
+  {
+    "name": "AWS_ROLE_ARN",
+    "default": "operator input",
+    "owner": "CI",
+    "purpose": "OIDC deploy role"
+  },
+  {
+    "name": "EC2_INSTANCE_ID",
+    "default": "operator input",
+    "owner": "deployment",
+    "purpose": "SSM target"
+  },
+  {
+    "name": "PRODUCTION_PROJECT_REF",
+    "default": "operator input",
+    "owner": "tests,deploy",
+    "purpose": "test safety denylist"
+  }
+]

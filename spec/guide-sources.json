@@ -1,0 +1,755 @@
+[
+  {
+    "chapter": 1,
+    "path": "README.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 2,
+    "path": "AGENTS.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 3,
+    "path": "CLAUDE.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 4,
+    "path": "MASTER_PROMPT.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 5,
+    "path": "docs/REQUIREMENTS.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 6,
+    "path": "docs/DISCREPANCIES.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 7,
+    "path": "docs/ARCHITECTURE.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 8,
+    "path": "docs/CONSTRAINTS.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 9,
+    "path": "docs/DECISIONS.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 10,
+    "path": "docs/FLOW.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 11,
+    "path": "docs/CONTRACTS.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 12,
+    "path": "docs/TECH_SPEC.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 13,
+    "path": "docs/DEPLOYMENT.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 14,
+    "path": "docs/TEST_CHECKLIST.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 15,
+    "path": "docs/ROLLBACK.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 16,
+    "path": "docs/FIELD_GUIDE_MAP.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 17,
+    "path": "docs/HANDOVER.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 18,
+    "path": "docs/SESSION_LOG.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 19,
+    "path": "docs/SELF_AUDIT.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 20,
+    "path": "brand/BRAND.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 21,
+    "path": "prompts/README.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 22,
+    "path": "docs/templates/BUG_TEMPLATE.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 23,
+    "path": "docs/templates/FEATURE_TEMPLATE.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 24,
+    "path": "docs/templates/PROMPT_TEMPLATE.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 25,
+    "path": "docs/templates/SESSION_HANDOFF.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 26,
+    "path": "prompts/00-bootstrap-and-preserve-legacy.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 27,
+    "path": "prompts/01-shared-contracts-and-clients.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 28,
+    "path": "prompts/02-catalogue-migration.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 29,
+    "path": "prompts/03-workflow-schema-and-database-permissions.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 30,
+    "path": "prompts/04-private-storage.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 31,
+    "path": "prompts/05-synthetic-catalogue-and-demo-fixtures.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 32,
+    "path": "prompts/06-extend-legacy-search.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 33,
+    "path": "prompts/F20-machine-identification.md",
+    "included_traces": [
+      "features/F20-machine-identification.md"
+    ]
+  },
+  {
+    "chapter": 34,
+    "path": "prompts/F21-machine-mismatch-detection.md",
+    "included_traces": [
+      "features/F21-machine-mismatch-detection.md"
+    ]
+  },
+  {
+    "chapter": 35,
+    "path": "prompts/F22-compatibility-gate.md",
+    "included_traces": [
+      "features/F22-compatibility-gate.md"
+    ]
+  },
+  {
+    "chapter": 36,
+    "path": "prompts/F23-aliases-and-typo-matching.md",
+    "included_traces": [
+      "features/F23-aliases-and-typo-matching.md"
+    ]
+  },
+  {
+    "chapter": 37,
+    "path": "prompts/F24-semantic-retrieval.md",
+    "included_traces": [
+      "features/F24-semantic-retrieval.md"
+    ]
+  },
+  {
+    "chapter": 38,
+    "path": "prompts/F25-ranked-candidates.md",
+    "included_traces": [
+      "features/F25-ranked-candidates.md"
+    ]
+  },
+  {
+    "chapter": 39,
+    "path": "prompts/F30-old-part-numbers.md",
+    "included_traces": [
+      "features/F30-old-part-numbers.md"
+    ]
+  },
+  {
+    "chapter": 40,
+    "path": "prompts/F33-fulfilment-planning.md",
+    "included_traces": [
+      "features/F33-fulfilment-planning.md"
+    ]
+  },
+  {
+    "chapter": 41,
+    "path": "prompts/F34-transfer-estimates.md",
+    "included_traces": [
+      "features/F34-transfer-estimates.md"
+    ]
+  },
+  {
+    "chapter": 42,
+    "path": "prompts/07-authentication-and-demo-sessions.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 43,
+    "path": "prompts/08-enquiry-intake-and-limits.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 44,
+    "path": "prompts/09-deterministic-durable-workflow.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 45,
+    "path": "prompts/F12-conversation-memory.md",
+    "included_traces": [
+      "features/F12-conversation-memory.md"
+    ]
+  },
+  {
+    "chapter": 46,
+    "path": "prompts/F50-durable-workflows.md",
+    "included_traces": [
+      "features/F50-durable-workflows.md"
+    ]
+  },
+  {
+    "chapter": 47,
+    "path": "prompts/10-intake-specialist.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 48,
+    "path": "prompts/F10-structured-extraction.md",
+    "included_traces": [
+      "features/F10-structured-extraction.md"
+    ]
+  },
+  {
+    "chapter": 49,
+    "path": "prompts/11-parts-specialist-and-tools.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 50,
+    "path": "prompts/F26-ambiguity-handling.md",
+    "included_traces": [
+      "features/F26-ambiguity-handling.md"
+    ]
+  },
+  {
+    "chapter": 51,
+    "path": "prompts/12-deterministic-verification.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 52,
+    "path": "prompts/F28-compatibility-references.md",
+    "included_traces": [
+      "features/F28-compatibility-references.md"
+    ]
+  },
+  {
+    "chapter": 53,
+    "path": "prompts/F46-verification-gate.md",
+    "included_traces": [
+      "features/F46-verification-gate.md"
+    ]
+  },
+  {
+    "chapter": 54,
+    "path": "prompts/13-reply-specialist-and-renderer.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 55,
+    "path": "prompts/F45-reply-drafting.md",
+    "included_traces": [
+      "features/F45-reply-drafting.md"
+    ]
+  },
+  {
+    "chapter": 56,
+    "path": "prompts/14-approval-and-revision-transactions.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 57,
+    "path": "prompts/F40-approval-invalidation.md",
+    "included_traces": [
+      "features/F40-approval-invalidation.md"
+    ]
+  },
+  {
+    "chapter": 58,
+    "path": "prompts/F47-human-publication-gate.md",
+    "included_traces": [
+      "features/F47-human-publication-gate.md"
+    ]
+  },
+  {
+    "chapter": 59,
+    "path": "prompts/F49-audit-trail.md",
+    "included_traces": [
+      "features/F49-audit-trail.md"
+    ]
+  },
+  {
+    "chapter": 60,
+    "path": "prompts/15-worker-leases-and-sweeper.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 61,
+    "path": "prompts/F51-background-jobs.md",
+    "included_traces": [
+      "features/F51-background-jobs.md"
+    ]
+  },
+  {
+    "chapter": 62,
+    "path": "prompts/F52-retry-and-deduplication.md",
+    "included_traces": [
+      "features/F52-retry-and-deduplication.md"
+    ]
+  },
+  {
+    "chapter": 63,
+    "path": "prompts/16-nameplate-vision-job.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 64,
+    "path": "prompts/F14-nameplate-ocr.md",
+    "included_traces": [
+      "features/F14-nameplate-ocr.md"
+    ]
+  },
+  {
+    "chapter": 65,
+    "path": "prompts/17-approved-enquiry-pdf.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 66,
+    "path": "prompts/18-frontend-shell-and-authentication.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 67,
+    "path": "prompts/F01-branded-landing.md",
+    "included_traces": [
+      "features/F01-branded-landing.md"
+    ]
+  },
+  {
+    "chapter": 68,
+    "path": "prompts/19-customer-chat-and-demo.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 69,
+    "path": "prompts/F02-demo-scenarios-and-assets.md",
+    "included_traces": [
+      "features/F02-demo-scenarios-and-assets.md"
+    ]
+  },
+  {
+    "chapter": 70,
+    "path": "prompts/F05-demo-reset.md",
+    "included_traces": [
+      "features/F05-demo-reset.md"
+    ]
+  },
+  {
+    "chapter": 71,
+    "path": "prompts/F09-bilingual-chat.md",
+    "included_traces": [
+      "features/F09-bilingual-chat.md"
+    ]
+  },
+  {
+    "chapter": 72,
+    "path": "prompts/F11-clarifying-questions.md",
+    "included_traces": [
+      "features/F11-clarifying-questions.md"
+    ]
+  },
+  {
+    "chapter": 73,
+    "path": "prompts/F13-private-uploads.md",
+    "included_traces": [
+      "features/F13-private-uploads.md"
+    ]
+  },
+  {
+    "chapter": 74,
+    "path": "prompts/F15-ocr-confirmation.md",
+    "included_traces": [
+      "features/F15-ocr-confirmation.md"
+    ]
+  },
+  {
+    "chapter": 75,
+    "path": "prompts/20-staff-workspace-and-timeline.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 76,
+    "path": "prompts/F03-demo-role-switching.md",
+    "included_traces": [
+      "features/F03-demo-role-switching.md"
+    ]
+  },
+  {
+    "chapter": 77,
+    "path": "prompts/F18-progress-timeline.md",
+    "included_traces": [
+      "features/F18-progress-timeline.md"
+    ]
+  },
+  {
+    "chapter": 78,
+    "path": "prompts/F27-match-explanations.md",
+    "included_traces": [
+      "features/F27-match-explanations.md"
+    ]
+  },
+  {
+    "chapter": 79,
+    "path": "prompts/F32-warehouse-stock.md",
+    "included_traces": [
+      "features/F32-warehouse-stock.md"
+    ]
+  },
+  {
+    "chapter": 80,
+    "path": "prompts/F37-review-workspace.md",
+    "included_traces": [
+      "features/F37-review-workspace.md"
+    ]
+  },
+  {
+    "chapter": 81,
+    "path": "prompts/F39-review-actions.md",
+    "included_traces": [
+      "features/F39-review-actions.md"
+    ]
+  },
+  {
+    "chapter": 82,
+    "path": "prompts/F61-enquiry-pdf.md",
+    "included_traces": [
+      "features/F61-enquiry-pdf.md"
+    ]
+  },
+  {
+    "chapter": 83,
+    "path": "prompts/F16-photo-quality-feedback.md",
+    "included_traces": [
+      "features/F16-photo-quality-feedback.md"
+    ]
+  },
+  {
+    "chapter": 84,
+    "path": "prompts/F17-multi-part-enquiries.md",
+    "included_traces": [
+      "features/F17-multi-part-enquiries.md"
+    ]
+  },
+  {
+    "chapter": 85,
+    "path": "prompts/F19-enquiry-history.md",
+    "included_traces": [
+      "features/F19-enquiry-history.md"
+    ]
+  },
+  {
+    "chapter": 86,
+    "path": "prompts/F55-saved-machines.md",
+    "included_traces": [
+      "features/F55-saved-machines.md"
+    ]
+  },
+  {
+    "chapter": 87,
+    "path": "prompts/F56-repeat-enquiry.md",
+    "included_traces": [
+      "features/F56-repeat-enquiry.md"
+    ]
+  },
+  {
+    "chapter": 88,
+    "path": "prompts/F59-catalogue-versioning.md",
+    "included_traces": [
+      "features/F59-catalogue-versioning.md"
+    ]
+  },
+  {
+    "chapter": 89,
+    "path": "prompts/F57-catalogue-browser.md",
+    "included_traces": [
+      "features/F57-catalogue-browser.md"
+    ]
+  },
+  {
+    "chapter": 90,
+    "path": "prompts/F58-catalogue-imports.md",
+    "included_traces": [
+      "features/F58-catalogue-imports.md"
+    ]
+  },
+  {
+    "chapter": 91,
+    "path": "prompts/F60-missing-parts-queue.md",
+    "included_traces": [
+      "features/F60-missing-parts-queue.md"
+    ]
+  },
+  {
+    "chapter": 92,
+    "path": "prompts/F35-stock-freshness.md",
+    "included_traces": [
+      "features/F35-stock-freshness.md"
+    ]
+  },
+  {
+    "chapter": 93,
+    "path": "prompts/F29-evidence-page-viewer.md",
+    "included_traces": [
+      "features/F29-evidence-page-viewer.md"
+    ]
+  },
+  {
+    "chapter": 94,
+    "path": "prompts/F31-candidate-comparison.md",
+    "included_traces": [
+      "features/F31-candidate-comparison.md"
+    ]
+  },
+  {
+    "chapter": 95,
+    "path": "prompts/F38-correct-extracted-details.md",
+    "included_traces": [
+      "features/F38-correct-extracted-details.md"
+    ]
+  },
+  {
+    "chapter": 96,
+    "path": "prompts/F42-assignments.md",
+    "included_traces": [
+      "features/F42-assignments.md"
+    ]
+  },
+  {
+    "chapter": 97,
+    "path": "prompts/F41-internal-notes.md",
+    "included_traces": [
+      "features/F41-internal-notes.md"
+    ]
+  },
+  {
+    "chapter": 98,
+    "path": "prompts/F43-overdue-indicators.md",
+    "included_traces": [
+      "features/F43-overdue-indicators.md"
+    ]
+  },
+  {
+    "chapter": 99,
+    "path": "prompts/F44-conversation-summary.md",
+    "included_traces": [
+      "features/F44-conversation-summary.md"
+    ]
+  },
+  {
+    "chapter": 100,
+    "path": "prompts/F36-staff-inbox.md",
+    "included_traces": [
+      "features/F36-staff-inbox.md"
+    ]
+  },
+  {
+    "chapter": 101,
+    "path": "prompts/F07-arabic-and-english-interface.md",
+    "included_traces": [
+      "features/F07-arabic-and-english-interface.md"
+    ]
+  },
+  {
+    "chapter": 102,
+    "path": "prompts/F08-light-and-dark-themes.md",
+    "included_traces": [
+      "features/F08-light-and-dark-themes.md"
+    ]
+  },
+  {
+    "chapter": 103,
+    "path": "prompts/F06-responsive-layouts.md",
+    "included_traces": [
+      "features/F06-responsive-layouts.md"
+    ]
+  },
+  {
+    "chapter": 104,
+    "path": "prompts/F48-input-isolation.md",
+    "included_traces": [
+      "features/F48-input-isolation.md"
+    ]
+  },
+  {
+    "chapter": 105,
+    "path": "prompts/21-labelled-evaluations.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 106,
+    "path": "prompts/F62-labelled-evaluations.md",
+    "included_traces": [
+      "features/F62-labelled-evaluations.md"
+    ]
+  },
+  {
+    "chapter": 107,
+    "path": "prompts/23-observability-and-credit-limits.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 108,
+    "path": "prompts/F64-latency-and-ai-cost.md",
+    "included_traces": [
+      "features/F64-latency-and-ai-cost.md"
+    ]
+  },
+  {
+    "chapter": 109,
+    "path": "prompts/F67-traces.md",
+    "included_traces": [
+      "features/F67-traces.md"
+    ]
+  },
+  {
+    "chapter": 110,
+    "path": "prompts/F63-metrics-dashboard.md",
+    "included_traces": [
+      "features/F63-metrics-dashboard.md"
+    ]
+  },
+  {
+    "chapter": 111,
+    "path": "prompts/F65-correction-feedback.md",
+    "included_traces": [
+      "features/F65-correction-feedback.md"
+    ]
+  },
+  {
+    "chapter": 112,
+    "path": "prompts/22-security-and-failure-recovery-gate.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 113,
+    "path": "prompts/F04-demo-isolation.md",
+    "included_traces": [
+      "features/F04-demo-isolation.md"
+    ]
+  },
+  {
+    "chapter": 114,
+    "path": "prompts/F53-graceful-failures.md",
+    "included_traces": [
+      "features/F53-graceful-failures.md"
+    ]
+  },
+  {
+    "chapter": 115,
+    "path": "prompts/F54-access-and-permissions.md",
+    "included_traces": [
+      "features/F54-access-and-permissions.md"
+    ]
+  },
+  {
+    "chapter": 116,
+    "path": "prompts/24-production-containers-and-caddy.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 117,
+    "path": "prompts/25-ci-and-controlled-deployment.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 118,
+    "path": "prompts/F66-tests-and-ci.md",
+    "included_traces": [
+      "features/F66-tests-and-ci.md"
+    ]
+  },
+  {
+    "chapter": 119,
+    "path": "prompts/26-aws-free-plan-deployment.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 120,
+    "path": "prompts/27-vercel-and-hosted-acceptance.md",
+    "included_traces": []
+  },
+  {
+    "chapter": 121,
+    "path": "prompts/F68-recruiter-documentation.md",
+    "included_traces": [
+      "features/F68-recruiter-documentation.md"
+    ]
+  },
+  {
+    "chapter": 122,
+    "path": "prompts/F69-demo-walkthrough.md",
+    "included_traces": [
+      "features/F69-demo-walkthrough.md"
+    ]
+  },
+  {
+    "chapter": 123,
+    "path": "features/README.md",
+    "included_traces": []
+  }
+]

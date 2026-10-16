@@ -1,0 +1,61 @@
+{
+  "scope": "Build-kit structural validation only; no application or deployment tests executed",
+  "checks": [
+    {
+      "check": "69 sequential features",
+      "result": "PASS",
+      "detail": "69"
+    },
+    {
+      "check": "97 prompt files",
+      "result": "PASS",
+      "detail": "97"
+    },
+    {
+      "check": "Exact prompt template headings",
+      "result": "PASS",
+      "detail": "[]"
+    },
+    {
+      "check": "Feature prompt trace test coverage",
+      "result": "PASS",
+      "detail": "[]"
+    },
+    {
+      "check": "No forward manifest dependencies",
+      "result": "PASS",
+      "detail": "[]"
+    },
+    {
+      "check": "One creator per planned file",
+      "result": "PASS",
+      "detail": "[]"
+    },
+    {
+      "check": "Direct package release eligibility and owner",
+      "result": "PASS",
+      "detail": "[]"
+    },
+    {
+      "check": "Application tables have explicit RLS",
+      "result": "PASS",
+      "detail": "48 tables; missing []"
+    },
+    {
+      "check": "Critical legacy constraints preserved",
+      "result": "PASS",
+      "detail": "serial overlap,cycles,audit,publication,item correlation"
+    },
+    {
+      "check": "Brand asset hashes",
+      "result": "PASS",
+      "detail": "[]"
+    },
+    {
+      "check": "No unfinished prose markers",
+      "result": "PASS",
+      "detail": "[]"
+    }
+  ],
+  "errors": []
+}

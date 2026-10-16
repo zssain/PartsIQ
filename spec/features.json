@@ -1,0 +1,1368 @@
+[
+  {
+    "id": "F01",
+    "title": "Branded landing",
+    "owner": "web",
+    "foundation": [
+      "18"
+    ],
+    "new": false,
+    "tables": [
+      "none"
+    ],
+    "logic": "Explain the enquiry-to-approval journey; show synthetic-demo notice; expose Start demo and architecture links; display the supplied bilingual logo without stretching.",
+    "errors": "Missing repository link hides that action; logo has meaningful alternative text; no affiliation claim.",
+    "implementation": "18",
+    "trace": "features/F01-branded-landing.md",
+    "test": "apps/web/tests/features/f01.test.tsx",
+    "prompt": "prompts/F01-branded-landing.md"
+  },
+  {
+    "id": "F02",
+    "title": "Demo scenarios and assets",
+    "owner": "catalog",
+    "foundation": [
+      "05",
+      "19"
+    ],
+    "new": false,
+    "tables": [
+      "demo_sessions",
+      "enquiries"
+    ],
+    "logic": "Seed four deterministic scenarios: mixed-language photo, missing serial, incompatible part, local shortage; derive identifiers from seed 42; validate expected outcomes against generated records.",
+    "errors": "Reject a scenario whose expected part lacks compatibility; reject stock claims not supported by fixture quantities.",
+    "implementation": "19",
+    "trace": "features/F02-demo-scenarios-and-assets.md",
+    "test": "tests/acceptance/test_f02.py",
+    "prompt": "prompts/F02-demo-scenarios-and-assets.md"
+  },
+  {
+    "id": "F03",
+    "title": "Demo role switching",
+    "owner": "gateway",
+    "foundation": [
+      "07",
+      "19",
+      "20"
+    ],
+    "new": false,
+    "tables": [
+      "demo_sessions"
+    ],
+    "logic": "Switch the presentation between customer and reviewer using the same anonymous identity and session; authorize review only for enquiries belonging to that active session.",
+    "errors": "Forged reviewer role never grants staff membership; another visitor's enquiry returns 404.",
+    "implementation": "20",
+    "trace": "features/F03-demo-role-switching.md",
+    "test": "services/gateway/tests/features/test_f03.py",
+    "prompt": "prompts/F03-demo-role-switching.md"
+  },
+  {
+    "id": "F04",
+    "title": "Demo isolation",
+    "owner": "gateway",
+    "foundation": [
+      "03",
+      "07",
+      "22"
+    ],
+    "new": false,
+    "tables": [
+      "demo_sessions",
+      "enquiries"
+    ],
+    "logic": "Bind each session to verified anonymous Supabase identity; check generation and expiry on every read, write and worker completion; exclude demos from operational metrics by default.",
+    "errors": "Expired, reset and foreign sessions fail; missing identity context returns no rows.",
+    "implementation": "22",
+    "trace": "features/F04-demo-isolation.md",
+    "test": "services/gateway/tests/features/test_f04.py",
+    "prompt": "prompts/F04-demo-isolation.md"
+  },
+  {
+    "id": "F05",
+    "title": "Demo reset",
+    "owner": "gateway",
+    "foundation": [
+      "07",
+      "15",
+      "19"
+    ],
+    "new": false,
+    "tables": [
+      "demo_sessions",
+      "jobs"
+    ],
+    "logic": "Lock session; increment generation; cancel unfinished jobs from prior generation; enqueue Storage cleanup; keep minimal audit; create fresh scenario enquiries on explicit selection.",
+    "errors": "Late OCR from old generation cannot update current data; repeated reset idempotency key returns the same generation.",
+    "implementation": "19",
+    "trace": "features/F05-demo-reset.md",
+    "test": "services/gateway/tests/features/test_f05.py",
+    "prompt": "prompts/F05-demo-reset.md"
+  },
+  {
+    "id": "F06",
+    "title": "Responsive layouts",
+    "owner": "web",
+    "foundation": [
+      "18",
+      "19",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "none"
+    ],
+    "logic": "Support 360,768,1280 CSS-pixel widths; stack review panels; horizontally scroll comparison tables within their region; preserve sticky primary review actions without covering content.",
+    "errors": "No page-wide horizontal overflow; zoom 200 percent remains usable; mobile dialogs retain visible close action.",
+    "implementation": "F06",
+    "trace": "features/F06-responsive-layouts.md",
+    "test": "apps/web/tests/features/f06.test.tsx",
+    "prompt": "prompts/F06-responsive-layouts.md"
+  },
+  {
+    "id": "F07",
+    "title": "Arabic and English interface",
+    "owner": "web",
+    "foundation": [
+      "18",
+      "19",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "profiles"
+    ],
+    "logic": "Use a locale cookie and complete en/ar message catalogs; persist preference; set document lang and dir; isolate serials, numbers and part identifiers with bdi.",
+    "errors": "Missing translation fails tests; language switch preserves enquiry ID and unsent draft; mixed Arabic identifiers remain readable.",
+    "implementation": "F07",
+    "trace": "features/F07-arabic-and-english-interface.md",
+    "test": "apps/web/tests/features/f07.test.tsx",
+    "prompt": "prompts/F07-arabic-and-english-interface.md"
+  },
+  {
+    "id": "F08",
+    "title": "Light and dark themes",
+    "owner": "web",
+    "foundation": [
+      "18"
+    ],
+    "new": true,
+    "tables": [
+      "none"
+    ],
+    "logic": "Use CSS semantic tokens; initialize from saved preference then system setting; expose accessible toggle; honor reduced motion and browser color-scheme.",
+    "errors": "No hydration mismatch; chart colors and focus rings meet contrast checks; storage-disabled browsers still work.",
+    "implementation": "F08",
+    "trace": "features/F08-light-and-dark-themes.md",
+    "test": "apps/web/tests/features/f08.test.tsx",
+    "prompt": "prompts/F08-light-and-dark-themes.md"
+  },
+  {
+    "id": "F09",
+    "title": "Bilingual chat",
+    "owner": "orchestrator",
+    "foundation": [
+      "10",
+      "19"
+    ],
+    "new": false,
+    "tables": [
+      "messages",
+      "enquiries"
+    ],
+    "logic": "Accept Arabic, English and mixed text; preserve original message; detect preferred reply locale; render customer messages immediately after successful persistence.",
+    "errors": "Empty and oversized input returns validation error; HTML is escaped; retry does not duplicate a message.",
+    "implementation": "19",
+    "trace": "features/F09-bilingual-chat.md",
+    "test": "services/orchestrator/tests/features/test_f09.py",
+    "prompt": "prompts/F09-bilingual-chat.md"
+  },
+  {
+    "id": "F10",
+    "title": "Structured extraction",
+    "owner": "orchestrator",
+    "foundation": [
+      "09",
+      "10"
+    ],
+    "new": false,
+    "tables": [
+      "enquiry_items",
+      "enquiries"
+    ],
+    "logic": "Extract item descriptions, quantities, urgency and machine hints with strict structured outputs; preserve source spans; missing quantity becomes a clarification rather than assumed order quantity.",
+    "errors": "Unknown keys and invalid quantities reject the response; unsupported model output cannot progress to search.",
+    "implementation": "10",
+    "trace": "features/F10-structured-extraction.md",
+    "test": "services/orchestrator/tests/features/test_f10.py",
+    "prompt": "prompts/F10-structured-extraction.md"
+  },
+  {
+    "id": "F11",
+    "title": "Clarifying questions",
+    "owner": "orchestrator",
+    "foundation": [
+      "09",
+      "11",
+      "19"
+    ],
+    "new": false,
+    "tables": [
+      "messages",
+      "enquiry_items"
+    ],
+    "logic": "Use controller reason codes to choose code-owned bilingual questions; persist interrupt; associate answer with item; rerun affected resolution only.",
+    "errors": "No final recommendation before approval; contradictory answer requires confirmation; repeat event creates one question.",
+    "implementation": "19",
+    "trace": "features/F11-clarifying-questions.md",
+    "test": "services/orchestrator/tests/features/test_f11.py",
+    "prompt": "prompts/F11-clarifying-questions.md"
+  },
+  {
+    "id": "F12",
+    "title": "Conversation memory",
+    "owner": "orchestrator",
+    "foundation": [
+      "03",
+      "09"
+    ],
+    "new": false,
+    "tables": [
+      "messages",
+      "enquiry_revisions"
+    ],
+    "logic": "Persist all messages and typed current state; compact context using retained structured facts; resume by enquiry/revision; never mix customer sessions.",
+    "errors": "Restart retains unresolved questions; old revision events are ignored and audited; foreign thread ID denied.",
+    "implementation": "09",
+    "trace": "features/F12-conversation-memory.md",
+    "test": "services/orchestrator/tests/features/test_f12.py",
+    "prompt": "prompts/F12-conversation-memory.md"
+  },
+  {
+    "id": "F13",
+    "title": "Private uploads",
+    "owner": "gateway",
+    "foundation": [
+      "04",
+      "08",
+      "19"
+    ],
+    "new": false,
+    "tables": [
+      "enquiry_attachments"
+    ],
+    "logic": "Create pending attachment and unique object path; use signed upload; validate actual bytes and magic type after confirmation; strip EXIF and cap decoded pixels before OCR.",
+    "errors": "Wrong MIME, oversized content, image decompression bomb, duplicate confirmation and nonexistent object handled explicitly.",
+    "implementation": "19",
+    "trace": "features/F13-private-uploads.md",
+    "test": "services/gateway/tests/features/test_f13.py",
+    "prompt": "prompts/F13-private-uploads.md"
+  },
+  {
+    "id": "F14",
+    "title": "Nameplate OCR",
+    "owner": "worker",
+    "foundation": [
+      "15",
+      "16"
+    ],
+    "new": false,
+    "tables": [
+      "extractions",
+      "jobs"
+    ],
+    "logic": "Read validated nameplate via OpenAI vision; return model_text,serial_text,issues and source attachment; persist result only with current lease and revision.",
+    "errors": "Unreadable fields remain null; vision instructions in photo are untrusted; timeout is bounded and creates recoverable status.",
+    "implementation": "16",
+    "trace": "features/F14-nameplate-ocr.md",
+    "test": "services/worker/tests/features/test_f14.py",
+    "prompt": "prompts/F14-nameplate-ocr.md"
+  },
+  {
+    "id": "F15",
+    "title": "OCR confirmation",
+    "owner": "web",
+    "foundation": [
+      "16",
+      "19"
+    ],
+    "new": false,
+    "tables": [
+      "extractions",
+      "enquiry_items"
+    ],
+    "logic": "Show cropped or original nameplate beside extracted identifiers; require user confirm or correction; record actor and time; preserve leading zeros in serial text.",
+    "errors": "Unconfirmed OCR never authorizes matching; blank corrected serial triggers missing-serial flow; stale confirmation returns 409.",
+    "implementation": "19",
+    "trace": "features/F15-ocr-confirmation.md",
+    "test": "apps/web/tests/features/f15.test.tsx",
+    "prompt": "prompts/F15-ocr-confirmation.md"
+  },
+  {
+    "id": "F16",
+    "title": "Photo quality feedback",
+    "owner": "worker",
+    "foundation": [
+      "16",
+      "19"
+    ],
+    "new": true,
+    "tables": [
+      "extractions"
+    ],
+    "logic": "Check decodability, dimensions and blur heuristic before paid call; return actionable retake instructions; mark heuristic as advisory; allow a readable image despite noncritical blur warning.",
+    "errors": "Unsupported format rejected; dark or low-resolution sample gets guidance; no fabricated OCR confidence percentage.",
+    "implementation": "F16",
+    "trace": "features/F16-photo-quality-feedback.md",
+    "test": "services/worker/tests/features/test_f16.py",
+    "prompt": "prompts/F16-photo-quality-feedback.md"
+  },
+  {
+    "id": "F17",
+    "title": "Multi-part enquiries",
+    "owner": "orchestrator",
+    "foundation": [
+      "09",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "19",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "enquiry_items",
+      "fulfilment_plans"
+    ],
+    "logic": "Track up to 20 items with independent quantity, machine, candidate selection and status; clarify individual items; verify aggregate allocation for repeated part requests.",
+    "errors": "One unresolved item blocks final all-items approval; allocations across duplicate parts cannot double count available stock; zero quantity rejected.",
+    "implementation": "F17",
+    "trace": "features/F17-multi-part-enquiries.md",
+    "test": "services/orchestrator/tests/features/test_f17.py",
+    "prompt": "prompts/F17-multi-part-enquiries.md"
+  },
+  {
+    "id": "F18",
+    "title": "Progress timeline",
+    "owner": "web",
+    "foundation": [
+      "09",
+      "19",
+      "20"
+    ],
+    "new": false,
+    "tables": [
+      "workflow_events",
+      "jobs"
+    ],
+    "logic": "Show persisted stages, wait reason and last update; poll with bounded backoff; reconnect using server state; separate waiting for customer from waiting for staff.",
+    "errors": "No fake completed progress; failed poll retains last state and offers retry; hidden tabs reduce polling.",
+    "implementation": "20",
+    "trace": "features/F18-progress-timeline.md",
+    "test": "apps/web/tests/features/f18.test.tsx",
+    "prompt": "prompts/F18-progress-timeline.md"
+  },
+  {
+    "id": "F19",
+    "title": "Enquiry history",
+    "owner": "gateway",
+    "foundation": [
+      "07",
+      "08",
+      "19"
+    ],
+    "new": true,
+    "tables": [
+      "enquiries"
+    ],
+    "logic": "Return cursor-paginated owned history with status and created time; filter active demo generation; link to full conversation; use stable created_at/id ordering.",
+    "errors": "Foreign owner ID ignored; invalid cursor returns 422; equal timestamps do not duplicate or skip records.",
+    "implementation": "F19",
+    "trace": "features/F19-enquiry-history.md",
+    "test": "services/gateway/tests/features/test_f19.py",
+    "prompt": "prompts/F19-enquiry-history.md"
+  },
+  {
+    "id": "F20",
+    "title": "Machine identification",
+    "owner": "search",
+    "foundation": [
+      "02",
+      "06"
+    ],
+    "new": false,
+    "tables": [
+      "equipment_models",
+      "model_configurations"
+    ],
+    "logic": "Preserve identify_machine logic for model, serial and rating; return resolved configuration or explicit missing/ambiguous status; normalize numeric serial only after preserving input.",
+    "errors": "Boundary serials match exactly one configuration; overlapping ranges fail database insertion; conflicting hints never silently override.",
+    "implementation": "06",
+    "trace": "features/F20-machine-identification.md",
+    "test": "services/search/tests/features/test_f20.py",
+    "prompt": "prompts/F20-machine-identification.md"
+  },
+  {
+    "id": "F21",
+    "title": "Machine mismatch detection",
+    "owner": "search",
+    "foundation": [
+      "06"
+    ],
+    "new": false,
+    "tables": [
+      "model_configurations"
+    ],
+    "logic": "Compare model and serial together; return mismatch reason with safe next question; prevent retrieval while identity unresolved.",
+    "errors": "Valid serial of a different model does not match requested model; nonnumeric serial handled without crashing.",
+    "implementation": "06",
+    "trace": "features/F21-machine-mismatch-detection.md",
+    "test": "services/search/tests/features/test_f21.py",
+    "prompt": "prompts/F21-machine-mismatch-detection.md"
+  },
+  {
+    "id": "F22",
+    "title": "Compatibility gate",
+    "owner": "search",
+    "foundation": [
+      "02",
+      "06"
+    ],
+    "new": false,
+    "tables": [
+      "part_compatibility"
+    ],
+    "logic": "Fetch authoritative fitment set first; rank only members; carry source_reference and catalogue version through every candidate.",
+    "errors": "A perfect lexical match outside fitment is absent; empty fitment returns unavailable; blank provenance cannot be published.",
+    "implementation": "06",
+    "trace": "features/F22-compatibility-gate.md",
+    "test": "services/search/tests/features/test_f22.py",
+    "prompt": "prompts/F22-compatibility-gate.md"
+  },
+  {
+    "id": "F23",
+    "title": "Aliases and typo matching",
+    "owner": "search",
+    "foundation": [
+      "06"
+    ],
+    "new": false,
+    "tables": [
+      "parts",
+      "part_aliases"
+    ],
+    "logic": "Preserve Arabic normalization, part-number keys, phrase scoring and fuzzy token matching; remove machine terms using resolved model context.",
+    "errors": "Arabic part words are not removed as machine words; exact part number outranks unrelated fuzzy alias; normalization parity test matches SQL.",
+    "implementation": "06",
+    "trace": "features/F23-aliases-and-typo-matching.md",
+    "test": "services/search/tests/features/test_f23.py",
+    "prompt": "prompts/F23-aliases-and-typo-matching.md"
+  },
+  {
+    "id": "F24",
+    "title": "Semantic retrieval",
+    "owner": "search",
+    "foundation": [
+      "06"
+    ],
+    "new": false,
+    "tables": [
+      "part_embeddings"
+    ],
+    "logic": "Load one BGE-M3 encoder per search process; use normalized 1024-d vectors; retain legacy weighted fusion; fall back to lexical on unavailable embedding path.",
+    "errors": "Wrong dimension rejected; no model loaded in worker; no semantic candidate outside compatible IDs.",
+    "implementation": "06",
+    "trace": "features/F24-semantic-retrieval.md",
+    "test": "services/search/tests/features/test_f24.py",
+    "prompt": "prompts/F24-semantic-retrieval.md"
+  },
+  {
+    "id": "F25",
+    "title": "Ranked candidates",
+    "owner": "search",
+    "foundation": [
+      "06"
+    ],
+    "new": false,
+    "tables": [
+      "enquiry_candidates"
+    ],
+    "logic": "Return top candidates with lexical/semantic evidence and deterministic tie order; compute runner-up margin before applying response limit.",
+    "errors": "Limit one still reports ambiguity; empty set returns no candidate; NaN scores rejected.",
+    "implementation": "06",
+    "trace": "features/F25-ranked-candidates.md",
+    "test": "services/search/tests/features/test_f25.py",
+    "prompt": "prompts/F25-ranked-candidates.md"
+  },
+  {
+    "id": "F26",
+    "title": "Ambiguity handling",
+    "owner": "orchestrator",
+    "foundation": [
+      "06",
+      "11"
+    ],
+    "new": false,
+    "tables": [
+      "enquiry_items"
+    ],
+    "logic": "Use tested score and margin thresholds in code; ask customer to distinguish fuel filter versus separator; allow staff to select only verified candidates.",
+    "errors": "LLM cannot override low confidence; unavailable candidate choice returns 409; thresholds evaluated on labelled cases.",
+    "implementation": "11",
+    "trace": "features/F26-ambiguity-handling.md",
+    "test": "services/orchestrator/tests/features/test_f26.py",
+    "prompt": "prompts/F26-ambiguity-handling.md"
+  },
+  {
+    "id": "F27",
+    "title": "Match explanations",
+    "owner": "web",
+    "foundation": [
+      "06",
+      "20"
+    ],
+    "new": false,
+    "tables": [
+      "enquiry_candidates"
+    ],
+    "logic": "Show actual alias, machine configuration, supersession chain and fitment reference; derive explanations from search evidence rather than invented model prose.",
+    "errors": "Absent evidence shown as unavailable; user HTML is escaped; scores never labelled calibrated probability.",
+    "implementation": "20",
+    "trace": "features/F27-match-explanations.md",
+    "test": "apps/web/tests/features/f27.test.tsx",
+    "prompt": "prompts/F27-match-explanations.md"
+  },
+  {
+    "id": "F28",
+    "title": "Compatibility references",
+    "owner": "search",
+    "foundation": [
+      "02",
+      "06",
+      "12"
+    ],
+    "new": false,
+    "tables": [
+      "catalogue_evidence",
+      "part_compatibility"
+    ],
+    "logic": "Resolve source_reference to version-specific document and page; retain citation with every candidate and approval snapshot.",
+    "errors": "Missing source file blocks evidence viewer and flags review; mismatched version fails verification.",
+    "implementation": "12",
+    "trace": "features/F28-compatibility-references.md",
+    "test": "services/search/tests/features/test_f28.py",
+    "prompt": "prompts/F28-compatibility-references.md"
+  },
+  {
+    "id": "F29",
+    "title": "Evidence page viewer",
+    "owner": "gateway",
+    "foundation": [
+      "04",
+      "06",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "catalogue_evidence"
+    ],
+    "logic": "Authorize assigned reviewer or own demo reviewer; request short-lived worker-signed PDF URL; open exact cited page; label synthetic document.",
+    "errors": "Customer receives reference only; arbitrary Storage key rejected; expired link can be renewed after authorization.",
+    "implementation": "F29",
+    "trace": "features/F29-evidence-page-viewer.md",
+    "test": "services/gateway/tests/features/test_f29.py",
+    "prompt": "prompts/F29-evidence-page-viewer.md"
+  },
+  {
+    "id": "F30",
+    "title": "Old part numbers",
+    "owner": "search",
+    "foundation": [
+      "02",
+      "06"
+    ],
+    "new": false,
+    "tables": [
+      "part_supersessions"
+    ],
+    "logic": "Follow supersession chain with cycle protection; display old and current numbers; verify current successor has explicit fitment for resolved configuration.",
+    "errors": "Cycles rejected; inactive terminal part returns unavailable; inherited compatibility without source is rejected.",
+    "implementation": "06",
+    "trace": "features/F30-old-part-numbers.md",
+    "test": "services/search/tests/features/test_f30.py",
+    "prompt": "prompts/F30-old-part-numbers.md"
+  },
+  {
+    "id": "F31",
+    "title": "Candidate comparison",
+    "owner": "web",
+    "foundation": [
+      "06",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "enquiry_candidates"
+    ],
+    "logic": "Compare two or three candidates from the same item/revision; show number, names, evidence and warehouse availability; selecting a candidate sends its ID, not browser-authored facts.",
+    "errors": "Foreign candidate or stale revision rejected; missing attribute shown as unavailable; keyboard navigation works.",
+    "implementation": "F31",
+    "trace": "features/F31-candidate-comparison.md",
+    "test": "apps/web/tests/features/f31.test.tsx",
+    "prompt": "prompts/F31-candidate-comparison.md"
+  },
+  {
+    "id": "F32",
+    "title": "Warehouse stock",
+    "owner": "search",
+    "foundation": [
+      "06",
+      "20"
+    ],
+    "new": false,
+    "tables": [
+      "stock_levels",
+      "warehouses"
+    ],
+    "logic": "Show available quantity as on_hand minus reserved; include timestamp and warehouse name; keep display and planner using same snapshot.",
+    "errors": "Negative stock blocked; stock unavailable never displayed as zero without explanation; unknown warehouse rejected.",
+    "implementation": "20",
+    "trace": "features/F32-warehouse-stock.md",
+    "test": "services/search/tests/features/test_f32.py",
+    "prompt": "prompts/F32-warehouse-stock.md"
+  },
+  {
+    "id": "F33",
+    "title": "Fulfilment planning",
+    "owner": "search",
+    "foundation": [
+      "06"
+    ],
+    "new": false,
+    "tables": [
+      "stock_levels",
+      "warehouse_transfer_routes"
+    ],
+    "logic": "Allocate local stock first then reachable warehouses deterministically; compute shortage; use quantity units; do not reserve stock or create orders.",
+    "errors": "Total allocations never exceed request or stock; fractional quantities respect unit policy; unavailable transfer route cannot be invented.",
+    "implementation": "06",
+    "trace": "features/F33-fulfilment-planning.md",
+    "test": "services/search/tests/features/test_f33.py",
+    "prompt": "prompts/F33-fulfilment-planning.md"
+  },
+  {
+    "id": "F34",
+    "title": "Transfer estimates",
+    "owner": "search",
+    "foundation": [
+      "06"
+    ],
+    "new": false,
+    "tables": [
+      "warehouse_transfer_routes"
+    ],
+    "logic": "Carry integer transfer_days from approved route; show estimate and source warehouse; local availability means zero transfer days.",
+    "errors": "No route gives unknown/unavailable plan rather than invented one-day promise; estimate labelled non-guaranteed.",
+    "implementation": "06",
+    "trace": "features/F34-transfer-estimates.md",
+    "test": "services/search/tests/features/test_f34.py",
+    "prompt": "prompts/F34-transfer-estimates.md"
+  },
+  {
+    "id": "F35",
+    "title": "Stock freshness",
+    "owner": "search",
+    "foundation": [
+      "06",
+      "12",
+      "14",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "stock_levels",
+      "fulfilment_plans"
+    ],
+    "logic": "Compare stock timestamp with configurable freshness limit; mark stale data in review; re-read current stock during approval; invalidate plan when allocation no longer possible.",
+    "errors": "Future timestamp flagged; changed stock returns 409 and reruns planning; stale stock never becomes a delivery guarantee.",
+    "implementation": "F35",
+    "trace": "features/F35-stock-freshness.md",
+    "test": "services/search/tests/features/test_f35.py",
+    "prompt": "prompts/F35-stock-freshness.md"
+  },
+  {
+    "id": "F36",
+    "title": "Staff inbox",
+    "owner": "gateway",
+    "foundation": [
+      "07",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "enquiries"
+    ],
+    "logic": "List assigned operational enquiries and own active demo enquiries; filter status,priority,overdue and text; paginate stably; show counts in same access scope.",
+    "errors": "Unassigned real enquiries hidden from reviewer; admin can see all; filters do not leak global counts.",
+    "implementation": "F36",
+    "trace": "features/F36-staff-inbox.md",
+    "test": "services/gateway/tests/features/test_f36.py",
+    "prompt": "prompts/F36-staff-inbox.md"
+  },
+  {
+    "id": "F37",
+    "title": "Review workspace",
+    "owner": "web",
+    "foundation": [
+      "20"
+    ],
+    "new": false,
+    "tables": [
+      "drafts",
+      "verification_results"
+    ],
+    "logic": "Assemble current extraction, items, candidates, evidence, stock, draft and timeline; show verification failures; separate staff-only notes from customer messages.",
+    "errors": "Missing panels show explicit empty states; stale revision disables approval; unassigned reviewer receives 404.",
+    "implementation": "20",
+    "trace": "features/F37-review-workspace.md",
+    "test": "apps/web/tests/features/f37.test.tsx",
+    "prompt": "prompts/F37-review-workspace.md"
+  },
+  {
+    "id": "F38",
+    "title": "Correct extracted details",
+    "owner": "orchestrator",
+    "foundation": [
+      "09",
+      "14",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "enquiry_revisions",
+      "correction_records"
+    ],
+    "logic": "Lock enquiry; compare expected revision; apply typed allowed corrections; increment revision; invalidate derived selections/draft/approval; enqueue recomputation; record before and after.",
+    "errors": "Unknown field rejected; old revision returns 409; correction cannot directly set approved status or invent candidate facts.",
+    "implementation": "F38",
+    "trace": "features/F38-correct-extracted-details.md",
+    "test": "services/orchestrator/tests/features/test_f38.py",
+    "prompt": "prompts/F38-correct-extracted-details.md"
+  },
+  {
+    "id": "F39",
+    "title": "Review actions",
+    "owner": "orchestrator",
+    "foundation": [
+      "14",
+      "20"
+    ],
+    "new": false,
+    "tables": [
+      "review_decisions"
+    ],
+    "logic": "Approve only verified current draft; edit prose through controlled schema then reverify; reject with reason; record actor and idempotency key.",
+    "errors": "Double-click publishes once; concurrent edit defeats stale approval; failed verification blocks publication.",
+    "implementation": "20",
+    "trace": "features/F39-review-actions.md",
+    "test": "services/orchestrator/tests/features/test_f39.py",
+    "prompt": "prompts/F39-review-actions.md"
+  },
+  {
+    "id": "F40",
+    "title": "Approval invalidation",
+    "owner": "orchestrator",
+    "foundation": [
+      "14"
+    ],
+    "new": false,
+    "tables": [
+      "enquiry_revisions",
+      "review_decisions"
+    ],
+    "logic": "Bind approval to revision and verified fact hash; any identity,quantity,selection or catalogue-sensitive change requires new draft and approval.",
+    "errors": "Old approval cannot authorize new revision; late workflow update cannot overwrite approved current state.",
+    "implementation": "14",
+    "trace": "features/F40-approval-invalidation.md",
+    "test": "services/orchestrator/tests/features/test_f40.py",
+    "prompt": "prompts/F40-approval-invalidation.md"
+  },
+  {
+    "id": "F41",
+    "title": "Internal notes",
+    "owner": "gateway",
+    "foundation": [
+      "03",
+      "07",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "internal_notes"
+    ],
+    "logic": "Append reviewer notes with author and timestamp; show only in staff workspace; prohibit customer/PDF exposure; escape rendered content.",
+    "errors": "Empty or over-4000-character note rejected; customer route never includes note text; unassigned staff denied.",
+    "implementation": "F41",
+    "trace": "features/F41-internal-notes.md",
+    "test": "services/gateway/tests/features/test_f41.py",
+    "prompt": "prompts/F41-internal-notes.md"
+  },
+  {
+    "id": "F42",
+    "title": "Assignments",
+    "owner": "gateway",
+    "foundation": [
+      "03",
+      "07",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "enquiries",
+      "assignment_events"
+    ],
+    "logic": "Admin assigns active reviewer or unassigns; persist assignment history atomically; access changes immediately; demo reviewer access remains session-scoped.",
+    "errors": "Non-admin assignment denied; disabled/nonreviewer assignee rejected; previous reviewer loses access on next request.",
+    "implementation": "F42",
+    "trace": "features/F42-assignments.md",
+    "test": "services/gateway/tests/features/test_f42.py",
+    "prompt": "prompts/F42-assignments.md"
+  },
+  {
+    "id": "F43",
+    "title": "Overdue indicators",
+    "owner": "gateway",
+    "foundation": [
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "enquiries"
+    ],
+    "logic": "Set due_at using configurable urgent/normal thresholds; display overdue only for unresolved states; sort overdue first when requested; store all times UTC.",
+    "errors": "Approved/rejected items never overdue; daylight-saving display does not change deadline; thresholds not described as contractual SLA.",
+    "implementation": "F43",
+    "trace": "features/F43-overdue-indicators.md",
+    "test": "services/gateway/tests/features/test_f43.py",
+    "prompt": "prompts/F43-overdue-indicators.md"
+  },
+  {
+    "id": "F44",
+    "title": "Conversation summary",
+    "owner": "orchestrator",
+    "foundation": [
+      "09",
+      "13",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "enquiry_summaries"
+    ],
+    "logic": "Produce staff-only concise summary from authorized messages and confirmed fields; store message IDs and revision; use shared budget wrapper; regenerate on relevant change.",
+    "errors": "Outdated summary labelled stale; instructions inside messages ignored; exhausted budget leaves full conversation available.",
+    "implementation": "F44",
+    "trace": "features/F44-conversation-summary.md",
+    "test": "services/orchestrator/tests/features/test_f44.py",
+    "prompt": "prompts/F44-conversation-summary.md"
+  },
+  {
+    "id": "F45",
+    "title": "Reply drafting",
+    "owner": "orchestrator",
+    "foundation": [
+      "13"
+    ],
+    "new": false,
+    "tables": [
+      "drafts"
+    ],
+    "logic": "Generate greeting,explanation and closing as structured slots; code inserts all numbers and allocations; choose Arabic or English from confirmed preference.",
+    "errors": "Unapproved critical facts never rendered; unsupported slots rejected; provider failure permits staff-authored controlled draft.",
+    "implementation": "13",
+    "trace": "features/F45-reply-drafting.md",
+    "test": "services/orchestrator/tests/features/test_f45.py",
+    "prompt": "prompts/F45-reply-drafting.md"
+  },
+  {
+    "id": "F46",
+    "title": "Verification gate",
+    "owner": "orchestrator",
+    "foundation": [
+      "12"
+    ],
+    "new": false,
+    "tables": [
+      "verification_results"
+    ],
+    "logic": "Check item/configuration/candidate membership, provenance, catalogue version, selected quantities and allocation bounds; compute canonical fact hash; store named rule results.",
+    "errors": "Unknown part, incompatible part, stale catalogue, oversold plan and hidden extra item each fail a specific rule.",
+    "implementation": "12",
+    "trace": "features/F46-verification-gate.md",
+    "test": "services/orchestrator/tests/features/test_f46.py",
+    "prompt": "prompts/F46-verification-gate.md"
+  },
+  {
+    "id": "F47",
+    "title": "Human publication gate",
+    "owner": "orchestrator",
+    "foundation": [
+      "14"
+    ],
+    "new": false,
+    "tables": [
+      "messages",
+      "review_decisions"
+    ],
+    "logic": "Only approval service inserts recommendation messages; lock enquiry and recheck role,revision and verification; unique publication index prevents duplicates.",
+    "errors": "No worker/specialist write tool can publish; database rejects recommendation lacking matching approved decision.",
+    "implementation": "14",
+    "trace": "features/F47-human-publication-gate.md",
+    "test": "services/orchestrator/tests/features/test_f47.py",
+    "prompt": "prompts/F47-human-publication-gate.md"
+  },
+  {
+    "id": "F48",
+    "title": "Input isolation",
+    "owner": "orchestrator",
+    "foundation": [
+      "10",
+      "11",
+      "12",
+      "13",
+      "16"
+    ],
+    "new": true,
+    "tables": [
+      "none"
+    ],
+    "logic": "Treat customer text,OCR and imported evidence as data; separate trusted instructions; bound tool names,arguments,steps and output size; never execute model-produced templates.",
+    "errors": "Prompt injection cannot call write tools,change roles or reveal secrets; tool result with rogue instructions remains inert.",
+    "implementation": "F48",
+    "trace": "features/F48-input-isolation.md",
+    "test": "services/orchestrator/tests/features/test_f48.py",
+    "prompt": "prompts/F48-input-isolation.md"
+  },
+  {
+    "id": "F49",
+    "title": "Audit trail",
+    "owner": "common",
+    "foundation": [
+      "01",
+      "03",
+      "14"
+    ],
+    "new": false,
+    "tables": [
+      "audit_log"
+    ],
+    "logic": "Append actor,request,entity,revision and minimal before/after metadata for AI suggestions and human changes; redact secrets and full sensitive payloads.",
+    "errors": "Application UPDATE,DELETE,TRUNCATE fail; audit write failure rolls back approval; database-owner powers documented honestly.",
+    "implementation": "14",
+    "trace": "features/F49-audit-trail.md",
+    "test": "tests/acceptance/test_f49.py",
+    "prompt": "prompts/F49-audit-trail.md"
+  },
+  {
+    "id": "F50",
+    "title": "Durable workflows",
+    "owner": "orchestrator",
+    "foundation": [
+      "09"
+    ],
+    "new": false,
+    "tables": [
+      "workflow_events"
+    ],
+    "logic": "Use Postgres checkpointer and DB event inbox; thread key includes enquiry ID and active revision; serialize processing for one enquiry; recover after restart.",
+    "errors": "Duplicate events do not repeat publication; stale revision event is consumed as obsolete; checkpoint DDL never runs under runtime role.",
+    "implementation": "09",
+    "trace": "features/F50-durable-workflows.md",
+    "test": "services/orchestrator/tests/features/test_f50.py",
+    "prompt": "prompts/F50-durable-workflows.md"
+  },
+  {
+    "id": "F51",
+    "title": "Background jobs",
+    "owner": "worker",
+    "foundation": [
+      "15"
+    ],
+    "new": false,
+    "tables": [
+      "jobs"
+    ],
+    "logic": "Persist job before Redis dispatch; dispatcher claims by ID; sweeper redispatches pending/expired jobs; worker handles OCR,PDF,imports and cleanup.",
+    "errors": "Redis loss does not lose DB job; unavailable Redis rate limiter fails closed; heavy work never blocks HTTP intake.",
+    "implementation": "15",
+    "trace": "features/F51-background-jobs.md",
+    "test": "services/worker/tests/features/test_f51.py",
+    "prompt": "prompts/F51-background-jobs.md"
+  },
+  {
+    "id": "F52",
+    "title": "Retry and deduplication",
+    "owner": "worker",
+    "foundation": [
+      "15"
+    ],
+    "new": false,
+    "tables": [
+      "jobs"
+    ],
+    "logic": "Claim with FOR UPDATE SKIP LOCKED; assign lease token; heartbeat; retry transient errors with backoff up to max attempts; fence final writes by lease token.",
+    "errors": "Expired worker cannot commit; permanent validation failure not retried; provider timeout marked uncertain and budget held conservatively.",
+    "implementation": "15",
+    "trace": "features/F52-retry-and-deduplication.md",
+    "test": "services/worker/tests/features/test_f52.py",
+    "prompt": "prompts/F52-retry-and-deduplication.md"
+  },
+  {
+    "id": "F53",
+    "title": "Graceful failures",
+    "owner": "web",
+    "foundation": [
+      "19",
+      "20",
+      "22"
+    ],
+    "new": false,
+    "tables": [
+      "jobs",
+      "enquiries"
+    ],
+    "logic": "Map stable error codes to bilingual recovery guidance; distinguish validation,quota,service outage and staff-required states; preserve user input.",
+    "errors": "No raw stack traces or keys; retry only safe idempotent action; search lexical fallback clearly reported.",
+    "implementation": "22",
+    "trace": "features/F53-graceful-failures.md",
+    "test": "apps/web/tests/features/f53.test.tsx",
+    "prompt": "prompts/F53-graceful-failures.md"
+  },
+  {
+    "id": "F54",
+    "title": "Access and permissions",
+    "owner": "gateway",
+    "foundation": [
+      "07",
+      "18",
+      "22"
+    ],
+    "new": false,
+    "tables": [
+      "profiles",
+      "staff_roles"
+    ],
+    "logic": "Verify Supabase issuer,audience,signature,expiry; derive identity server-side; enforce assigned-only review; keep credentials server-side; disable public real-client signup.",
+    "errors": "Forged role claim ignored; missing context denies rows; preview cannot reach prod database; demo cannot publish shared catalogue.",
+    "implementation": "22",
+    "trace": "features/F54-access-and-permissions.md",
+    "test": "services/gateway/tests/features/test_f54.py",
+    "prompt": "prompts/F54-access-and-permissions.md"
+  },
+  {
+    "id": "F55",
+    "title": "Saved machines",
+    "owner": "gateway",
+    "foundation": [
+      "07",
+      "19"
+    ],
+    "new": true,
+    "tables": [
+      "saved_machines"
+    ],
+    "logic": "Save confirmed model and serial with user label; list own active entries; archive entry; prefill a new enquiry but re-identify against current catalogue.",
+    "errors": "Duplicate label permitted with distinct ID; foreign ID denied; stale configuration never reused as authoritative.",
+    "implementation": "F55",
+    "trace": "features/F55-saved-machines.md",
+    "test": "services/gateway/tests/features/test_f55.py",
+    "prompt": "prompts/F55-saved-machines.md"
+  },
+  {
+    "id": "F56",
+    "title": "Repeat enquiry",
+    "owner": "gateway",
+    "foundation": [
+      "09",
+      "19"
+    ],
+    "new": true,
+    "tables": [
+      "enquiries",
+      "enquiry_items"
+    ],
+    "logic": "Copy customer request and confirmed hints into a new enquiry; issue new ID/revision; link origin in audit; run matching,stock and review again.",
+    "errors": "Never copy approval,allocation,draft or signed file URL; source ownership required; repeated submission deduplicated.",
+    "implementation": "F56",
+    "trace": "features/F56-repeat-enquiry.md",
+    "test": "services/gateway/tests/features/test_f56.py",
+    "prompt": "prompts/F56-repeat-enquiry.md"
+  },
+  {
+    "id": "F57",
+    "title": "Catalogue browser",
+    "owner": "gateway",
+    "foundation": [
+      "02",
+      "06",
+      "18"
+    ],
+    "new": true,
+    "tables": [
+      "parts",
+      "equipment_models"
+    ],
+    "logic": "Read published catalogue with model/category/text filters; page results; show part detail and supersession; staff can inspect fitment and sources.",
+    "errors": "No unpublished import rows exposed; missing number returns 404; literal query cannot become SQL.",
+    "implementation": "F57",
+    "trace": "features/F57-catalogue-browser.md",
+    "test": "services/gateway/tests/features/test_f57.py",
+    "prompt": "prompts/F57-catalogue-browser.md"
+  },
+  {
+    "id": "F58",
+    "title": "Catalogue imports",
+    "owner": "worker",
+    "foundation": [
+      "02",
+      "05",
+      "15"
+    ],
+    "new": true,
+    "tables": [
+      "import_batches",
+      "import_rows"
+    ],
+    "logic": "Read CSV UTF-8 or XLSX without evaluating formulas; validate row schema,references,serial overlap,supersession cycles and source evidence; show dry-run report; explicit admin publish.",
+    "errors": "Invalid batch changes no published data; file with macros/formulas rejected; 50000-row and 10MiB limits enforced; public demo cannot publish.",
+    "implementation": "F58",
+    "trace": "features/F58-catalogue-imports.md",
+    "test": "services/worker/tests/features/test_f58.py",
+    "prompt": "prompts/F58-catalogue-imports.md"
+  },
+  {
+    "id": "F59",
+    "title": "Catalogue versioning",
+    "owner": "catalog",
+    "foundation": [
+      "02",
+      "05",
+      "06"
+    ],
+    "new": true,
+    "tables": [
+      "catalogue_versions",
+      "catalogue_records"
+    ],
+    "logic": "Snapshot validated catalogue canonically; hash records; serialize publication; preserve numeric IDs; atomically retire old version and activate new; invalidate pending enquiries on next action.",
+    "errors": "Two publishers cannot leave two active versions; failed publish rolls back; old approval retains immutable evidence snapshot.",
+    "implementation": "F59",
+    "trace": "features/F59-catalogue-versioning.md",
+    "test": "tests/acceptance/test_f59.py",
+    "prompt": "prompts/F59-catalogue-versioning.md"
+  },
+  {
+    "id": "F60",
+    "title": "Missing-parts queue",
+    "owner": "gateway",
+    "foundation": [
+      "03",
+      "20"
+    ],
+    "new": true,
+    "tables": [
+      "missing_part_requests"
+    ],
+    "logic": "Record unresolved item once; allow assigned staff to mark investigating,resolved or unavailable with note; link back to enquiry; no automatic catalogue creation.",
+    "errors": "Resolved status requires staff explanation; foreign item denied; empty search result is not fabricated stock.",
+    "implementation": "F60",
+    "trace": "features/F60-missing-parts-queue.md",
+    "test": "services/gateway/tests/features/test_f60.py",
+    "prompt": "prompts/F60-missing-parts-queue.md"
+  },
+  {
+    "id": "F61",
+    "title": "Enquiry PDF",
+    "owner": "worker",
+    "foundation": [
+      "17",
+      "20"
+    ],
+    "new": false,
+    "tables": [
+      "exports"
+    ],
+    "logic": "Export approved revision only; render logo,bilingual customer text,verified selections,estimates and references; embed Arabic fonts; store private object and signed download.",
+    "errors": "Exclude notes and secrets; stale or unapproved revision rejected; long Arabic names wrap without clipping; no prices or quotation title.",
+    "implementation": "20",
+    "trace": "features/F61-enquiry-pdf.md",
+    "test": "services/worker/tests/features/test_f61.py",
+    "prompt": "prompts/F61-enquiry-pdf.md"
+  },
+  {
+    "id": "F62",
+    "title": "Labelled evaluations",
+    "owner": "evals",
+    "foundation": [
+      "21"
+    ],
+    "new": false,
+    "tables": [
+      "eval_cases",
+      "eval_runs",
+      "eval_results"
+    ],
+    "logic": "Include four demos plus Arabic,typo,serial-boundary,ambiguity,stock and injection cases; record expected compatible set and clarification outcome; run deterministic suite without API calls.",
+    "errors": "No self-reported model confidence as accuracy; evaluation fixture disjoint from examples used in prompts; failures keep actual output.",
+    "implementation": "21",
+    "trace": "features/F62-labelled-evaluations.md",
+    "test": "tests/acceptance/test_f62.py",
+    "prompt": "prompts/F62-labelled-evaluations.md"
+  },
+  {
+    "id": "F63",
+    "title": "Metrics dashboard",
+    "owner": "gateway",
+    "foundation": [
+      "21",
+      "23"
+    ],
+    "new": true,
+    "tables": [
+      "eval_runs",
+      "eval_results",
+      "enquiries"
+    ],
+    "logic": "Show volume,status,review time,clarification and labelled accuracy with denominators; separate demo traffic; filter time window; scope reviewer data to assignments.",
+    "errors": "Zero denominator displays unavailable; no fabricated percentage; demo traffic never silently improves operational metrics.",
+    "implementation": "F63",
+    "trace": "features/F63-metrics-dashboard.md",
+    "test": "services/gateway/tests/features/test_f63.py",
+    "prompt": "prompts/F63-metrics-dashboard.md"
+  },
+  {
+    "id": "F64",
+    "title": "Latency and AI cost",
+    "owner": "common",
+    "foundation": [
+      "01",
+      "23"
+    ],
+    "new": false,
+    "tables": [
+      "ai_usage",
+      "ai_budget_accounts"
+    ],
+    "logic": "Measure stages with monotonic clock; log model/token usage and estimated cost; reserve confirmed free credit before each attempt; expose consumed/reserved allowance.",
+    "errors": "Unknown price or expired credit blocks calls; concurrent reservations cannot exceed cap; API key validity never implies free credit.",
+    "implementation": "23",
+    "trace": "features/F64-latency-and-ai-cost.md",
+    "test": "tests/acceptance/test_f64.py",
+    "prompt": "prompts/F64-latency-and-ai-cost.md"
+  },
+  {
+    "id": "F65",
+    "title": "Correction feedback",
+    "owner": "gateway",
+    "foundation": [
+      "14",
+      "21",
+      "23"
+    ],
+    "new": true,
+    "tables": [
+      "correction_records",
+      "eval_cases"
+    ],
+    "logic": "List authorized before/after corrections; let admin curate anonymized labelled eval cases; record reviewer and source revision; never auto-train on unreviewed edits.",
+    "errors": "Private text excluded from exported fixtures; duplicate case source detected; unreviewed correction cannot become ground truth.",
+    "implementation": "F65",
+    "trace": "features/F65-correction-feedback.md",
+    "test": "services/gateway/tests/features/test_f65.py",
+    "prompt": "prompts/F65-correction-feedback.md"
+  },
+  {
+    "id": "F66",
+    "title": "Tests and CI",
+    "owner": "infra",
+    "foundation": [
+      "00",
+      "25"
+    ],
+    "new": false,
+    "tables": [
+      "none"
+    ],
+    "logic": "Run service-isolated Python tests,frontend checks,RLS integration and deterministic evals; build images; require explicit environment approval for deployment; pin action SHAs.",
+    "errors": "No prod DB in tests; no secret available to untrusted fork jobs; failed gate blocks deployment.",
+    "implementation": "25",
+    "trace": "features/F66-tests-and-ci.md",
+    "test": "tests/acceptance/test_f66.py",
+    "prompt": "prompts/F66-tests-and-ci.md"
+  },
+  {
+    "id": "F67",
+    "title": "Traces",
+    "owner": "common",
+    "foundation": [
+      "01",
+      "09",
+      "23"
+    ],
+    "new": false,
+    "tables": [
+      "ai_usage",
+      "audit_log"
+    ],
+    "logic": "Propagate request/enquiry/job IDs; capture stage timing and safe status; export optional Langfuse traces with payload redaction; operate normally when tracing unavailable.",
+    "errors": "No raw key or full photo logged; exporter outage never breaks approval; budget accounting remains local and authoritative.",
+    "implementation": "23",
+    "trace": "features/F67-traces.md",
+    "test": "tests/acceptance/test_f67.py",
+    "prompt": "prompts/F67-traces.md"
+  },
+  {
+    "id": "F68",
+    "title": "Recruiter documentation",
+    "owner": "docs",
+    "foundation": [
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27"
+    ],
+    "new": true,
+    "tables": [
+      "none"
+    ],
+    "logic": "Write concise overview,real architecture,quick start,demo paths,tests,trade-offs and limitations; link measured evidence; explain deterministic decisions and specialist tools.",
+    "errors": "No invented accuracy,uptime,client relationship or production adoption; distinguish implementation status from specification.",
+    "implementation": "F68",
+    "trace": "features/F68-recruiter-documentation.md",
+    "test": "tests/acceptance/test_f68.py",
+    "prompt": "prompts/F68-recruiter-documentation.md"
+  },
+  {
+    "id": "F69",
+    "title": "Demo walkthrough",
+    "owner": "docs",
+    "foundation": [
+      "27"
+    ],
+    "new": true,
+    "tables": [
+      "none"
+    ],
+    "logic": "Create 3-minute and 8-minute scripts covering happy path,missing serial,incompatibility,stock split and human review; include recording checklist and captions.",
+    "errors": "Do not claim video exists until recorded; use synthetic data; show failure handling and reset; verify links before sending recruiters.",
+    "implementation": "F69",
+    "trace": "features/F69-demo-walkthrough.md",
+    "test": "tests/acceptance/test_f69.py",
+    "prompt": "prompts/F69-demo-walkthrough.md"
+  }
+]

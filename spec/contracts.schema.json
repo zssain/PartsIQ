@@ -1,0 +1,4182 @@
+{
+  "Contract": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Contract",
+    "type": "object"
+  },
+  "ActorContext": {
+    "additionalProperties": false,
+    "properties": {
+      "user_id": {
+        "format": "uuid",
+        "title": "User Id",
+        "type": "string"
+      },
+      "request_id": {
+        "format": "uuid",
+        "title": "Request Id",
+        "type": "string"
+      },
+      "roles": {
+        "items": {
+          "enum": [
+            "reviewer",
+            "catalogue_admin",
+            "admin"
+          ],
+          "type": "string"
+        },
+        "title": "Roles",
+        "type": "array"
+      },
+      "session_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Session Id"
+      },
+      "session_generation": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Session Generation"
+      }
+    },
+    "required": [
+      "user_id",
+      "request_id",
+      "roles"
+    ],
+    "title": "ActorContext",
+    "type": "object"
+  },
+  "DemoSession": {
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "title": "Id",
+        "type": "string"
+      },
+      "generation": {
+        "minimum": 1,
+        "title": "Generation",
+        "type": "integer"
+      },
+      "expires_at": {
+        "format": "date-time",
+        "title": "Expires At",
+        "type": "string"
+      }
+    },
+    "required": [
+      "id",
+      "generation",
+      "expires_at"
+    ],
+    "title": "DemoSession",
+    "type": "object"
+  },
+  "ItemInput": {
+    "additionalProperties": false,
+    "properties": {
+      "description": {
+        "maxLength": 1000,
+        "minLength": 1,
+        "title": "Description",
+        "type": "string"
+      },
+      "quantity": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0.0,
+            "maximum": 100000.0,
+            "type": "number"
+          },
+          {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Quantity"
+      },
+      "model_text": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Model Text"
+      },
+      "serial_text": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Serial Text"
+      },
+      "source_message_id": {
+        "format": "uuid",
+        "title": "Source Message Id",
+        "type": "string"
+      },
+      "source_start": {
+        "minimum": 0,
+        "title": "Source Start",
+        "type": "integer"
+      },
+      "source_end": {
+        "minimum": 0,
+        "title": "Source End",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "description",
+      "source_message_id",
+      "source_start",
+      "source_end"
+    ],
+    "title": "ItemInput",
+    "type": "object"
+  },
+  "IntakeResult": {
+    "$defs": {
+      "ItemInput": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 100000.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quantity"
+          },
+          "model_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Text"
+          },
+          "serial_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Serial Text"
+          },
+          "source_message_id": {
+            "format": "uuid",
+            "title": "Source Message Id",
+            "type": "string"
+          },
+          "source_start": {
+            "minimum": 0,
+            "title": "Source Start",
+            "type": "integer"
+          },
+          "source_end": {
+            "minimum": 0,
+            "title": "Source End",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "description",
+          "source_message_id",
+          "source_start",
+          "source_end"
+        ],
+        "title": "ItemInput",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "language": {
+        "enum": [
+          "en",
+          "ar",
+          "mixed"
+        ],
+        "title": "Language",
+        "type": "string"
+      },
+      "preferred_locale": {
+        "enum": [
+          "en",
+          "ar"
+        ],
+        "title": "Preferred Locale",
+        "type": "string"
+      },
+      "urgency": {
+        "enum": [
+          "normal",
+          "urgent"
+        ],
+        "title": "Urgency",
+        "type": "string"
+      },
+      "items": {
+        "items": {
+          "$ref": "#/$defs/ItemInput"
+        },
+        "maxItems": 20,
+        "minItems": 1,
+        "title": "Items",
+        "type": "array"
+      }
+    },
+    "required": [
+      "language",
+      "preferred_locale",
+      "urgency",
+      "items"
+    ],
+    "title": "IntakeResult",
+    "type": "object"
+  },
+  "EnquiryCreate": {
+    "additionalProperties": false,
+    "properties": {
+      "text": {
+        "maxLength": 12000,
+        "minLength": 1,
+        "title": "Text",
+        "type": "string"
+      },
+      "locale": {
+        "enum": [
+          "en",
+          "ar"
+        ],
+        "title": "Locale",
+        "type": "string"
+      },
+      "destination_warehouse_id": {
+        "exclusiveMinimum": 0,
+        "title": "Destination Warehouse Id",
+        "type": "integer"
+      },
+      "session_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Session Id"
+      }
+    },
+    "required": [
+      "text",
+      "locale",
+      "destination_warehouse_id"
+    ],
+    "title": "EnquiryCreate",
+    "type": "object"
+  },
+  "MessageCreate": {
+    "additionalProperties": false,
+    "properties": {
+      "text": {
+        "maxLength": 12000,
+        "minLength": 1,
+        "title": "Text",
+        "type": "string"
+      },
+      "expected_revision": {
+        "minimum": 1,
+        "title": "Expected Revision",
+        "type": "integer"
+      },
+      "item_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Item Id"
+      }
+    },
+    "required": [
+      "text",
+      "expected_revision"
+    ],
+    "title": "MessageCreate",
+    "type": "object"
+  },
+  "MessageView": {
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "title": "Id",
+        "type": "string"
+      },
+      "enquiry_id": {
+        "format": "uuid",
+        "title": "Enquiry Id",
+        "type": "string"
+      },
+      "revision": {
+        "title": "Revision",
+        "type": "integer"
+      },
+      "kind": {
+        "enum": [
+          "customer",
+          "clarification",
+          "status",
+          "recommendation"
+        ],
+        "title": "Kind",
+        "type": "string"
+      },
+      "body": {
+        "title": "Body",
+        "type": "string"
+      },
+      "created_at": {
+        "format": "date-time",
+        "title": "Created At",
+        "type": "string"
+      }
+    },
+    "required": [
+      "id",
+      "enquiry_id",
+      "revision",
+      "kind",
+      "body",
+      "created_at"
+    ],
+    "title": "MessageView",
+    "type": "object"
+  },
+  "EnquiryView": {
+    "$defs": {
+      "MessageView": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "enquiry_id": {
+            "format": "uuid",
+            "title": "Enquiry Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "customer",
+              "clarification",
+              "status",
+              "recommendation"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "enquiry_id",
+          "revision",
+          "kind",
+          "body",
+          "created_at"
+        ],
+        "title": "MessageView",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "title": "Id",
+        "type": "string"
+      },
+      "revision": {
+        "title": "Revision",
+        "type": "integer"
+      },
+      "status": {
+        "enum": [
+          "received",
+          "processing",
+          "needs_information",
+          "awaiting_review",
+          "approved",
+          "rejected",
+          "failed"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
+      "messages": {
+        "items": {
+          "$ref": "#/$defs/MessageView"
+        },
+        "title": "Messages",
+        "type": "array"
+      },
+      "item_ids": {
+        "items": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "title": "Item Ids",
+        "type": "array"
+      },
+      "catalogue_version_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Catalogue Version Id"
+      },
+      "updated_at": {
+        "format": "date-time",
+        "title": "Updated At",
+        "type": "string"
+      }
+    },
+    "required": [
+      "id",
+      "revision",
+      "status",
+      "messages",
+      "item_ids",
+      "catalogue_version_id",
+      "updated_at"
+    ],
+    "title": "EnquiryView",
+    "type": "object"
+  },
+  "UploadRequest": {
+    "additionalProperties": false,
+    "properties": {
+      "enquiry_id": {
+        "format": "uuid",
+        "title": "Enquiry Id",
+        "type": "string"
+      },
+      "expected_revision": {
+        "minimum": 1,
+        "title": "Expected Revision",
+        "type": "integer"
+      },
+      "media_type": {
+        "enum": [
+          "image/jpeg",
+          "image/png",
+          "image/webp"
+        ],
+        "title": "Media Type",
+        "type": "string"
+      },
+      "size_bytes": {
+        "exclusiveMinimum": 0,
+        "maximum": 10485760,
+        "title": "Size Bytes",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "enquiry_id",
+      "expected_revision",
+      "media_type",
+      "size_bytes"
+    ],
+    "title": "UploadRequest",
+    "type": "object"
+  },
+  "UploadTicket": {
+    "additionalProperties": false,
+    "properties": {
+      "attachment_id": {
+        "format": "uuid",
+        "title": "Attachment Id",
+        "type": "string"
+      },
+      "upload_url": {
+        "title": "Upload Url",
+        "type": "string"
+      },
+      "expires_at": {
+        "format": "date-time",
+        "title": "Expires At",
+        "type": "string"
+      }
+    },
+    "required": [
+      "attachment_id",
+      "upload_url",
+      "expires_at"
+    ],
+    "title": "UploadTicket",
+    "type": "object"
+  },
+  "AttachmentView": {
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "title": "Id",
+        "type": "string"
+      },
+      "status": {
+        "enum": [
+          "pending",
+          "validated",
+          "rejected",
+          "deleted"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
+      "error_code": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Error Code"
+      }
+    },
+    "required": [
+      "id",
+      "status"
+    ],
+    "title": "AttachmentView",
+    "type": "object"
+  },
+  "DownloadRequest": {
+    "$defs": {
+      "ActorContext": {
+        "additionalProperties": false,
+        "properties": {
+          "user_id": {
+            "format": "uuid",
+            "title": "User Id",
+            "type": "string"
+          },
+          "request_id": {
+            "format": "uuid",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "roles": {
+            "items": {
+              "enum": [
+                "reviewer",
+                "catalogue_admin",
+                "admin"
+              ],
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "array"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Session Id"
+          },
+          "session_generation": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Session Generation"
+          }
+        },
+        "required": [
+          "user_id",
+          "request_id",
+          "roles"
+        ],
+        "title": "ActorContext",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "actor": {
+        "$ref": "#/$defs/ActorContext"
+      },
+      "resource_type": {
+        "enum": [
+          "evidence",
+          "export",
+          "attachment"
+        ],
+        "title": "Resource Type",
+        "type": "string"
+      },
+      "resource_id": {
+        "format": "uuid",
+        "title": "Resource Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "actor",
+      "resource_type",
+      "resource_id"
+    ],
+    "title": "DownloadRequest",
+    "type": "object"
+  },
+  "DownloadTicket": {
+    "additionalProperties": false,
+    "properties": {
+      "url": {
+        "title": "Url",
+        "type": "string"
+      },
+      "expires_at": {
+        "format": "date-time",
+        "title": "Expires At",
+        "type": "string"
+      }
+    },
+    "required": [
+      "url",
+      "expires_at"
+    ],
+    "title": "DownloadTicket",
+    "type": "object"
+  },
+  "ImageInfo": {
+    "additionalProperties": false,
+    "properties": {
+      "width": {
+        "exclusiveMinimum": 0,
+        "maximum": 12000,
+        "title": "Width",
+        "type": "integer"
+      },
+      "height": {
+        "exclusiveMinimum": 0,
+        "maximum": 12000,
+        "title": "Height",
+        "type": "integer"
+      },
+      "media_type": {
+        "title": "Media Type",
+        "type": "string"
+      },
+      "sha256": {
+        "pattern": "^[a-f0-9]{64}$",
+        "title": "Sha256",
+        "type": "string"
+      }
+    },
+    "required": [
+      "width",
+      "height",
+      "media_type",
+      "sha256"
+    ],
+    "title": "ImageInfo",
+    "type": "object"
+  },
+  "NameplateResult": {
+    "additionalProperties": false,
+    "properties": {
+      "attachment_id": {
+        "format": "uuid",
+        "title": "Attachment Id",
+        "type": "string"
+      },
+      "model_text": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Model Text"
+      },
+      "serial_text": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Serial Text"
+      },
+      "issues": {
+        "items": {
+          "enum": [
+            "unreadable",
+            "blur",
+            "low_resolution",
+            "glare",
+            "partial_plate"
+          ],
+          "type": "string"
+        },
+        "title": "Issues",
+        "type": "array"
+      },
+      "confirmation_required": {
+        "const": true,
+        "default": true,
+        "title": "Confirmation Required",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "attachment_id",
+      "model_text",
+      "serial_text",
+      "issues"
+    ],
+    "title": "NameplateResult",
+    "type": "object"
+  },
+  "ConfirmExtraction": {
+    "additionalProperties": false,
+    "properties": {
+      "extraction_id": {
+        "format": "uuid",
+        "title": "Extraction Id",
+        "type": "string"
+      },
+      "expected_revision": {
+        "minimum": 1,
+        "title": "Expected Revision",
+        "type": "integer"
+      },
+      "model_text": {
+        "maxLength": 120,
+        "minLength": 1,
+        "title": "Model Text",
+        "type": "string"
+      },
+      "serial_text": {
+        "maxLength": 120,
+        "minLength": 1,
+        "title": "Serial Text",
+        "type": "string"
+      }
+    },
+    "required": [
+      "extraction_id",
+      "expected_revision",
+      "model_text",
+      "serial_text"
+    ],
+    "title": "ConfirmExtraction",
+    "type": "object"
+  },
+  "Allocation": {
+    "additionalProperties": false,
+    "properties": {
+      "warehouse_id": {
+        "exclusiveMinimum": 0,
+        "title": "Warehouse Id",
+        "type": "integer"
+      },
+      "quantity": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0.0,
+            "type": "number"
+          },
+          {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "type": "string"
+          }
+        ],
+        "title": "Quantity"
+      },
+      "transfer_days": {
+        "maximum": 60,
+        "minimum": 0,
+        "title": "Transfer Days",
+        "type": "integer"
+      },
+      "stock_updated_at": {
+        "format": "date-time",
+        "title": "Stock Updated At",
+        "type": "string"
+      }
+    },
+    "required": [
+      "warehouse_id",
+      "quantity",
+      "transfer_days",
+      "stock_updated_at"
+    ],
+    "title": "Allocation",
+    "type": "object"
+  },
+  "VerifiedItem": {
+    "$defs": {
+      "Allocation": {
+        "additionalProperties": false,
+        "properties": {
+          "warehouse_id": {
+            "exclusiveMinimum": 0,
+            "title": "Warehouse Id",
+            "type": "integer"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "transfer_days": {
+            "maximum": 60,
+            "minimum": 0,
+            "title": "Transfer Days",
+            "type": "integer"
+          },
+          "stock_updated_at": {
+            "format": "date-time",
+            "title": "Stock Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "warehouse_id",
+          "quantity",
+          "transfer_days",
+          "stock_updated_at"
+        ],
+        "title": "Allocation",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "item_id": {
+        "format": "uuid",
+        "title": "Item Id",
+        "type": "string"
+      },
+      "configuration_id": {
+        "title": "Configuration Id",
+        "type": "integer"
+      },
+      "part_id": {
+        "title": "Part Id",
+        "type": "integer"
+      },
+      "part_number": {
+        "title": "Part Number",
+        "type": "string"
+      },
+      "name_en": {
+        "title": "Name En",
+        "type": "string"
+      },
+      "name_ar": {
+        "title": "Name Ar",
+        "type": "string"
+      },
+      "requested_quantity": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0.0,
+            "type": "number"
+          },
+          {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "type": "string"
+          }
+        ],
+        "title": "Requested Quantity"
+      },
+      "allocations": {
+        "items": {
+          "$ref": "#/$defs/Allocation"
+        },
+        "title": "Allocations",
+        "type": "array"
+      },
+      "shortage": {
+        "anyOf": [
+          {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "type": "string"
+          }
+        ],
+        "title": "Shortage"
+      },
+      "source_reference": {
+        "title": "Source Reference",
+        "type": "string"
+      },
+      "evidence_id": {
+        "format": "uuid",
+        "title": "Evidence Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "item_id",
+      "configuration_id",
+      "part_id",
+      "part_number",
+      "name_en",
+      "name_ar",
+      "requested_quantity",
+      "allocations",
+      "shortage",
+      "source_reference",
+      "evidence_id"
+    ],
+    "title": "VerifiedItem",
+    "type": "object"
+  },
+  "VerifiedFacts": {
+    "$defs": {
+      "Allocation": {
+        "additionalProperties": false,
+        "properties": {
+          "warehouse_id": {
+            "exclusiveMinimum": 0,
+            "title": "Warehouse Id",
+            "type": "integer"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "transfer_days": {
+            "maximum": 60,
+            "minimum": 0,
+            "title": "Transfer Days",
+            "type": "integer"
+          },
+          "stock_updated_at": {
+            "format": "date-time",
+            "title": "Stock Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "warehouse_id",
+          "quantity",
+          "transfer_days",
+          "stock_updated_at"
+        ],
+        "title": "Allocation",
+        "type": "object"
+      },
+      "VerifiedItem": {
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "format": "uuid",
+            "title": "Item Id",
+            "type": "string"
+          },
+          "configuration_id": {
+            "title": "Configuration Id",
+            "type": "integer"
+          },
+          "part_id": {
+            "title": "Part Id",
+            "type": "integer"
+          },
+          "part_number": {
+            "title": "Part Number",
+            "type": "string"
+          },
+          "name_en": {
+            "title": "Name En",
+            "type": "string"
+          },
+          "name_ar": {
+            "title": "Name Ar",
+            "type": "string"
+          },
+          "requested_quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Requested Quantity"
+          },
+          "allocations": {
+            "items": {
+              "$ref": "#/$defs/Allocation"
+            },
+            "title": "Allocations",
+            "type": "array"
+          },
+          "shortage": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Shortage"
+          },
+          "source_reference": {
+            "title": "Source Reference",
+            "type": "string"
+          },
+          "evidence_id": {
+            "format": "uuid",
+            "title": "Evidence Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_id",
+          "configuration_id",
+          "part_id",
+          "part_number",
+          "name_en",
+          "name_ar",
+          "requested_quantity",
+          "allocations",
+          "shortage",
+          "source_reference",
+          "evidence_id"
+        ],
+        "title": "VerifiedItem",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "enquiry_id": {
+        "format": "uuid",
+        "title": "Enquiry Id",
+        "type": "string"
+      },
+      "revision": {
+        "title": "Revision",
+        "type": "integer"
+      },
+      "catalogue_version_id": {
+        "format": "uuid",
+        "title": "Catalogue Version Id",
+        "type": "string"
+      },
+      "items": {
+        "items": {
+          "$ref": "#/$defs/VerifiedItem"
+        },
+        "maxItems": 20,
+        "minItems": 1,
+        "title": "Items",
+        "type": "array"
+      }
+    },
+    "required": [
+      "enquiry_id",
+      "revision",
+      "catalogue_version_id",
+      "items"
+    ],
+    "title": "VerifiedFacts",
+    "type": "object"
+  },
+  "CandidateEvidence": {
+    "additionalProperties": false,
+    "properties": {
+      "item_id": {
+        "format": "uuid",
+        "title": "Item Id",
+        "type": "string"
+      },
+      "part_id": {
+        "title": "Part Id",
+        "type": "integer"
+      },
+      "configuration_id": {
+        "title": "Configuration Id",
+        "type": "integer"
+      },
+      "evidence_id": {
+        "format": "uuid",
+        "title": "Evidence Id",
+        "type": "string"
+      },
+      "source_reference": {
+        "title": "Source Reference",
+        "type": "string"
+      }
+    },
+    "required": [
+      "item_id",
+      "part_id",
+      "configuration_id",
+      "evidence_id",
+      "source_reference"
+    ],
+    "title": "CandidateEvidence",
+    "type": "object"
+  },
+  "StockEvidence": {
+    "additionalProperties": false,
+    "properties": {
+      "part_id": {
+        "title": "Part Id",
+        "type": "integer"
+      },
+      "warehouse_id": {
+        "title": "Warehouse Id",
+        "type": "integer"
+      },
+      "available": {
+        "anyOf": [
+          {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "type": "string"
+          }
+        ],
+        "title": "Available"
+      },
+      "updated_at": {
+        "format": "date-time",
+        "title": "Updated At",
+        "type": "string"
+      }
+    },
+    "required": [
+      "part_id",
+      "warehouse_id",
+      "available",
+      "updated_at"
+    ],
+    "title": "StockEvidence",
+    "type": "object"
+  },
+  "VerificationEvidence": {
+    "$defs": {
+      "CandidateEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "format": "uuid",
+            "title": "Item Id",
+            "type": "string"
+          },
+          "part_id": {
+            "title": "Part Id",
+            "type": "integer"
+          },
+          "configuration_id": {
+            "title": "Configuration Id",
+            "type": "integer"
+          },
+          "evidence_id": {
+            "format": "uuid",
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "source_reference": {
+            "title": "Source Reference",
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_id",
+          "part_id",
+          "configuration_id",
+          "evidence_id",
+          "source_reference"
+        ],
+        "title": "CandidateEvidence",
+        "type": "object"
+      },
+      "StockEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "part_id": {
+            "title": "Part Id",
+            "type": "integer"
+          },
+          "warehouse_id": {
+            "title": "Warehouse Id",
+            "type": "integer"
+          },
+          "available": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Available"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "part_id",
+          "warehouse_id",
+          "available",
+          "updated_at"
+        ],
+        "title": "StockEvidence",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "current_revision": {
+        "title": "Current Revision",
+        "type": "integer"
+      },
+      "active_catalogue_version_id": {
+        "format": "uuid",
+        "title": "Active Catalogue Version Id",
+        "type": "string"
+      },
+      "candidates": {
+        "items": {
+          "$ref": "#/$defs/CandidateEvidence"
+        },
+        "title": "Candidates",
+        "type": "array"
+      },
+      "stock": {
+        "items": {
+          "$ref": "#/$defs/StockEvidence"
+        },
+        "title": "Stock",
+        "type": "array"
+      }
+    },
+    "required": [
+      "current_revision",
+      "active_catalogue_version_id",
+      "candidates",
+      "stock"
+    ],
+    "title": "VerificationEvidence",
+    "type": "object"
+  },
+  "VerificationFailure": {
+    "additionalProperties": false,
+    "properties": {
+      "code": {
+        "enum": [
+          "STALE_REVISION",
+          "STALE_CATALOGUE",
+          "INCOMPATIBLE",
+          "MISSING_EVIDENCE",
+          "INVALID_QUANTITY",
+          "OVERALLOCATION",
+          "STALE_STOCK",
+          "UNRESOLVED_ITEM",
+          "UNSAFE_PROSE"
+        ],
+        "title": "Code",
+        "type": "string"
+      },
+      "item_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Item Id"
+      },
+      "detail": {
+        "title": "Detail",
+        "type": "string"
+      }
+    },
+    "required": [
+      "code",
+      "item_id",
+      "detail"
+    ],
+    "title": "VerificationFailure",
+    "type": "object"
+  },
+  "VerificationResult": {
+    "$defs": {
+      "VerificationFailure": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "STALE_REVISION",
+              "STALE_CATALOGUE",
+              "INCOMPATIBLE",
+              "MISSING_EVIDENCE",
+              "INVALID_QUANTITY",
+              "OVERALLOCATION",
+              "STALE_STOCK",
+              "UNRESOLVED_ITEM",
+              "UNSAFE_PROSE"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "item_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Id"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "item_id",
+          "detail"
+        ],
+        "title": "VerificationFailure",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "passed": {
+        "title": "Passed",
+        "type": "boolean"
+      },
+      "failures": {
+        "items": {
+          "$ref": "#/$defs/VerificationFailure"
+        },
+        "title": "Failures",
+        "type": "array"
+      },
+      "facts_sha256": {
+        "title": "Facts Sha256",
+        "type": "string"
+      }
+    },
+    "required": [
+      "passed",
+      "failures",
+      "facts_sha256"
+    ],
+    "title": "VerificationResult",
+    "type": "object"
+  },
+  "ReplySlots": {
+    "additionalProperties": false,
+    "properties": {
+      "greeting": {
+        "maxLength": 200,
+        "title": "Greeting",
+        "type": "string"
+      },
+      "explanation": {
+        "maxLength": 1500,
+        "title": "Explanation",
+        "type": "string"
+      },
+      "closing": {
+        "maxLength": 300,
+        "title": "Closing",
+        "type": "string"
+      }
+    },
+    "required": [
+      "greeting",
+      "explanation",
+      "closing"
+    ],
+    "title": "ReplySlots",
+    "type": "object"
+  },
+  "ApprovalRequest": {
+    "$defs": {
+      "ReplySlots": {
+        "additionalProperties": false,
+        "properties": {
+          "greeting": {
+            "maxLength": 200,
+            "title": "Greeting",
+            "type": "string"
+          },
+          "explanation": {
+            "maxLength": 1500,
+            "title": "Explanation",
+            "type": "string"
+          },
+          "closing": {
+            "maxLength": 300,
+            "title": "Closing",
+            "type": "string"
+          }
+        },
+        "required": [
+          "greeting",
+          "explanation",
+          "closing"
+        ],
+        "title": "ReplySlots",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "enquiry_id": {
+        "format": "uuid",
+        "title": "Enquiry Id",
+        "type": "string"
+      },
+      "expected_revision": {
+        "minimum": 1,
+        "title": "Expected Revision",
+        "type": "integer"
+      },
+      "draft_id": {
+        "format": "uuid",
+        "title": "Draft Id",
+        "type": "string"
+      },
+      "edited_slots": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ReplySlots"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      }
+    },
+    "required": [
+      "enquiry_id",
+      "expected_revision",
+      "draft_id"
+    ],
+    "title": "ApprovalRequest",
+    "type": "object"
+  },
+  "RejectionRequest": {
+    "additionalProperties": false,
+    "properties": {
+      "enquiry_id": {
+        "format": "uuid",
+        "title": "Enquiry Id",
+        "type": "string"
+      },
+      "expected_revision": {
+        "minimum": 1,
+        "title": "Expected Revision",
+        "type": "integer"
+      },
+      "reason": {
+        "maxLength": 1000,
+        "minLength": 1,
+        "title": "Reason",
+        "type": "string"
+      }
+    },
+    "required": [
+      "enquiry_id",
+      "expected_revision",
+      "reason"
+    ],
+    "title": "RejectionRequest",
+    "type": "object"
+  },
+  "ApprovalResult": {
+    "additionalProperties": false,
+    "properties": {
+      "decision_id": {
+        "format": "uuid",
+        "title": "Decision Id",
+        "type": "string"
+      },
+      "message_id": {
+        "format": "uuid",
+        "title": "Message Id",
+        "type": "string"
+      },
+      "revision": {
+        "title": "Revision",
+        "type": "integer"
+      },
+      "already_applied": {
+        "title": "Already Applied",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "decision_id",
+      "message_id",
+      "revision",
+      "already_applied"
+    ],
+    "title": "ApprovalResult",
+    "type": "object"
+  },
+  "ReviewResult": {
+    "additionalProperties": false,
+    "properties": {
+      "decision_id": {
+        "format": "uuid",
+        "title": "Decision Id",
+        "type": "string"
+      },
+      "revision": {
+        "title": "Revision",
+        "type": "integer"
+      },
+      "status": {
+        "enum": [
+          "approved",
+          "rejected"
+        ],
+        "title": "Status",
+        "type": "string"
+      }
+    },
+    "required": [
+      "decision_id",
+      "revision",
+      "status"
+    ],
+    "title": "ReviewResult",
+    "type": "object"
+  },
+  "ItemCorrection": {
+    "additionalProperties": false,
+    "properties": {
+      "item_id": {
+        "format": "uuid",
+        "title": "Item Id",
+        "type": "string"
+      },
+      "description": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Description"
+      },
+      "quantity": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0.0,
+            "maximum": 100000.0,
+            "type": "number"
+          },
+          {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Quantity"
+      },
+      "model_text": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Model Text"
+      },
+      "serial_text": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Serial Text"
+      }
+    },
+    "required": [
+      "item_id"
+    ],
+    "title": "ItemCorrection",
+    "type": "object"
+  },
+  "RevisionRequest": {
+    "$defs": {
+      "ItemCorrection": {
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "format": "uuid",
+            "title": "Item Id",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 100000.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quantity"
+          },
+          "model_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Text"
+          },
+          "serial_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Serial Text"
+          }
+        },
+        "required": [
+          "item_id"
+        ],
+        "title": "ItemCorrection",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "enquiry_id": {
+        "format": "uuid",
+        "title": "Enquiry Id",
+        "type": "string"
+      },
+      "expected_revision": {
+        "title": "Expected Revision",
+        "type": "integer"
+      },
+      "corrections": {
+        "items": {
+          "$ref": "#/$defs/ItemCorrection"
+        },
+        "maxItems": 20,
+        "minItems": 1,
+        "title": "Corrections",
+        "type": "array"
+      },
+      "reason": {
+        "maxLength": 1000,
+        "minLength": 1,
+        "title": "Reason",
+        "type": "string"
+      }
+    },
+    "required": [
+      "enquiry_id",
+      "expected_revision",
+      "corrections",
+      "reason"
+    ],
+    "title": "RevisionRequest",
+    "type": "object"
+  },
+  "JobLease": {
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "title": "Id",
+        "type": "string"
+      },
+      "kind": {
+        "enum": [
+          "nameplate",
+          "export_pdf",
+          "catalog_import",
+          "catalog_publish",
+          "storage_cleanup"
+        ],
+        "title": "Kind",
+        "type": "string"
+      },
+      "enquiry_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Enquiry Id"
+      },
+      "revision": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Revision"
+      },
+      "session_generation": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Session Generation"
+      },
+      "lease_token": {
+        "format": "uuid",
+        "title": "Lease Token",
+        "type": "string"
+      },
+      "expires_at": {
+        "format": "date-time",
+        "title": "Expires At",
+        "type": "string"
+      },
+      "attempt": {
+        "title": "Attempt",
+        "type": "integer"
+      },
+      "payload": {
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "title": "Payload",
+        "type": "object"
+      }
+    },
+    "required": [
+      "id",
+      "kind",
+      "enquiry_id",
+      "revision",
+      "session_generation",
+      "lease_token",
+      "expires_at",
+      "attempt",
+      "payload"
+    ],
+    "title": "JobLease",
+    "type": "object"
+  },
+  "JobResult": {
+    "additionalProperties": false,
+    "properties": {
+      "status": {
+        "enum": [
+          "succeeded",
+          "failed",
+          "cancelled"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
+      "result_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Result Id"
+      },
+      "error_code": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Error Code"
+      }
+    },
+    "required": [
+      "status",
+      "result_id",
+      "error_code"
+    ],
+    "title": "JobResult",
+    "type": "object"
+  },
+  "ExportRequest": {
+    "additionalProperties": false,
+    "properties": {
+      "enquiry_id": {
+        "format": "uuid",
+        "title": "Enquiry Id",
+        "type": "string"
+      },
+      "revision": {
+        "title": "Revision",
+        "type": "integer"
+      },
+      "decision_id": {
+        "format": "uuid",
+        "title": "Decision Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "enquiry_id",
+      "revision",
+      "decision_id"
+    ],
+    "title": "ExportRequest",
+    "type": "object"
+  },
+  "ExportResult": {
+    "additionalProperties": false,
+    "properties": {
+      "export_id": {
+        "format": "uuid",
+        "title": "Export Id",
+        "type": "string"
+      },
+      "storage_key": {
+        "title": "Storage Key",
+        "type": "string"
+      },
+      "sha256": {
+        "title": "Sha256",
+        "type": "string"
+      }
+    },
+    "required": [
+      "export_id",
+      "storage_key",
+      "sha256"
+    ],
+    "title": "ExportResult",
+    "type": "object"
+  },
+  "ApprovedSnapshot": {
+    "$defs": {
+      "Allocation": {
+        "additionalProperties": false,
+        "properties": {
+          "warehouse_id": {
+            "exclusiveMinimum": 0,
+            "title": "Warehouse Id",
+            "type": "integer"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "transfer_days": {
+            "maximum": 60,
+            "minimum": 0,
+            "title": "Transfer Days",
+            "type": "integer"
+          },
+          "stock_updated_at": {
+            "format": "date-time",
+            "title": "Stock Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "warehouse_id",
+          "quantity",
+          "transfer_days",
+          "stock_updated_at"
+        ],
+        "title": "Allocation",
+        "type": "object"
+      },
+      "VerifiedFacts": {
+        "additionalProperties": false,
+        "properties": {
+          "enquiry_id": {
+            "format": "uuid",
+            "title": "Enquiry Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "catalogue_version_id": {
+            "format": "uuid",
+            "title": "Catalogue Version Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/VerifiedItem"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "enquiry_id",
+          "revision",
+          "catalogue_version_id",
+          "items"
+        ],
+        "title": "VerifiedFacts",
+        "type": "object"
+      },
+      "VerifiedItem": {
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "format": "uuid",
+            "title": "Item Id",
+            "type": "string"
+          },
+          "configuration_id": {
+            "title": "Configuration Id",
+            "type": "integer"
+          },
+          "part_id": {
+            "title": "Part Id",
+            "type": "integer"
+          },
+          "part_number": {
+            "title": "Part Number",
+            "type": "string"
+          },
+          "name_en": {
+            "title": "Name En",
+            "type": "string"
+          },
+          "name_ar": {
+            "title": "Name Ar",
+            "type": "string"
+          },
+          "requested_quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Requested Quantity"
+          },
+          "allocations": {
+            "items": {
+              "$ref": "#/$defs/Allocation"
+            },
+            "title": "Allocations",
+            "type": "array"
+          },
+          "shortage": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Shortage"
+          },
+          "source_reference": {
+            "title": "Source Reference",
+            "type": "string"
+          },
+          "evidence_id": {
+            "format": "uuid",
+            "title": "Evidence Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_id",
+          "configuration_id",
+          "part_id",
+          "part_number",
+          "name_en",
+          "name_ar",
+          "requested_quantity",
+          "allocations",
+          "shortage",
+          "source_reference",
+          "evidence_id"
+        ],
+        "title": "VerifiedItem",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "decision_id": {
+        "format": "uuid",
+        "title": "Decision Id",
+        "type": "string"
+      },
+      "approved_at": {
+        "format": "date-time",
+        "title": "Approved At",
+        "type": "string"
+      },
+      "locale": {
+        "enum": [
+          "en",
+          "ar"
+        ],
+        "title": "Locale",
+        "type": "string"
+      },
+      "facts": {
+        "$ref": "#/$defs/VerifiedFacts"
+      },
+      "reply": {
+        "title": "Reply",
+        "type": "string"
+      },
+      "synthetic": {
+        "title": "Synthetic",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "decision_id",
+      "approved_at",
+      "locale",
+      "facts",
+      "reply",
+      "synthetic"
+    ],
+    "title": "ApprovedSnapshot",
+    "type": "object"
+  },
+  "AuditEvent": {
+    "additionalProperties": false,
+    "properties": {
+      "actor_type": {
+        "enum": [
+          "system",
+          "ai",
+          "user"
+        ],
+        "title": "Actor Type",
+        "type": "string"
+      },
+      "actor_id": {
+        "title": "Actor Id",
+        "type": "string"
+      },
+      "action": {
+        "title": "Action",
+        "type": "string"
+      },
+      "entity_type": {
+        "title": "Entity Type",
+        "type": "string"
+      },
+      "entity_id": {
+        "title": "Entity Id",
+        "type": "string"
+      },
+      "request_id": {
+        "format": "uuid",
+        "title": "Request Id",
+        "type": "string"
+      },
+      "enquiry_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Enquiry Id"
+      },
+      "revision": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Revision"
+      },
+      "payload": {
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "title": "Payload",
+        "type": "object"
+      }
+    },
+    "required": [
+      "actor_type",
+      "actor_id",
+      "action",
+      "entity_type",
+      "entity_id",
+      "request_id",
+      "enquiry_id",
+      "revision",
+      "payload"
+    ],
+    "title": "AuditEvent",
+    "type": "object"
+  },
+  "AIRequest": {
+    "additionalProperties": false,
+    "properties": {
+      "request_key": {
+        "format": "uuid",
+        "title": "Request Key",
+        "type": "string"
+      },
+      "enquiry_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Enquiry Id"
+      },
+      "stage": {
+        "enum": [
+          "intake",
+          "nameplate",
+          "parts",
+          "reply",
+          "summary"
+        ],
+        "title": "Stage",
+        "type": "string"
+      },
+      "model": {
+        "title": "Model",
+        "type": "string"
+      },
+      "trusted_instructions": {
+        "title": "Trusted Instructions",
+        "type": "string"
+      },
+      "untrusted_text": {
+        "title": "Untrusted Text",
+        "type": "string"
+      },
+      "image_base64": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Image Base64"
+      },
+      "output_schema_name": {
+        "enum": [
+          "IntakeResult",
+          "NameplateResult",
+          "PartsProposal",
+          "ReplySlots",
+          "SummaryResult"
+        ],
+        "title": "Output Schema Name",
+        "type": "string"
+      },
+      "max_output_tokens": {
+        "maximum": 2048,
+        "minimum": 1,
+        "title": "Max Output Tokens",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "request_key",
+      "enquiry_id",
+      "stage",
+      "model",
+      "trusted_instructions",
+      "untrusted_text",
+      "output_schema_name",
+      "max_output_tokens"
+    ],
+    "title": "AIRequest",
+    "type": "object"
+  },
+  "AIResult": {
+    "additionalProperties": false,
+    "properties": {
+      "output_json": {
+        "title": "Output Json",
+        "type": "string"
+      },
+      "input_tokens": {
+        "title": "Input Tokens",
+        "type": "integer"
+      },
+      "output_tokens": {
+        "title": "Output Tokens",
+        "type": "integer"
+      },
+      "provider_request_id": {
+        "title": "Provider Request Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "output_json",
+      "input_tokens",
+      "output_tokens",
+      "provider_request_id"
+    ],
+    "title": "AIResult",
+    "type": "object"
+  },
+  "BudgetReservation": {
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "title": "Id",
+        "type": "string"
+      },
+      "account_id": {
+        "title": "Account Id",
+        "type": "string"
+      },
+      "reserved_usd": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "type": "string"
+          }
+        ],
+        "title": "Reserved Usd"
+      }
+    },
+    "required": [
+      "id",
+      "account_id",
+      "reserved_usd"
+    ],
+    "title": "BudgetReservation",
+    "type": "object"
+  },
+  "CreditAllowance": {
+    "additionalProperties": false,
+    "properties": {
+      "amount_usd": {
+        "anyOf": [
+          {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "type": "string"
+          }
+        ],
+        "title": "Amount Usd"
+      },
+      "expires_at": {
+        "format": "date-time",
+        "title": "Expires At",
+        "type": "string"
+      },
+      "paid_budget_usd": {
+        "anyOf": [
+          {
+            "maximum": 0.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "type": "string"
+          }
+        ],
+        "title": "Paid Budget Usd"
+      }
+    },
+    "required": [
+      "amount_usd",
+      "expires_at",
+      "paid_budget_usd"
+    ],
+    "title": "CreditAllowance",
+    "type": "object"
+  },
+  "ItemState": {
+    "$defs": {
+      "ItemInput": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 100000.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quantity"
+          },
+          "model_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Text"
+          },
+          "serial_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Serial Text"
+          },
+          "source_message_id": {
+            "format": "uuid",
+            "title": "Source Message Id",
+            "type": "string"
+          },
+          "source_start": {
+            "minimum": 0,
+            "title": "Source Start",
+            "type": "integer"
+          },
+          "source_end": {
+            "minimum": 0,
+            "title": "Source End",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "description",
+          "source_message_id",
+          "source_start",
+          "source_end"
+        ],
+        "title": "ItemInput",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "title": "Id",
+        "type": "string"
+      },
+      "request": {
+        "$ref": "#/$defs/ItemInput"
+      },
+      "configuration_id": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Configuration Id"
+      },
+      "candidate_part_ids": {
+        "items": {
+          "type": "integer"
+        },
+        "title": "Candidate Part Ids",
+        "type": "array"
+      },
+      "selected_part_id": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Selected Part Id"
+      },
+      "status": {
+        "enum": [
+          "unresolved",
+          "needs_information",
+          "ready",
+          "unavailable"
+        ],
+        "title": "Status",
+        "type": "string"
+      }
+    },
+    "required": [
+      "id",
+      "request",
+      "configuration_id",
+      "candidate_part_ids",
+      "selected_part_id",
+      "status"
+    ],
+    "title": "ItemState",
+    "type": "object"
+  },
+  "EnquiryState": {
+    "$defs": {
+      "ItemInput": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 100000.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quantity"
+          },
+          "model_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Text"
+          },
+          "serial_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Serial Text"
+          },
+          "source_message_id": {
+            "format": "uuid",
+            "title": "Source Message Id",
+            "type": "string"
+          },
+          "source_start": {
+            "minimum": 0,
+            "title": "Source Start",
+            "type": "integer"
+          },
+          "source_end": {
+            "minimum": 0,
+            "title": "Source End",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "description",
+          "source_message_id",
+          "source_start",
+          "source_end"
+        ],
+        "title": "ItemInput",
+        "type": "object"
+      },
+      "ItemState": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "request": {
+            "$ref": "#/$defs/ItemInput"
+          },
+          "configuration_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Configuration Id"
+          },
+          "candidate_part_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Candidate Part Ids",
+            "type": "array"
+          },
+          "selected_part_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Part Id"
+          },
+          "status": {
+            "enum": [
+              "unresolved",
+              "needs_information",
+              "ready",
+              "unavailable"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "request",
+          "configuration_id",
+          "candidate_part_ids",
+          "selected_part_id",
+          "status"
+        ],
+        "title": "ItemState",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "enquiry_id": {
+        "format": "uuid",
+        "title": "Enquiry Id",
+        "type": "string"
+      },
+      "revision": {
+        "title": "Revision",
+        "type": "integer"
+      },
+      "session_generation": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Session Generation"
+      },
+      "catalogue_version_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Catalogue Version Id"
+      },
+      "items": {
+        "items": {
+          "$ref": "#/$defs/ItemState"
+        },
+        "title": "Items",
+        "type": "array"
+      },
+      "step_count": {
+        "minimum": 0,
+        "title": "Step Count",
+        "type": "integer"
+      },
+      "pending_question": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Pending Question"
+      },
+      "draft_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Draft Id"
+      },
+      "verification_id": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Verification Id"
+      },
+      "phase": {
+        "title": "Phase",
+        "type": "string"
+      }
+    },
+    "required": [
+      "enquiry_id",
+      "revision",
+      "session_generation",
+      "catalogue_version_id",
+      "items",
+      "step_count",
+      "pending_question",
+      "draft_id",
+      "verification_id",
+      "phase"
+    ],
+    "title": "EnquiryState",
+    "type": "object"
+  },
+  "ToolContext": {
+    "additionalProperties": false,
+    "properties": {
+      "enquiry_id": {
+        "format": "uuid",
+        "title": "Enquiry Id",
+        "type": "string"
+      },
+      "revision": {
+        "title": "Revision",
+        "type": "integer"
+      },
+      "catalogue_version_id": {
+        "format": "uuid",
+        "title": "Catalogue Version Id",
+        "type": "string"
+      },
+      "item_id": {
+        "format": "uuid",
+        "title": "Item Id",
+        "type": "string"
+      },
+      "max_calls": {
+        "maximum": 4,
+        "minimum": 0,
+        "title": "Max Calls",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "enquiry_id",
+      "revision",
+      "catalogue_version_id",
+      "item_id",
+      "max_calls"
+    ],
+    "title": "ToolContext",
+    "type": "object"
+  },
+  "PartsProposal": {
+    "additionalProperties": false,
+    "properties": {
+      "explanation": {
+        "title": "Explanation",
+        "type": "string"
+      },
+      "clarification_code": {
+        "enum": [
+          "needs_serial",
+          "needs_model",
+          "ambiguous_part",
+          "mismatch",
+          "none"
+        ],
+        "title": "Clarification Code",
+        "type": "string"
+      },
+      "candidate_part_ids": {
+        "items": {
+          "type": "integer"
+        },
+        "title": "Candidate Part Ids",
+        "type": "array"
+      }
+    },
+    "required": [
+      "explanation",
+      "clarification_code",
+      "candidate_part_ids"
+    ],
+    "title": "PartsProposal",
+    "type": "object"
+  },
+  "SummaryResult": {
+    "additionalProperties": false,
+    "properties": {
+      "summary": {
+        "maxLength": 2000,
+        "title": "Summary",
+        "type": "string"
+      },
+      "source_message_ids": {
+        "items": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "title": "Source Message Ids",
+        "type": "array"
+      }
+    },
+    "required": [
+      "summary",
+      "source_message_ids"
+    ],
+    "title": "SummaryResult",
+    "type": "object"
+  },
+  "MetricsQuery": {
+    "additionalProperties": false,
+    "properties": {
+      "start": {
+        "format": "date-time",
+        "title": "Start",
+        "type": "string"
+      },
+      "end": {
+        "format": "date-time",
+        "title": "End",
+        "type": "string"
+      },
+      "include_demo": {
+        "default": false,
+        "title": "Include Demo",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "start",
+      "end"
+    ],
+    "title": "MetricsQuery",
+    "type": "object"
+  },
+  "MetricsView": {
+    "additionalProperties": false,
+    "properties": {
+      "enquiry_count": {
+        "title": "Enquiry Count",
+        "type": "integer"
+      },
+      "approved_count": {
+        "title": "Approved Count",
+        "type": "integer"
+      },
+      "clarification_count": {
+        "title": "Clarification Count",
+        "type": "integer"
+      },
+      "evaluated_count": {
+        "title": "Evaluated Count",
+        "type": "integer"
+      },
+      "correct_count": {
+        "title": "Correct Count",
+        "type": "integer"
+      },
+      "median_review_seconds": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Median Review Seconds"
+      },
+      "p95_latency_ms": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "P95 Latency Ms"
+      },
+      "estimated_cost_usd": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "type": "string"
+          }
+        ],
+        "title": "Estimated Cost Usd"
+      }
+    },
+    "required": [
+      "enquiry_count",
+      "approved_count",
+      "clarification_count",
+      "evaluated_count",
+      "correct_count",
+      "median_review_seconds",
+      "p95_latency_ms",
+      "estimated_cost_usd"
+    ],
+    "title": "MetricsView",
+    "type": "object"
+  },
+  "ReviewView": {
+    "$defs": {
+      "Allocation": {
+        "additionalProperties": false,
+        "properties": {
+          "warehouse_id": {
+            "exclusiveMinimum": 0,
+            "title": "Warehouse Id",
+            "type": "integer"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "transfer_days": {
+            "maximum": 60,
+            "minimum": 0,
+            "title": "Transfer Days",
+            "type": "integer"
+          },
+          "stock_updated_at": {
+            "format": "date-time",
+            "title": "Stock Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "warehouse_id",
+          "quantity",
+          "transfer_days",
+          "stock_updated_at"
+        ],
+        "title": "Allocation",
+        "type": "object"
+      },
+      "EnquiryView": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "received",
+              "processing",
+              "needs_information",
+              "awaiting_review",
+              "approved",
+              "rejected",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/$defs/MessageView"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "item_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Item Ids",
+            "type": "array"
+          },
+          "catalogue_version_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catalogue Version Id"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "status",
+          "messages",
+          "item_ids",
+          "catalogue_version_id",
+          "updated_at"
+        ],
+        "title": "EnquiryView",
+        "type": "object"
+      },
+      "MessageView": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "enquiry_id": {
+            "format": "uuid",
+            "title": "Enquiry Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "customer",
+              "clarification",
+              "status",
+              "recommendation"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "enquiry_id",
+          "revision",
+          "kind",
+          "body",
+          "created_at"
+        ],
+        "title": "MessageView",
+        "type": "object"
+      },
+      "ReplySlots": {
+        "additionalProperties": false,
+        "properties": {
+          "greeting": {
+            "maxLength": 200,
+            "title": "Greeting",
+            "type": "string"
+          },
+          "explanation": {
+            "maxLength": 1500,
+            "title": "Explanation",
+            "type": "string"
+          },
+          "closing": {
+            "maxLength": 300,
+            "title": "Closing",
+            "type": "string"
+          }
+        },
+        "required": [
+          "greeting",
+          "explanation",
+          "closing"
+        ],
+        "title": "ReplySlots",
+        "type": "object"
+      },
+      "VerificationFailure": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "STALE_REVISION",
+              "STALE_CATALOGUE",
+              "INCOMPATIBLE",
+              "MISSING_EVIDENCE",
+              "INVALID_QUANTITY",
+              "OVERALLOCATION",
+              "STALE_STOCK",
+              "UNRESOLVED_ITEM",
+              "UNSAFE_PROSE"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "item_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Id"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "item_id",
+          "detail"
+        ],
+        "title": "VerificationFailure",
+        "type": "object"
+      },
+      "VerificationResult": {
+        "additionalProperties": false,
+        "properties": {
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          },
+          "failures": {
+            "items": {
+              "$ref": "#/$defs/VerificationFailure"
+            },
+            "title": "Failures",
+            "type": "array"
+          },
+          "facts_sha256": {
+            "title": "Facts Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "passed",
+          "failures",
+          "facts_sha256"
+        ],
+        "title": "VerificationResult",
+        "type": "object"
+      },
+      "VerifiedFacts": {
+        "additionalProperties": false,
+        "properties": {
+          "enquiry_id": {
+            "format": "uuid",
+            "title": "Enquiry Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "catalogue_version_id": {
+            "format": "uuid",
+            "title": "Catalogue Version Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/VerifiedItem"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "enquiry_id",
+          "revision",
+          "catalogue_version_id",
+          "items"
+        ],
+        "title": "VerifiedFacts",
+        "type": "object"
+      },
+      "VerifiedItem": {
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "format": "uuid",
+            "title": "Item Id",
+            "type": "string"
+          },
+          "configuration_id": {
+            "title": "Configuration Id",
+            "type": "integer"
+          },
+          "part_id": {
+            "title": "Part Id",
+            "type": "integer"
+          },
+          "part_number": {
+            "title": "Part Number",
+            "type": "string"
+          },
+          "name_en": {
+            "title": "Name En",
+            "type": "string"
+          },
+          "name_ar": {
+            "title": "Name Ar",
+            "type": "string"
+          },
+          "requested_quantity": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Requested Quantity"
+          },
+          "allocations": {
+            "items": {
+              "$ref": "#/$defs/Allocation"
+            },
+            "title": "Allocations",
+            "type": "array"
+          },
+          "shortage": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Shortage"
+          },
+          "source_reference": {
+            "title": "Source Reference",
+            "type": "string"
+          },
+          "evidence_id": {
+            "format": "uuid",
+            "title": "Evidence Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_id",
+          "configuration_id",
+          "part_id",
+          "part_number",
+          "name_en",
+          "name_ar",
+          "requested_quantity",
+          "allocations",
+          "shortage",
+          "source_reference",
+          "evidence_id"
+        ],
+        "title": "VerifiedItem",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "enquiry": {
+        "$ref": "#/$defs/EnquiryView"
+      },
+      "facts": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/VerifiedFacts"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "draft": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/ReplySlots"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "verification": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/VerificationResult"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "assigned_to": {
+        "anyOf": [
+          {
+            "format": "uuid",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Assigned To"
+      }
+    },
+    "required": [
+      "enquiry",
+      "facts",
+      "draft",
+      "verification",
+      "assigned_to"
+    ],
+    "title": "ReviewView",
+    "type": "object"
+  },
+  "DemoScenario": {
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "enum": [
+          "mixed_photo",
+          "missing_serial",
+          "incompatible_number",
+          "local_shortage"
+        ],
+        "title": "Id",
+        "type": "string"
+      },
+      "text": {
+        "title": "Text",
+        "type": "string"
+      },
+      "attachment_path": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Attachment Path"
+      },
+      "expected_status": {
+        "title": "Expected Status",
+        "type": "string"
+      },
+      "expected_configuration_id": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Expected Configuration Id"
+      },
+      "expected_part_ids": {
+        "items": {
+          "type": "integer"
+        },
+        "title": "Expected Part Ids",
+        "type": "array"
+      }
+    },
+    "required": [
+      "id",
+      "text",
+      "attachment_path",
+      "expected_status",
+      "expected_configuration_id",
+      "expected_part_ids"
+    ],
+    "title": "DemoScenario",
+    "type": "object"
+  },
+  "EmbeddingReceipt": {
+    "additionalProperties": false,
+    "properties": {
+      "version_id": {
+        "format": "uuid",
+        "title": "Version Id",
+        "type": "string"
+      },
+      "embedded_count": {
+        "title": "Embedded Count",
+        "type": "integer"
+      },
+      "model_revision": {
+        "title": "Model Revision",
+        "type": "string"
+      }
+    },
+    "required": [
+      "version_id",
+      "embedded_count",
+      "model_revision"
+    ],
+    "title": "EmbeddingReceipt",
+    "type": "object"
+  },
+  "EventOutcome": {
+    "additionalProperties": false,
+    "properties": {
+      "event_id": {
+        "format": "uuid",
+        "title": "Event Id",
+        "type": "string"
+      },
+      "state": {
+        "enum": [
+          "processed",
+          "obsolete",
+          "retry",
+          "failed"
+        ],
+        "title": "State",
+        "type": "string"
+      }
+    },
+    "required": [
+      "event_id",
+      "state"
+    ],
+    "title": "EventOutcome",
+    "type": "object"
+  },
+  "EvalCase": {
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "title": "Id",
+        "type": "string"
+      },
+      "scenario": {
+        "title": "Scenario",
+        "type": "string"
+      },
+      "input_text": {
+        "title": "Input Text",
+        "type": "string"
+      },
+      "expected_status": {
+        "title": "Expected Status",
+        "type": "string"
+      },
+      "expected_part_ids": {
+        "items": {
+          "type": "integer"
+        },
+        "title": "Expected Part Ids",
+        "type": "array"
+      }
+    },
+    "required": [
+      "id",
+      "scenario",
+      "input_text",
+      "expected_status",
+      "expected_part_ids"
+    ],
+    "title": "EvalCase",
+    "type": "object"
+  },
+  "EvalOutput": {
+    "additionalProperties": false,
+    "properties": {
+      "status": {
+        "title": "Status",
+        "type": "string"
+      },
+      "part_ids": {
+        "items": {
+          "type": "integer"
+        },
+        "title": "Part Ids",
+        "type": "array"
+      },
+      "clarification_code": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Clarification Code"
+      }
+    },
+    "required": [
+      "status",
+      "part_ids",
+      "clarification_code"
+    ],
+    "title": "EvalOutput",
+    "type": "object"
+  },
+  "EvalResult": {
+    "$defs": {
+      "EvalOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "part_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Part Ids",
+            "type": "array"
+          },
+          "clarification_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clarification Code"
+          }
+        },
+        "required": [
+          "status",
+          "part_ids",
+          "clarification_code"
+        ],
+        "title": "EvalOutput",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "case_id": {
+        "title": "Case Id",
+        "type": "string"
+      },
+      "passed": {
+        "title": "Passed",
+        "type": "boolean"
+      },
+      "actual": {
+        "$ref": "#/$defs/EvalOutput"
+      }
+    },
+    "required": [
+      "case_id",
+      "passed",
+      "actual"
+    ],
+    "title": "EvalResult",
+    "type": "object"
+  },
+  "EvalRun": {
+    "$defs": {
+      "EvalOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "part_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Part Ids",
+            "type": "array"
+          },
+          "clarification_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clarification Code"
+          }
+        },
+        "required": [
+          "status",
+          "part_ids",
+          "clarification_code"
+        ],
+        "title": "EvalOutput",
+        "type": "object"
+      },
+      "EvalResult": {
+        "additionalProperties": false,
+        "properties": {
+          "case_id": {
+            "title": "Case Id",
+            "type": "string"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          },
+          "actual": {
+            "$ref": "#/$defs/EvalOutput"
+          }
+        },
+        "required": [
+          "case_id",
+          "passed",
+          "actual"
+        ],
+        "title": "EvalResult",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "title": "Id",
+        "type": "string"
+      },
+      "dataset_sha256": {
+        "title": "Dataset Sha256",
+        "type": "string"
+      },
+      "results": {
+        "items": {
+          "$ref": "#/$defs/EvalResult"
+        },
+        "title": "Results",
+        "type": "array"
+      }
+    },
+    "required": [
+      "id",
+      "dataset_sha256",
+      "results"
+    ],
+    "title": "EvalRun",
+    "type": "object"
+  },
+  "SchemaReceipt": {
+    "additionalProperties": false,
+    "properties": {
+      "postgres_version": {
+        "title": "Postgres Version",
+        "type": "string"
+      },
+      "extensions": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "title": "Extensions",
+        "type": "object"
+      },
+      "columns": {
+        "additionalProperties": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "title": "Columns",
+        "type": "object"
+      },
+      "indexes": {
+        "additionalProperties": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "title": "Indexes",
+        "type": "object"
+      },
+      "policies": {
+        "additionalProperties": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "title": "Policies",
+        "type": "object"
+      }
+    },
+    "required": [
+      "postgres_version",
+      "extensions",
+      "columns",
+      "indexes",
+      "policies"
+    ],
+    "title": "SchemaReceipt",
+    "type": "object"
+  },
+  "TestConfig": {
+    "additionalProperties": false,
+    "properties": {
+      "app_env": {
+        "enum": [
+          "local",
+          "test"
+        ],
+        "title": "App Env",
+        "type": "string"
+      },
+      "database_url": {
+        "title": "Database Url",
+        "type": "string"
+      },
+      "production_project_ref": {
+        "title": "Production Project Ref",
+        "type": "string"
+      }
+    },
+    "required": [
+      "app_env",
+      "database_url",
+      "production_project_ref"
+    ],
+    "title": "TestConfig",
+    "type": "object"
+  },
+  "ReadinessReport": {
+    "additionalProperties": false,
+    "properties": {
+      "database": {
+        "title": "Database",
+        "type": "boolean"
+      },
+      "redis": {
+        "title": "Redis",
+        "type": "boolean"
+      },
+      "search_lexical": {
+        "title": "Search Lexical",
+        "type": "boolean"
+      },
+      "search_semantic": {
+        "title": "Search Semantic",
+        "type": "boolean"
+      },
+      "ai_credit_enabled": {
+        "title": "Ai Credit Enabled",
+        "type": "boolean"
+      },
+      "storage": {
+        "title": "Storage",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "database",
+      "redis",
+      "search_lexical",
+      "search_semantic",
+      "ai_credit_enabled",
+      "storage"
+    ],
+    "title": "ReadinessReport",
+    "type": "object"
+  },
+  "AccountReceipt": {
+    "additionalProperties": false,
+    "properties": {
+      "account_id": {
+        "title": "Account Id",
+        "type": "string"
+      },
+      "plan": {
+        "const": "free",
+        "title": "Plan",
+        "type": "string"
+      },
+      "region": {
+        "title": "Region",
+        "type": "string"
+      },
+      "credit_usd": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "type": "string"
+          }
+        ],
+        "title": "Credit Usd"
+      },
+      "expires_at": {
+        "format": "date-time",
+        "title": "Expires At",
+        "type": "string"
+      }
+    },
+    "required": [
+      "account_id",
+      "plan",
+      "region",
+      "credit_usd",
+      "expires_at"
+    ],
+    "title": "AccountReceipt",
+    "type": "object"
+  },
+  "SizingReceipt": {
+    "additionalProperties": false,
+    "properties": {
+      "instance_type": {
+        "title": "Instance Type",
+        "type": "string"
+      },
+      "peak_memory_mib": {
+        "title": "Peak Memory Mib",
+        "type": "integer"
+      },
+      "instance_memory_mib": {
+        "title": "Instance Memory Mib",
+        "type": "integer"
+      },
+      "measured_at": {
+        "format": "date-time",
+        "title": "Measured At",
+        "type": "string"
+      }
+    },
+    "required": [
+      "instance_type",
+      "peak_memory_mib",
+      "instance_memory_mib",
+      "measured_at"
+    ],
+    "title": "SizingReceipt",
+    "type": "object"
+  },
+  "DeploymentDecision": {
+    "additionalProperties": false,
+    "properties": {
+      "allowed": {
+        "title": "Allowed",
+        "type": "boolean"
+      },
+      "reasons": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Reasons",
+        "type": "array"
+      }
+    },
+    "required": [
+      "allowed",
+      "reasons"
+    ],
+    "title": "DeploymentDecision",
+    "type": "object"
+  },
+  "HostedReceipt": {
+    "additionalProperties": false,
+    "properties": {
+      "base_url": {
+        "title": "Base Url",
+        "type": "string"
+      },
+      "api_url": {
+        "title": "Api Url",
+        "type": "string"
+      },
+      "scenarios_passed": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Scenarios Passed",
+        "type": "array"
+      },
+      "scenarios_failed": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Scenarios Failed",
+        "type": "array"
+      },
+      "checked_at": {
+        "format": "date-time",
+        "title": "Checked At",
+        "type": "string"
+      }
+    },
+    "required": [
+      "base_url",
+      "api_url",
+      "scenarios_passed",
+      "scenarios_failed",
+      "checked_at"
+    ],
+    "title": "HostedReceipt",
+    "type": "object"
+  }
+}

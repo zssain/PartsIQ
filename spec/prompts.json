@@ -1,0 +1,1683 @@
+{
+  "00": {
+    "id": "00",
+    "title": "Bootstrap and preserve legacy",
+    "area": "Repository",
+    "creates": [
+      "README.md",
+      "pyproject.toml",
+      ".gitignore",
+      ".env.example",
+      ".python-version",
+      ".nvmrc",
+      "docker-compose.yml",
+      "services/orchestrator/pyproject.toml",
+      "services/worker/pyproject.toml",
+      "tools/verify_env.py",
+      "tools/run_checks.py",
+      "tools/check_release_eligibility.py",
+      "uv.lock",
+      "tests/foundations/test_00.py",
+      "tools/catalog/__init__.py"
+    ],
+    "modifies": [],
+    "logic": "Preserve all files in references/legacy-backend.zip at their original relative paths; retain checksum manifest before modifications. Create one root uv workspace, with named common,gateway,search,orchestrator,worker and catalogue projects. Use a single uv.lock. Run service tests in separate processes because legacy services share the app import name. Local Compose publishes gateway on 127.0.0.1 only and uses local Supabase CLI endpoints. Do not copy real secrets or rewrite domain modules.",
+    "signature": "def verify_environment(env: Mapping[str,str]) -> list[str]: return missing or unsafe environment names without values; reject prod database URLs when APP_ENV is local.",
+    "tests": [
+      "tests/foundations/test_00.py"
+    ],
+    "deps": [],
+    "path": "prompts/00-bootstrap-and-preserve-legacy.md"
+  },
+  "01": {
+    "id": "01",
+    "title": "Shared contracts and clients",
+    "area": "Common",
+    "creates": [
+      "libs/partsiq_common/partsiq_common/contracts.py",
+      "libs/partsiq_common/partsiq_common/audit.py",
+      "libs/partsiq_common/partsiq_common/errors.py",
+      "libs/partsiq_common/partsiq_common/ai/client.py",
+      "libs/partsiq_common/partsiq_common/ai/budget.py",
+      "libs/partsiq_common/partsiq_common/telemetry.py",
+      "libs/partsiq_common/partsiq_common/security_context.py",
+      "libs/partsiq_common/partsiq_common/ai/prices.json",
+      "tests/foundations/test_01.py",
+      "libs/partsiq_common/partsiq_common/ai/__init__.py"
+    ],
+    "modifies": [],
+    "logic": "Implement the exact contract models from spec/contracts.py. Preserve text.py and DB pool behaviour. Wrap every OpenAI invocation with explicit timeout, output token limit and budget reservation; never retry inside both SDK and wrapper. Set SDK max_retries=0 and wrapper max attempts=2. Log safe error code and request ID. Insert audit within caller transaction for business writes; fail approval if audit fails. Set app.actor_id using set_config with is_local=true inside the transaction and clear no session-global state.",
+    "signature": "async def call_structured(request: AIRequest, budget: BudgetReservation) -> AIResult; async def append_audit(conn: AsyncConnection, event: AuditEvent) -> int; async def actor_transaction(actor: ActorContext) -> AsyncIterator[AsyncConnection].",
+    "tests": [
+      "tests/foundations/test_01.py"
+    ],
+    "deps": [
+      "00"
+    ],
+    "path": "prompts/01-shared-contracts-and-clients.md"
+  },
+  "02": {
+    "id": "02",
+    "title": "Catalogue migration",
+    "area": "Database",
+    "creates": [
+      "supabase/config.toml",
+      "supabase/migrations/20261011000100_legacy_catalogue.sql",
+      "supabase/migrations/20261011000200_legacy_search.sql",
+      "tests/foundations/test_02.py",
+      "tools/apply_catalogue_schema.py"
+    ],
+    "modifies": [],
+    "logic": "Copy spec/sql/001_initial_schema.sql and 002_search_and_fulfilment.sql verbatim into the named migrations. This preserves numeric catalogue keys, text normalization, exclusion constraints, cycle protection and warehouse transfer days. A fresh Supabase dev project is the baseline. For an existing database, compare migration checksums and schema receipt; baseline already-applied legacy migrations rather than executing CREATE TABLE twice. No production reset command is allowed.",
+    "signature": "async def apply_catalogue_schema(dsn: str) -> None; schema comparison is owned by collect_schema_receipt in prompt03.",
+    "tests": [
+      "tests/foundations/test_02.py"
+    ],
+    "deps": [
+      "01"
+    ],
+    "path": "prompts/02-catalogue-migration.md"
+  },
+  "03": {
+    "id": "03",
+    "title": "Workflow schema and database permissions",
+    "area": "Database",
+    "creates": [
+      "supabase/migrations/20261011000300_application.sql",
+      "supabase/migrations/20261011000400_rls.sql",
+      "tools/checkpoints_setup.py",
+      "tools/schema_receipt.py",
+      "tests/integration/conftest.py",
+      "tests/foundations/test_03.py"
+    ],
+    "modifies": [],
+    "logic": "Copy application and RLS SQL from spec/sql. Migrate candidate keys to per-item/per-revision without losing historical rows. Do not backfill invented customer identities; legacy ownerless rows remain inaccessible through customer routes. Create restricted LOGIN credentials administratively and grant each one its service group. Run LangGraph saver setup with MIGRATION_DATABASE_URL into schema checkpoints, snapshot library-created schema, then remove runtime DDL privileges. Test two actors on a reused connection pool.",
+    "signature": "async def setup_checkpoints(dsn: str) -> None; async def collect_schema_receipt(dsn: str) -> SchemaReceipt; no application service invokes setup_checkpoints.",
+    "tests": [
+      "tests/foundations/test_03.py"
+    ],
+    "deps": [
+      "02"
+    ],
+    "path": "prompts/03-workflow-schema-and-database-permissions.md"
+  },
+  "04": {
+    "id": "04",
+    "title": "Private storage",
+    "area": "Gateway/worker",
+    "creates": [
+      "supabase/migrations/20261011000500_storage.sql",
+      "services/gateway/app/storage.py",
+      "services/worker/app/storage.py",
+      "tests/foundations/test_04.py",
+      "services/worker/app/__init__.py"
+    ],
+    "modifies": [],
+    "logic": "Create four private buckets from exact SQL. Gateway signs owner uploads using verified user token and pending attachment policy. Worker alone holds storage administration credential for export,evidence,import and cleanup operations; never use it as database REST bypass. Gateway first authorizes each read and asks internal worker signing handler with typed object ID, never arbitrary key. Signed links expire after 60 seconds; strip them from logs. Confirm actual bytes before marking validated.",
+    "signature": "async def create_upload(actor: ActorContext, request: UploadRequest) -> UploadTicket; async def sign_download(request: DownloadRequest) -> DownloadTicket; async def remove_object(bucket: str, object_key: str) -> None.",
+    "tests": [
+      "tests/foundations/test_04.py"
+    ],
+    "deps": [
+      "03"
+    ],
+    "path": "prompts/04-private-storage.md"
+  },
+  "05": {
+    "id": "05",
+    "title": "Synthetic catalogue and demo fixtures",
+    "area": "Catalogue",
+    "creates": [
+      "tools/demo/build_scenarios.py",
+      "tools/demo/scenarios.json",
+      "tools/demo/nameplates/manifest.json",
+      "tools/demo/catalogue_evidence/manifest.json",
+      "tools/demo/render_assets.py",
+      "tools/demo/scenarios/mixed_photo.json",
+      "tools/demo/scenarios/missing_serial.json",
+      "tools/demo/scenarios/incompatible_number.json",
+      "tools/demo/scenarios/local_shortage.json",
+      "tests/foundations/test_05.py"
+    ],
+    "modifies": [],
+    "logic": "Use existing tools/catalog/catalog generator and validator with seed 42. Preserve loader identity mapping and source labels. Generate four scenario fixtures by selecting real generated records with required properties, not hardcoded illustrative numbers. Generate synthetic nameplate PNGs and cited PDF pages with manifests of hashes. Fail generation when an expected outcome cannot be demonstrated. Base catalogue loading does not instantiate BGE-M3; embedding is deferred to 06.",
+    "signature": "def build_scenarios(dataset: CatalogDataset) -> list[DemoScenario]; def render_nameplate(model: str, serial: str, destination: Path) -> None; def validate_scenarios(scenarios: list[DemoScenario], dataset: CatalogDataset) -> list[str].",
+    "tests": [
+      "tests/foundations/test_05.py"
+    ],
+    "deps": [
+      "04"
+    ],
+    "path": "prompts/05-synthetic-catalogue-and-demo-fixtures.md"
+  },
+  "06": {
+    "id": "06",
+    "title": "Extend legacy search",
+    "area": "Search",
+    "creates": [
+      "services/search/app/embedding_ingestion.py",
+      "services/search/tests/test_characterization.py",
+      "services/search/tests/features/test_f20.py",
+      "services/search/tests/features/test_f21.py",
+      "services/search/tests/features/test_f22.py",
+      "services/search/tests/features/test_f23.py",
+      "services/search/tests/features/test_f24.py",
+      "services/search/tests/features/test_f25.py",
+      "services/search/tests/features/test_f30.py",
+      "services/search/tests/features/test_f33.py",
+      "services/search/tests/features/test_f34.py",
+      "tests/foundations/test_06.py"
+    ],
+    "modifies": [
+      "libs/partsiq_common/partsiq_common/embeddings.py",
+      "services/search/Dockerfile",
+      "services/search/app/config.py",
+      "services/search/app/main.py",
+      "services/search/app/repository.py",
+      "services/search/app/routes.py",
+      "services/search/app/schemas.py",
+      "services/search/app/service.py",
+      "tools/catalog/catalog/embedder.py"
+    ],
+    "logic": "Characterize current identify_machine,LexicalScorer,SearchService and plan_fulfilment first. Keep identification.py,lexical.py,fulfilment.py,repository.py,service.py,routes.py and schemas.py. Add internal token authentication to routes. Preserve weighted semantic fusion and lexical fallback. Require terminal supersession part to have explicit fitment; fix margin calculation before result truncation. Search-owned encoder reads a validated published version and upserts vectors with source hash. Use one search process and one encoder; readiness reports lexical readiness and semantic capability separately.",
+    "signature": "async def embed_version(version_id: UUID, batch_size: int=16) -> EmbeddingReceipt; preserve SearchService.identify(request: IdentifyRequest) -> IdentifyResponse and SearchService.search_parts(request: PartSearchRequest) -> PartSearchResponse.",
+    "tests": [
+      "services/search/tests/features/test_f20.py",
+      "services/search/tests/features/test_f21.py",
+      "services/search/tests/features/test_f22.py",
+      "services/search/tests/features/test_f23.py",
+      "services/search/tests/features/test_f24.py",
+      "services/search/tests/features/test_f25.py",
+      "services/search/tests/features/test_f30.py",
+      "services/search/tests/features/test_f33.py",
+      "services/search/tests/features/test_f34.py",
+      "tests/foundations/test_06.py"
+    ],
+    "deps": [
+      "05"
+    ],
+    "path": "prompts/06-extend-legacy-search.md"
+  },
+  "07": {
+    "id": "07",
+    "title": "Authentication and demo sessions",
+    "area": "Gateway",
+    "creates": [
+      "services/gateway/app/auth.py",
+      "services/gateway/app/permissions.py",
+      "services/gateway/app/demo.py",
+      "tests/foundations/test_07.py"
+    ],
+    "modifies": [
+      "services/gateway/app/main.py",
+      "services/gateway/app/routes.py",
+      "services/gateway/app/security.py"
+    ],
+    "logic": "Verify Supabase JWT issuer,audience,expiry and allowed algorithm through cached JWKS; refresh on unknown kid once. Fetch staff membership from DB, never JWT user_metadata. Use Supabase anonymous sign-in for public demos. Session creation requires that authenticated anonymous identity; rate limit before database work. Reset under row lock with idempotency key and generation increment. Reviewer access is assigned-only for real enquiries; admin may manage assignments. Demo review capability applies only to own active session.",
+    "signature": "async def authenticate(token: str) -> ActorContext; async def require_access(actor: ActorContext, enquiry_id: UUID, action: AccessAction) -> None; async def create_demo(actor: ActorContext) -> DemoSession; async def reset_demo(actor: ActorContext, key: UUID) -> DemoSession.",
+    "tests": [
+      "tests/foundations/test_07.py"
+    ],
+    "deps": [
+      "06"
+    ],
+    "path": "prompts/07-authentication-and-demo-sessions.md"
+  },
+  "08": {
+    "id": "08",
+    "title": "Enquiry intake and limits",
+    "area": "Gateway",
+    "creates": [
+      "services/gateway/app/enquiries.py",
+      "services/gateway/app/uploads.py",
+      "services/gateway/app/api_v1.py",
+      "tests/foundations/test_08.py"
+    ],
+    "modifies": [
+      "services/gateway/app/main.py",
+      "services/gateway/app/proxy.py",
+      "services/gateway/app/rate_limit.py"
+    ],
+    "logic": "Create enquiry,first message,revision snapshot and workflow event atomically. Accept Idempotency-Key UUID; repeated identical input returns existing resource, different payload returns 409. Generate object names server-side. Preserve legacy middleware for size limits and traversal blocking. Redis rate limiter rejects when Redis unavailable. Gateway writes intake/session/staff CRUD; orchestrator owns derived facts and publication. Return 202 after durable commit, not after OCR or language calls.",
+    "signature": "async def create_enquiry(actor: ActorContext, body: EnquiryCreate, key: UUID) -> EnquiryView; async def add_message(actor: ActorContext, enquiry_id: UUID, body: MessageCreate, key: UUID) -> MessageView; async def confirm_upload(actor: ActorContext, attachment_id: UUID) -> AttachmentView.",
+    "tests": [
+      "tests/foundations/test_08.py"
+    ],
+    "deps": [
+      "07"
+    ],
+    "path": "prompts/08-enquiry-intake-and-limits.md"
+  },
+  "09": {
+    "id": "09",
+    "title": "Deterministic durable workflow",
+    "area": "Orchestrator",
+    "creates": [
+      "services/orchestrator/app/main.py",
+      "services/orchestrator/app/state.py",
+      "services/orchestrator/app/controller.py",
+      "services/orchestrator/app/graph.py",
+      "services/orchestrator/app/events.py",
+      "services/orchestrator/app/routes.py",
+      "services/orchestrator/app/handlers.py",
+      "services/orchestrator/app/runner.py",
+      "services/orchestrator/tests/features/test_f12.py",
+      "services/orchestrator/tests/features/test_f50.py",
+      "tests/foundations/test_09.py",
+      "services/orchestrator/app/__init__.py"
+    ],
+    "modifies": [],
+    "logic": "Define EnquiryState with items keyed by item UUID,revision,session generation,catalogue version,pending question,draft and verification IDs. Ordered controller rules select intake,await_ocr,confirm,identify,clarify,search,choose,plan,draft,verify,review,complete or needs_staff. Persist interrupts. Register handler interfaces and inject test doubles in tests; do not ship runnable fake-success nodes. Start/resume endpoints enqueue idempotent DB events. Consumer claims events under lease and locks enquiry; after each stage verify revision/session still current. Checkpointer migrations run only in 03.",
+    "signature": "def next_step(state: EnquiryState) -> WorkflowStep; def build_graph(handlers: WorkflowHandlers, checkpointer: AsyncPostgresSaver) -> CompiledStateGraph; async def consume_event(event_id: UUID) -> EventOutcome.",
+    "tests": [
+      "services/orchestrator/tests/features/test_f12.py",
+      "services/orchestrator/tests/features/test_f50.py",
+      "tests/foundations/test_09.py"
+    ],
+    "deps": [
+      "08"
+    ],
+    "path": "prompts/09-deterministic-durable-workflow.md"
+  },
+  "10": {
+    "id": "10",
+    "title": "Intake specialist",
+    "area": "Orchestrator",
+    "creates": [
+      "services/orchestrator/app/specialists/intake.py",
+      "services/orchestrator/app/prompts/intake.txt",
+      "services/orchestrator/tests/features/test_f10.py",
+      "tests/foundations/test_10.py",
+      "services/orchestrator/app/specialists/__init__.py"
+    ],
+    "modifies": [
+      "services/orchestrator/app/graph.py",
+      "services/orchestrator/app/handlers.py"
+    ],
+    "logic": "Use shared OpenAI structured-output wrapper with IntakeResult schema. Send customer input in data field, preserve source spans, extract up to20 items. The model proposes quantities explicitly mentioned by customer; code validates positive units and asks when absent. Disallow status,approval,stock and compatibility fields. Detect change intent and compare against confirmed state. Store extracted proposals only after schema validation; confirmed machine fields are not silently overwritten.",
+    "signature": "async def extract_intake(messages: list[MessageView], previous: IntakeResult | None, actor: ActorContext) -> IntakeResult.",
+    "tests": [
+      "services/orchestrator/tests/features/test_f10.py",
+      "tests/foundations/test_10.py"
+    ],
+    "deps": [
+      "09"
+    ],
+    "path": "prompts/10-intake-specialist.md"
+  },
+  "11": {
+    "id": "11",
+    "title": "Parts specialist and tools",
+    "area": "Orchestrator",
+    "creates": [
+      "services/orchestrator/app/specialists/parts.py",
+      "services/orchestrator/app/tools.py",
+      "services/orchestrator/app/search_client.py",
+      "services/orchestrator/tests/features/test_f26.py",
+      "tests/foundations/test_11.py"
+    ],
+    "modifies": [
+      "services/orchestrator/app/graph.py",
+      "services/orchestrator/app/handlers.py"
+    ],
+    "logic": "Register only identify,search_parts,part_detail and plan_fulfilment tools with typed arguments and fixed internal URL. Deterministic code identifies configuration and restricts candidate IDs. LLM may explain or propose clarification using those results; it cannot select incompatible parts or change quantities. Limit to four tool calls per stage and twelve graph transitions before needs_staff. Validate response catalogue version,request correlation and item ID; reject stale version.",
+    "signature": "async def run_parts(item: ItemState, context: ToolContext) -> PartsProposal; async def identify(request: IdentifyRequest) -> IdentifyResponse; async def search_parts(request: PartSearchRequest) -> PartSearchResponse; async def plan_fulfilment(request: FulfilmentRequest) -> FulfilmentResponse.",
+    "tests": [
+      "services/orchestrator/tests/features/test_f26.py",
+      "tests/foundations/test_11.py"
+    ],
+    "deps": [
+      "10"
+    ],
+    "path": "prompts/11-parts-specialist-and-tools.md"
+  },
+  "12": {
+    "id": "12",
+    "title": "Deterministic verification",
+    "area": "Orchestrator",
+    "creates": [
+      "services/orchestrator/app/verification.py",
+      "services/search/tests/features/test_f28.py",
+      "services/orchestrator/tests/features/test_f46.py",
+      "tests/foundations/test_12.py"
+    ],
+    "modifies": [
+      "services/orchestrator/app/graph.py",
+      "services/orchestrator/app/handlers.py"
+    ],
+    "logic": "Implement named pure checks for current revision,configuration membership,candidate membership,source evidence,catalogue version,quantity and allocation. Recompute aggregate allocation across all items sharing a part and warehouse. Require nonnegative allocations,positive requested quantity and explicit shortage. Canonicalize facts using sorted JSON and decimal strings before SHA256. Persist one result for the current draft; failures contain stable codes and item IDs. Do not ask an LLM whether verification passed.",
+    "signature": "def verify_facts(facts: VerifiedFacts, evidence: VerificationEvidence) -> VerificationResult; async def verify_current(enquiry_id: UUID, revision: int) -> VerificationResult.",
+    "tests": [
+      "services/search/tests/features/test_f28.py",
+      "services/orchestrator/tests/features/test_f46.py",
+      "tests/foundations/test_12.py"
+    ],
+    "deps": [
+      "11"
+    ],
+    "path": "prompts/12-deterministic-verification.md"
+  },
+  "13": {
+    "id": "13",
+    "title": "Reply specialist and renderer",
+    "area": "Orchestrator",
+    "creates": [
+      "services/orchestrator/app/specialists/reply.py",
+      "services/orchestrator/app/rendering.py",
+      "services/orchestrator/app/prompts/reply.txt",
+      "services/orchestrator/tests/features/test_f45.py",
+      "tests/foundations/test_13.py"
+    ],
+    "modifies": [
+      "services/orchestrator/app/graph.py",
+      "services/orchestrator/app/handlers.py"
+    ],
+    "logic": "Generate only allowed prose slots with strict schema. Build part/quantity/warehouse/estimate lines in code from verified structured data. Reject identifiers or numeric claims in free prose instead of treating known catalogue membership as sufficient. Escape HTML and render with code-owned layout. Never evaluate model-created Jinja. Staff edits use the same slot schema and rerun verification. Missing AI credit allows staff to author prose while retaining mandatory fact rendering.",
+    "signature": "async def draft_reply(facts: VerifiedFacts, locale: Locale) -> ReplySlots; def render_reply(slots: ReplySlots, facts: VerifiedFacts, locale: Locale) -> str.",
+    "tests": [
+      "services/orchestrator/tests/features/test_f45.py",
+      "tests/foundations/test_13.py"
+    ],
+    "deps": [
+      "12"
+    ],
+    "path": "prompts/13-reply-specialist-and-renderer.md"
+  },
+  "14": {
+    "id": "14",
+    "title": "Approval and revision transactions",
+    "area": "Orchestrator",
+    "creates": [
+      "services/orchestrator/app/approval.py",
+      "services/orchestrator/app/revisions.py",
+      "services/orchestrator/tests/features/test_f40.py",
+      "services/orchestrator/tests/features/test_f47.py",
+      "tests/acceptance/test_f49.py",
+      "tests/foundations/test_14.py"
+    ],
+    "modifies": [
+      "services/orchestrator/app/graph.py",
+      "services/orchestrator/app/handlers.py"
+    ],
+    "logic": "Lock enquiry; re-read actor permission via assigned reviewer or own demo capability; compare expected revision and current catalogue; refresh stock through search; reject changed plan. Reverify edited prose and facts. Insert approved decision,approved parts,one recommendation message and audit in one DB transaction. Rejection records reason but does not publish recommendation. Corrections increment revision and append immutable snapshot; no update to historical approval. Idempotency key binds request hash.",
+    "signature": "async def approve(actor: ActorContext, request: ApprovalRequest, key: UUID) -> ApprovalResult; async def reject(actor: ActorContext, request: RejectionRequest, key: UUID) -> ReviewResult; async def revise(actor: ActorContext, request: RevisionRequest) -> EnquiryView.",
+    "tests": [
+      "services/orchestrator/tests/features/test_f40.py",
+      "services/orchestrator/tests/features/test_f47.py",
+      "tests/acceptance/test_f49.py",
+      "tests/foundations/test_14.py"
+    ],
+    "deps": [
+      "13"
+    ],
+    "path": "prompts/14-approval-and-revision-transactions.md"
+  },
+  "15": {
+    "id": "15",
+    "title": "Worker leases and sweeper",
+    "area": "Worker",
+    "creates": [
+      "services/worker/app/main.py",
+      "services/worker/app/dispatcher.py",
+      "services/worker/app/leases.py",
+      "services/worker/app/sweeper.py",
+      "services/worker/app/internal.py",
+      "services/worker/tests/features/test_f51.py",
+      "services/worker/tests/features/test_f52.py",
+      "tests/foundations/test_15.py"
+    ],
+    "modifies": [],
+    "logic": "Persist jobs before Redis push; sweeper scans available pending jobs and running jobs with expired leases. Claim FOR UPDATE SKIP LOCKED with fresh token and increment attempts. Heartbeat at10seconds with45second lease; use bounded concurrency one OCR and one PDF initially. Complete transaction requires matching token,current enquiry revision and session generation. Worker writes workflow_events for OCR completion,never calls orchestrator HTTP. Expose authenticated internal signing route only on Docker network. Graceful shutdown stops claiming and allows current lease completion.",
+    "signature": "async def claim_job(job_id: UUID, worker_id: str) -> JobLease | None; async def heartbeat(lease: JobLease) -> bool; async def finish_job(lease: JobLease, result: JobResult) -> bool; async def sweep_once(now: datetime) -> int.",
+    "tests": [
+      "services/worker/tests/features/test_f51.py",
+      "services/worker/tests/features/test_f52.py",
+      "tests/foundations/test_15.py"
+    ],
+    "deps": [
+      "14"
+    ],
+    "path": "prompts/15-worker-leases-and-sweeper.md"
+  },
+  "16": {
+    "id": "16",
+    "title": "Nameplate vision job",
+    "area": "Worker",
+    "creates": [
+      "services/worker/app/jobs/nameplate.py",
+      "services/worker/tests/features/test_f14.py",
+      "tests/foundations/test_16.py",
+      "services/worker/app/jobs/__init__.py",
+      "services/gateway/app/ocr_confirmation.py"
+    ],
+    "modifies": [
+      "services/worker/app/dispatcher.py",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Decode validated image with pixel cap,strip EXIF,normalize orientation and prepare bounded image. Use OpenAI vision via shared client. Extract model_text,serial_text and issues only. Do not use model confidence as accuracy. Persist extraction,mark confirmation required and append workflow event using lease fencing. Partial OCR asks for manual entry. Handle budget exhaustion as recoverable staff/manual-input route.",
+    "signature": "async def read_nameplate(job: JobLease, image: bytes) -> NameplateResult; def validate_image(image: bytes, media_type: str) -> ImageInfo.",
+    "tests": [
+      "services/worker/tests/features/test_f14.py",
+      "tests/foundations/test_16.py"
+    ],
+    "deps": [
+      "15"
+    ],
+    "path": "prompts/16-nameplate-vision-job.md"
+  },
+  "17": {
+    "id": "17",
+    "title": "Approved enquiry PDF",
+    "area": "Worker",
+    "creates": [
+      "services/worker/app/jobs/export_pdf.py",
+      "services/worker/app/templates/enquiry_summary.html",
+      "tests/foundations/test_17.py",
+      "services/worker/app/static/brand/fonts/NotoNaskhArabic-OFL.txt",
+      "services/worker/app/static/brand/fonts/NotoNaskhArabic.ttf",
+      "services/worker/app/static/brand/fonts/NotoSans-OFL.txt",
+      "services/worker/app/static/brand/fonts/NotoSans.ttf",
+      "services/worker/app/static/brand/fonts/NotoSansArabic-OFL.txt",
+      "services/worker/app/static/brand/fonts/NotoSansArabic.ttf",
+      "services/worker/app/static/brand/logo-original.png"
+    ],
+    "modifies": [
+      "services/worker/app/dispatcher.py"
+    ],
+    "logic": "Load approved immutable revision and decision; deny live draft export. Use trusted HTML template with local brand/fonts and Chromium. Disable external browser requests,JavaScript and arbitrary file access. Render Arabic with RTL and identifiers isolated LTR. Include synthetic-demo watermark and non-guaranteed transfer estimate. Hash output,upload private object and persist export record under lease token. Gateway returns signed URL only after authorization.",
+    "signature": "async def export_enquiry(job: JobLease, request: ExportRequest) -> ExportResult; def render_export_html(snapshot: ApprovedSnapshot) -> str.",
+    "tests": [
+      "tests/foundations/test_17.py"
+    ],
+    "deps": [
+      "16"
+    ],
+    "path": "prompts/17-approved-enquiry-pdf.md"
+  },
+  "18": {
+    "id": "18",
+    "title": "Frontend shell and authentication",
+    "area": "Web",
+    "creates": [
+      "apps/web/package.json",
+      "apps/web/tsconfig.json",
+      "apps/web/next.config.ts",
+      "apps/web/postcss.config.mjs",
+      "apps/web/eslint.config.mjs",
+      "apps/web/vitest.config.ts",
+      "apps/web/app/layout.tsx",
+      "apps/web/app/page.tsx",
+      "apps/web/app/login/page.tsx",
+      "apps/web/styles/tokens.css",
+      "apps/web/lib/api.ts",
+      "apps/web/lib/auth.ts",
+      "apps/web/components/BrandLogo.tsx",
+      "apps/web/lib/contracts.ts",
+      "apps/web/pnpm-lock.yaml",
+      "apps/web/tests/setup.ts",
+      "apps/web/playwright.config.ts",
+      "apps/web/tests/features/f01.test.tsx",
+      "tests/foundations/test_18.py",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/Preview.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-1024.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-128.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-144.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-152.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-16.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-180.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-192.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-24.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-256.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-32.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-384.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-48.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-512.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-64.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-96.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-1024.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-128.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-144.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-152.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-16.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-180.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-192.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-24.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-256.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-32.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-384.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-48.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-512.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-64.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-96.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-1280.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-1740.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-320.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-640.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-1280.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-1740.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-320.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-640.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-hdpi-72.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-mdpi-48.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xhdpi-96.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xxhdpi-144.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xxxhdpi-192.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/google-play-512.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/ios-app-store-1024.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/social/partsiq-og-1200x630.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/social/partsiq-profile-1080.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/source/original-logo.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/source/transparent-logo.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/android-chrome-192x192.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/android-chrome-512x512.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/apple-touch-icon.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-16x16.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-32x32.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-48x48.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-96x96.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon.ico",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/maskable-icon-192x192.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/maskable-icon-512x512.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/site.webmanifest",
+      "apps/web/public/brand/fonts/NotoNaskhArabic-OFL.txt",
+      "apps/web/public/brand/fonts/NotoNaskhArabic.ttf",
+      "apps/web/public/brand/fonts/NotoSans-OFL.txt",
+      "apps/web/public/brand/fonts/NotoSans.ttf",
+      "apps/web/public/brand/fonts/NotoSansArabic-OFL.txt",
+      "apps/web/public/brand/fonts/NotoSansArabic.ttf",
+      "apps/web/public/brand/logo-original.png"
+    ],
+    "modifies": [],
+    "logic": "Create Next.js App Router shell from pinned package manifest. Public landing explains independent synthetic project; disable real-client signup. Supabase anonymous login supports demo; invited staff login supports operational roles. Keep all business API calls through gateway; only Auth and authorized private Storage transfer bypass it. Use bearer token in Authorization,not URL. Implement responsive skeleton,typed ApiError and request-ID display. Copy approved PNG icons and fonts from brand manifest.",
+    "signature": "export function BrandLogo(props: {compact?: boolean}): React.JSX.Element; export async function api<T>(path: string, options: RequestInit): Promise<T>; export async function startAnonymousDemo(): Promise<DemoSession>.",
+    "tests": [
+      "apps/web/tests/features/f01.test.tsx",
+      "tests/foundations/test_18.py"
+    ],
+    "deps": [
+      "17"
+    ],
+    "path": "prompts/18-frontend-shell-and-authentication.md"
+  },
+  "19": {
+    "id": "19",
+    "title": "Customer chat and demo",
+    "area": "Web",
+    "creates": [
+      "apps/web/app/chat/[id]/page.tsx",
+      "apps/web/app/demo/page.tsx",
+      "apps/web/components/chat/Chat.tsx",
+      "apps/web/components/chat/UploadCard.tsx",
+      "apps/web/components/chat/OcrConfirmation.tsx",
+      "apps/web/components/chat/Progress.tsx",
+      "tests/acceptance/test_f02.py",
+      "services/gateway/tests/features/test_f05.py",
+      "services/orchestrator/tests/features/test_f09.py",
+      "services/orchestrator/tests/features/test_f11.py",
+      "services/gateway/tests/features/test_f13.py",
+      "apps/web/tests/features/f15.test.tsx",
+      "tests/foundations/test_19.py"
+    ],
+    "modifies": [],
+    "logic": "Implement four scenario cards,chat,private upload progress,OCR confirmation and code-owned clarification display. Preserve unsent text when recoverable request fails. Poll enquiry with AbortController and bounded backoff; distinguish waiting customer/staff. Reset clears client cache and old generation. Only approved recommendation messages appear; customer messages and safe status/clarification messages remain visible without approval.",
+    "signature": "export function Chat(props: {enquiryId: string}): React.JSX.Element; export function OcrConfirmation(props: {extraction: NameplateResult; onConfirm: (value: ConfirmExtraction) => Promise<void>}): React.JSX.Element.",
+    "tests": [
+      "tests/acceptance/test_f02.py",
+      "services/gateway/tests/features/test_f05.py",
+      "services/orchestrator/tests/features/test_f09.py",
+      "services/orchestrator/tests/features/test_f11.py",
+      "services/gateway/tests/features/test_f13.py",
+      "apps/web/tests/features/f15.test.tsx",
+      "tests/foundations/test_19.py"
+    ],
+    "deps": [
+      "18"
+    ],
+    "path": "prompts/19-customer-chat-and-demo.md"
+  },
+  "20": {
+    "id": "20",
+    "title": "Staff workspace and timeline",
+    "area": "Web",
+    "creates": [
+      "apps/web/app/staff/inbox/page.tsx",
+      "apps/web/app/staff/enquiries/[id]/page.tsx",
+      "apps/web/components/review/Workspace.tsx",
+      "apps/web/components/review/ApprovalControls.tsx",
+      "apps/web/components/review/Timeline.tsx",
+      "services/gateway/tests/features/test_f03.py",
+      "apps/web/tests/features/f18.test.tsx",
+      "apps/web/tests/features/f27.test.tsx",
+      "services/search/tests/features/test_f32.py",
+      "apps/web/tests/features/f37.test.tsx",
+      "services/orchestrator/tests/features/test_f39.py",
+      "services/worker/tests/features/test_f61.py",
+      "tests/foundations/test_20.py"
+    ],
+    "modifies": [],
+    "logic": "Render current review snapshot with revision badge,candidates,evidence references,allocation,draft and named verification results. Only current verified state enables approve. Post expected revision and idempotency key; on409 reload and require explicit new review. Edit prose uses structured fields. Reject requires reason. Real reviewers only see assignments; demo review remains ownsession. Add approved PDF action and display queue status.",
+    "signature": "export function Workspace(props: {enquiryId: string}): React.JSX.Element; export function ApprovalControls(props: {review: ReviewView; onChanged: () => Promise<void>}): React.JSX.Element.",
+    "tests": [
+      "services/gateway/tests/features/test_f03.py",
+      "apps/web/tests/features/f18.test.tsx",
+      "apps/web/tests/features/f27.test.tsx",
+      "services/search/tests/features/test_f32.py",
+      "apps/web/tests/features/f37.test.tsx",
+      "services/orchestrator/tests/features/test_f39.py",
+      "services/worker/tests/features/test_f61.py",
+      "tests/foundations/test_20.py"
+    ],
+    "deps": [
+      "19"
+    ],
+    "path": "prompts/20-staff-workspace-and-timeline.md"
+  },
+  "21": {
+    "id": "21",
+    "title": "Labelled evaluations",
+    "area": "Quality",
+    "creates": [
+      "tools/evals/run.py",
+      "tests/evals/cases.json",
+      "tests/evals/test_scenarios.py",
+      "tools/evals/__init__.py",
+      "tests/acceptance/test_f62.py",
+      "tests/foundations/test_21.py"
+    ],
+    "modifies": [],
+    "logic": "Build labelled expected outcomes from deterministic catalogue fixtures. Include all four demo scenarios,serial endpoints,Arabic normalization,typos,successor fitment,close scores,multiitem stock and malicious instructions. Separate deterministic checks from optional live-model evaluation. Deterministic suite must not require OpenAI credit. Record dataset hash,git SHA and model ID for live runs. Accuracy denominator excludes unreadable/unlabelled cases and reports abstention separately.",
+    "signature": "def evaluate_case(case: EvalCase, actual: EvalOutput) -> EvalResult; async def run_suite(cases: list[EvalCase], live: bool=False) -> EvalRun.",
+    "tests": [
+      "tests/acceptance/test_f62.py",
+      "tests/foundations/test_21.py"
+    ],
+    "deps": [
+      "F48"
+    ],
+    "path": "prompts/21-labelled-evaluations.md"
+  },
+  "22": {
+    "id": "22",
+    "title": "Security and failure recovery gate",
+    "area": "Quality",
+    "creates": [
+      "tests/integration/test_security_recovery.py",
+      "tests/integration/test_rls.py",
+      "tests/integration/test_budget_races.py",
+      "tests/e2e/security.spec.ts",
+      "services/gateway/tests/features/test_f04.py",
+      "apps/web/tests/features/f53.test.tsx",
+      "services/gateway/tests/features/test_f54.py",
+      "tests/foundations/test_22.py"
+    ],
+    "modifies": [],
+    "logic": "Run against disposable local Supabase including auth and storage. Exercise foreign sessions,assigned-only reviewer,reset races,expired JWT,upload bombs,prompt injection,Redis down,worker crash,stale lease,API timeout and simultaneous approvals. Assert no secret in browser bundle or logs. Block tests when DB hostname/project matches production. Retain actual command output and failed cases; never mark blocked tests passed.",
+    "signature": "def assert_disposable_environment(config: TestConfig) -> None; test suites instantiate existing service entry points without new business logic.",
+    "tests": [
+      "services/gateway/tests/features/test_f04.py",
+      "apps/web/tests/features/f53.test.tsx",
+      "services/gateway/tests/features/test_f54.py",
+      "tests/foundations/test_22.py"
+    ],
+    "deps": [
+      "F65"
+    ],
+    "path": "prompts/22-security-and-failure-recovery-gate.md"
+  },
+  "23": {
+    "id": "23",
+    "title": "Observability and credit limits",
+    "area": "Operations",
+    "creates": [
+      "services/gateway/app/metrics.py",
+      "tools/credit_allowance.py",
+      "tools/check_readiness.py",
+      "tests/acceptance/test_f64.py",
+      "tests/acceptance/test_f67.py",
+      "tests/foundations/test_23.py"
+    ],
+    "modifies": [
+      "libs/partsiq_common/partsiq_common/ai/budget.py",
+      "libs/partsiq_common/partsiq_common/ai/client.py",
+      "libs/partsiq_common/partsiq_common/telemetry.py"
+    ],
+    "logic": "Use common telemetry and AI wrapper from01; add optional Langfuse export with redacted payload and strict timeouts. Record latency,cost,token and stage outcomes locally. Allowance is manually confirmed free credit,not inferred from key. Require amount,expiry and acknowledged no-paid-fallback; default disabled. Reserve worst-case token/image usage atomically for each attempt; uncertain requests retain reservation. Throttle per session and daily quota. Trace exporter failure cannot bypass local accounting.",
+    "signature": "async def get_metrics(actor: ActorContext, query: MetricsQuery) -> MetricsView; def validate_allowance(amount: Decimal, expires_at: datetime, paid_budget: Decimal) -> CreditAllowance; async def readiness_report() -> ReadinessReport.",
+    "tests": [
+      "tests/acceptance/test_f64.py",
+      "tests/acceptance/test_f67.py",
+      "tests/foundations/test_23.py"
+    ],
+    "deps": [
+      "21"
+    ],
+    "path": "prompts/23-observability-and-credit-limits.md"
+  },
+  "24": {
+    "id": "24",
+    "title": "Production containers and Caddy",
+    "area": "Infrastructure",
+    "creates": [
+      "docker-compose.prod.yml",
+      "Caddyfile",
+      "services/orchestrator/Dockerfile",
+      "services/worker/Dockerfile",
+      "infra/verify_images.py",
+      "infra/images.lock.json",
+      "tests/foundations/test_24.py"
+    ],
+    "modifies": [
+      "services/gateway/Dockerfile",
+      "services/search/Dockerfile"
+    ],
+    "logic": "Build immutable service images; pin base image digests from verified registry manifest. Preserve gateway/search Dockerfile lineage and modify them explicitly. One search process avoids duplicate model memory. Separate worker,sweeper and orchestrator event-consumer commands; private Docker network for internal ports; publish only Caddy80/443. Add read-only rootfs where possible,tmpfs for PDF,bounded logs and resource limits measured during smoke. Use no Kubernetes or public Redis.",
+    "signature": "def verify_images(compose_file: Path) -> list[str]: reject mutable application tags,missing healthchecks,public internal ports and embedded credentials.",
+    "tests": [
+      "tests/foundations/test_24.py"
+    ],
+    "deps": [
+      "22"
+    ],
+    "path": "prompts/24-production-containers-and-caddy.md"
+  },
+  "25": {
+    "id": "25",
+    "title": "CI and controlled deployment",
+    "area": "Infrastructure",
+    "creates": [
+      ".github/workflows/ci.yml",
+      ".github/workflows/deploy-backend.yml",
+      "tools/ci_checks.py",
+      "tests/acceptance/test_f66.py",
+      "tests/foundations/test_25.py"
+    ],
+    "modifies": [],
+    "logic": "Pin GitHub actions by verified commit SHA. Run Python service tests in separate jobs or processes,frontend type/lint/test,local Supabase RLS integration and evals. Build/push GHCR images only on trusted branch. Deploy uses environment approval and OIDC-to-SSM with exact repository/environment subject. Keep deployment disabled until26 marks infrastructure ready. Never expose secrets to fork pull requests. Run backend migration separately before image activation.",
+    "signature": "def check_ci_configuration(root: Path) -> list[str]: inspect permissions,action pinning,prod-test protection and deployment guards.",
+    "tests": [
+      "tests/acceptance/test_f66.py",
+      "tests/foundations/test_25.py"
+    ],
+    "deps": [
+      "24"
+    ],
+    "path": "prompts/25-ci-and-controlled-deployment.md"
+  },
+  "26": {
+    "id": "26",
+    "title": "AWS free-plan deployment",
+    "area": "Infrastructure",
+    "creates": [
+      "infra/ec2/bootstrap.sh",
+      "infra/ec2/deploy.sh",
+      "infra/ec2/rollback.sh",
+      "infra/ec2/preflight.py",
+      "tests/foundations/test_26.py"
+    ],
+    "modifies": [
+      ".github/workflows/deploy-backend.yml"
+    ],
+    "logic": "Operator verifies account free-plan eligibility,remaining credits,expiry and region service availability before provisioning. No automatic paid upgrade. Default region ap-south-1 is an operational proposal selected for user proximity; verify account availability before use. Choose instance only after measured CPU/RAM of BGE-M3 and Chromium; free micro capacity is not assumed adequate. Use SSM without public SSH,encrypted volume and minimal IAM. Domain is operator input or no-cost DNS name; HTTPS required. Deploy by immutable release SHA with lock,healthcheck and rollback to previous images.",
+    "signature": "def preflight(account: AccountReceipt, sizing: SizingReceipt) -> DeploymentDecision; bootstrap.sh accepts a validated environment file path; deploy.sh accepts one hexadecimal release SHA.",
+    "tests": [
+      "tests/foundations/test_26.py"
+    ],
+    "deps": [
+      "25"
+    ],
+    "path": "prompts/26-aws-free-plan-deployment.md"
+  },
+  "27": {
+    "id": "27",
+    "title": "Vercel and hosted acceptance",
+    "area": "Infrastructure",
+    "creates": [
+      "infra/vercel/README.md",
+      "tests/e2e/hosted.spec.ts",
+      "tools/hosted_acceptance.py",
+      "tests/foundations/test_27.py"
+    ],
+    "modifies": [],
+    "logic": "Create separate Vercel preview/dev and production environment bindings. Only publishable Supabase key and gateway URL are NEXT_PUBLIC. Verify CORS matches exact deployment origin; do not add wildcard credentials. Run four scenarios on hosted demo,check approval and PDF,measure actual timings and inspect mobile/Arabic. Supabase inactivity pausing and AWS credit expiry are documented limits. Deployed application is not claimed available unless real hosted checks pass.",
+    "signature": "async def run_hosted_acceptance(base_url: str, api_url: str) -> HostedReceipt; reject non-HTTPS URLs outside localhost.",
+    "tests": [
+      "tests/foundations/test_27.py"
+    ],
+    "deps": [
+      "26"
+    ],
+    "path": "prompts/27-vercel-and-hosted-acceptance.md"
+  },
+  "F06": {
+    "id": "F06",
+    "title": "Responsive layouts",
+    "area": "web",
+    "creates": [
+      "apps/web/tests/features/f06.test.tsx",
+      "apps/web/lib/features/f06_responsive_layouts.ts",
+      "apps/web/components/features/ResponsiveShell.tsx"
+    ],
+    "modifies": [
+      "apps/web/app/layout.tsx",
+      "apps/web/app/page.tsx",
+      "apps/web/styles/tokens.css"
+    ],
+    "logic": "Support 360,768,1280 CSS-pixel widths; stack review panels; horizontally scroll comparison tables within their region; preserve sticky primary review actions without covering content. No page-wide horizontal overflow; zoom 200 percent remains usable; mobile dialogs retain visible close action.",
+    "signature": "export function get_layout(request: F06Request): F06Result",
+    "request": "width: number; reducedMotion: boolean",
+    "response": "columns: 1 | 2 | 3; compact: boolean",
+    "route": "none",
+    "component": "ResponsiveShell",
+    "entry": "apps/web/lib/features/f06_responsive_layouts.ts",
+    "tests": [
+      "apps/web/tests/features/f06.test.tsx"
+    ],
+    "deps": [
+      "18",
+      "19",
+      "20",
+      "F07",
+      "F08"
+    ],
+    "path": "prompts/F06-responsive-layouts.md"
+  },
+  "F07": {
+    "id": "F07",
+    "title": "Arabic and English interface",
+    "area": "web",
+    "creates": [
+      "apps/web/tests/features/f07.test.tsx",
+      "apps/web/lib/features/f07_arabic_and_english_interface.ts",
+      "apps/web/components/features/LocaleSwitcher.tsx",
+      "apps/web/messages/en.json",
+      "apps/web/messages/ar.json",
+      "apps/web/i18n/request.ts"
+    ],
+    "modifies": [
+      "apps/web/app/layout.tsx",
+      "apps/web/app/page.tsx",
+      "apps/web/next.config.ts"
+    ],
+    "logic": "Use a locale cookie and complete en/ar message catalogs; persist preference; set document lang and dir; isolate serials, numbers and part identifiers with bdi. Missing translation fails tests; language switch preserves enquiry ID and unsent draft; mixed Arabic identifiers remain readable.",
+    "signature": "export function resolve_locale(request: F07Request): F07Result",
+    "request": "pathname: string; preference: \"en\" | \"ar\" | null",
+    "response": "locale: \"en\" | \"ar\"; direction: \"ltr\" | \"rtl\"",
+    "route": "none",
+    "component": "LocaleSwitcher",
+    "entry": "apps/web/lib/features/f07_arabic_and_english_interface.ts",
+    "tests": [
+      "apps/web/tests/features/f07.test.tsx"
+    ],
+    "deps": [
+      "18",
+      "19",
+      "20"
+    ],
+    "path": "prompts/F07-arabic-and-english-interface.md"
+  },
+  "F08": {
+    "id": "F08",
+    "title": "Light and dark themes",
+    "area": "web",
+    "creates": [
+      "apps/web/tests/features/f08.test.tsx",
+      "apps/web/lib/features/f08_light_and_dark_themes.ts",
+      "apps/web/components/features/ThemeToggle.tsx"
+    ],
+    "modifies": [
+      "apps/web/app/layout.tsx",
+      "apps/web/app/page.tsx",
+      "apps/web/styles/tokens.css"
+    ],
+    "logic": "Use CSS semantic tokens; initialize from saved preference then system setting; expose accessible toggle; honor reduced motion and browser color-scheme. No hydration mismatch; chart colors and focus rings meet contrast checks; storage-disabled browsers still work.",
+    "signature": "export function resolve_theme(request: F08Request): F08Result",
+    "request": "saved: \"light\" | \"dark\" | null; prefersDark: boolean",
+    "response": "theme: \"light\" | \"dark\"",
+    "route": "none",
+    "component": "ThemeToggle",
+    "entry": "apps/web/lib/features/f08_light_and_dark_themes.ts",
+    "tests": [
+      "apps/web/tests/features/f08.test.tsx"
+    ],
+    "deps": [
+      "18"
+    ],
+    "path": "prompts/F08-light-and-dark-themes.md"
+  },
+  "F16": {
+    "id": "F16",
+    "title": "Photo quality feedback",
+    "area": "worker",
+    "creates": [
+      "services/worker/tests/features/test_f16.py",
+      "services/worker/app/features/f16_photo_quality_feedback.py",
+      "apps/web/components/features/PhotoQualityNotice.tsx",
+      "apps/web/lib/features/f16_photo_quality_feedback.ts",
+      "services/worker/app/features/__init__.py"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "apps/web/components/chat/Chat.tsx",
+      "services/worker/app/dispatcher.py"
+    ],
+    "logic": "Check decodability, dimensions and blur heuristic before paid call; return actionable retake instructions; mark heuristic as advisory; allow a readable image despite noncritical blur warning. Unsupported format rejected; dark or low-resolution sample gets guidance; no fabricated OCR confidence percentage.",
+    "signature": "def assess_photo(request: F16Request) -> F16Result",
+    "request": "image_bytes: bytes; media_type: str",
+    "response": "readable: bool; issues: list[str]; width: int; height: int",
+    "route": "none",
+    "component": "PhotoQualityNotice",
+    "entry": "services/worker/app/features/f16_photo_quality_feedback.py",
+    "tests": [
+      "services/worker/tests/features/test_f16.py"
+    ],
+    "deps": [
+      "16",
+      "19"
+    ],
+    "path": "prompts/F16-photo-quality-feedback.md"
+  },
+  "F17": {
+    "id": "F17",
+    "title": "Multi-part enquiries",
+    "area": "orchestrator",
+    "creates": [
+      "services/orchestrator/tests/features/test_f17.py",
+      "services/orchestrator/app/features/f17_multi_part_enquiries.py",
+      "apps/web/components/features/ItemList.tsx",
+      "apps/web/lib/features/f17_multi_part_enquiries.ts",
+      "services/orchestrator/app/features/__init__.py"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "apps/web/components/chat/Chat.tsx",
+      "services/orchestrator/app/handlers.py",
+      "services/orchestrator/app/routes.py"
+    ],
+    "logic": "Track up to 20 items with independent quantity, machine, candidate selection and status; clarify individual items; verify aggregate allocation for repeated part requests. One unresolved item blocks final all-items approval; allocations across duplicate parts cannot double count available stock; zero quantity rejected.",
+    "signature": "async def resolve_items(actor: ActorContext, request: F17Request) -> F17Result",
+    "request": "enquiry_id: UUID; expected_revision: int",
+    "response": "items: list[ItemState]; unresolved_item_ids: list[UUID]",
+    "route": "POST /internal/items/resolve",
+    "component": "ItemList",
+    "entry": "services/orchestrator/app/features/f17_multi_part_enquiries.py",
+    "tests": [
+      "services/orchestrator/tests/features/test_f17.py"
+    ],
+    "deps": [
+      "09",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "19",
+      "20"
+    ],
+    "path": "prompts/F17-multi-part-enquiries.md"
+  },
+  "F19": {
+    "id": "F19",
+    "title": "Enquiry history",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f19.py",
+      "services/gateway/app/features/f19_enquiry_history.py",
+      "apps/web/components/features/HistoryList.tsx",
+      "apps/web/lib/features/f19_enquiry_history.ts",
+      "services/gateway/app/features/__init__.py",
+      "apps/web/app/history/page.tsx"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Return cursor-paginated owned history with status and created time; filter active demo generation; link to full conversation; use stable created_at/id ordering. Foreign owner ID ignored; invalid cursor returns 422; equal timestamps do not duplicate or skip records.",
+    "signature": "async def list_history(actor: ActorContext, request: F19Request) -> F19Result",
+    "request": "cursor: str | None = None; limit: int = 20; status: str | None = None",
+    "response": "enquiries: list[EnquiryView]; next_cursor: str | None",
+    "route": "GET /v1/enquiries",
+    "component": "HistoryList",
+    "entry": "services/gateway/app/features/f19_enquiry_history.py",
+    "tests": [
+      "services/gateway/tests/features/test_f19.py"
+    ],
+    "deps": [
+      "07",
+      "08",
+      "19"
+    ],
+    "path": "prompts/F19-enquiry-history.md"
+  },
+  "F29": {
+    "id": "F29",
+    "title": "Evidence page viewer",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f29.py",
+      "services/gateway/app/features/f29_evidence_page_viewer.py",
+      "apps/web/components/features/EvidenceViewer.tsx",
+      "apps/web/lib/features/f29_evidence_page_viewer.ts"
+    ],
+    "modifies": [
+      "apps/web/app/staff/enquiries/[id]/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Authorize assigned reviewer or own demo reviewer; request short-lived worker-signed PDF URL; open exact cited page; label synthetic document. Customer receives reference only; arbitrary Storage key rejected; expired link can be renewed after authorization.",
+    "signature": "async def open_evidence(actor: ActorContext, request: F29Request) -> F29Result",
+    "request": "enquiry_id: UUID; evidence_id: UUID; expected_revision: int",
+    "response": "url: str; page_number: int; expires_at: datetime; synthetic: bool",
+    "route": "POST /v1/staff/evidence/open",
+    "component": "EvidenceViewer",
+    "entry": "services/gateway/app/features/f29_evidence_page_viewer.py",
+    "tests": [
+      "services/gateway/tests/features/test_f29.py"
+    ],
+    "deps": [
+      "04",
+      "06",
+      "20"
+    ],
+    "path": "prompts/F29-evidence-page-viewer.md"
+  },
+  "F31": {
+    "id": "F31",
+    "title": "Candidate comparison",
+    "area": "web",
+    "creates": [
+      "apps/web/tests/features/f31.test.tsx",
+      "apps/web/lib/features/f31_candidate_comparison.ts",
+      "apps/web/components/features/CandidateComparison.tsx"
+    ],
+    "modifies": [
+      "apps/web/app/staff/enquiries/[id]/page.tsx"
+    ],
+    "logic": "Compare two or three candidates from the same item/revision; show number, names, evidence and warehouse availability; selecting a candidate sends its ID, not browser-authored facts. Foreign candidate or stale revision rejected; missing attribute shown as unavailable; keyboard navigation works.",
+    "signature": "export function compare_candidates(request: F31Request): F31Result",
+    "request": "candidates: CandidateView[]; selectedIds: number[]",
+    "response": "rows: ComparisonRow[]",
+    "route": "none",
+    "component": "CandidateComparison",
+    "entry": "apps/web/lib/features/f31_candidate_comparison.ts",
+    "tests": [
+      "apps/web/tests/features/f31.test.tsx"
+    ],
+    "deps": [
+      "06",
+      "20"
+    ],
+    "path": "prompts/F31-candidate-comparison.md"
+  },
+  "F35": {
+    "id": "F35",
+    "title": "Stock freshness",
+    "area": "search",
+    "creates": [
+      "services/search/tests/features/test_f35.py",
+      "services/search/app/features/f35_stock_freshness.py",
+      "apps/web/components/features/StockFreshness.tsx",
+      "apps/web/lib/features/f35_stock_freshness.ts",
+      "services/search/app/features/__init__.py"
+    ],
+    "modifies": [
+      "apps/web/app/staff/enquiries/[id]/page.tsx",
+      "services/orchestrator/app/approval.py",
+      "services/search/app/routes.py"
+    ],
+    "logic": "Compare stock timestamp with configurable freshness limit; mark stale data in review; re-read current stock during approval; invalidate plan when allocation no longer possible. Future timestamp flagged; changed stock returns 409 and reruns planning; stale stock never becomes a delivery guarantee.",
+    "signature": "async def check_stock_freshness(actor: ActorContext, request: F35Request) -> F35Result",
+    "request": "facts: VerifiedFacts; max_age_seconds: int",
+    "response": "fresh: bool; changed_item_ids: list[UUID]; checked_at: datetime",
+    "route": "POST /internal/stock/check",
+    "component": "StockFreshness",
+    "entry": "services/search/app/features/f35_stock_freshness.py",
+    "tests": [
+      "services/search/tests/features/test_f35.py"
+    ],
+    "deps": [
+      "06",
+      "12",
+      "14",
+      "20"
+    ],
+    "path": "prompts/F35-stock-freshness.md"
+  },
+  "F36": {
+    "id": "F36",
+    "title": "Staff inbox",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f36.py",
+      "services/gateway/app/features/f36_staff_inbox.py",
+      "apps/web/components/features/InboxFilters.tsx",
+      "apps/web/lib/features/f36_staff_inbox.ts"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "apps/web/app/staff/inbox/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "List assigned operational enquiries and own active demo enquiries; filter status,priority,overdue and text; paginate stably; show counts in same access scope. Unassigned real enquiries hidden from reviewer; admin can see all; filters do not leak global counts.",
+    "signature": "async def list_inbox(actor: ActorContext, request: F36Request) -> F36Result",
+    "request": "cursor: str | None = None; limit: int = 20; status: str | None = None; priority: str | None = None; overdue: bool = False; query: str | None = None",
+    "response": "enquiries: list[EnquiryView]; next_cursor: str | None; scoped_total: int",
+    "route": "GET /v1/staff/enquiries",
+    "component": "InboxFilters",
+    "entry": "services/gateway/app/features/f36_staff_inbox.py",
+    "tests": [
+      "services/gateway/tests/features/test_f36.py"
+    ],
+    "deps": [
+      "07",
+      "20",
+      "F42",
+      "F43"
+    ],
+    "path": "prompts/F36-staff-inbox.md"
+  },
+  "F38": {
+    "id": "F38",
+    "title": "Correct extracted details",
+    "area": "orchestrator",
+    "creates": [
+      "services/orchestrator/tests/features/test_f38.py",
+      "services/orchestrator/app/features/f38_correct_extracted_details.py",
+      "apps/web/components/features/CorrectionEditor.tsx",
+      "apps/web/lib/features/f38_correct_extracted_details.ts",
+      "services/gateway/app/features/f38_correction_routes.py"
+    ],
+    "modifies": [
+      "apps/web/app/staff/enquiries/[id]/page.tsx",
+      "services/orchestrator/app/handlers.py",
+      "services/orchestrator/app/routes.py",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Lock enquiry; compare expected revision; apply typed allowed corrections; increment revision; invalidate derived selections/draft/approval; enqueue recomputation; record before and after. Unknown field rejected; old revision returns 409; correction cannot directly set approved status or invent candidate facts.",
+    "signature": "async def correct_extraction(actor: ActorContext, request: F38Request) -> F38Result",
+    "request": "change: RevisionRequest",
+    "response": "enquiry: EnquiryView",
+    "route": "POST /internal/enquiries/correct",
+    "component": "CorrectionEditor",
+    "entry": "services/orchestrator/app/features/f38_correct_extracted_details.py",
+    "tests": [
+      "services/orchestrator/tests/features/test_f38.py"
+    ],
+    "deps": [
+      "09",
+      "14",
+      "20"
+    ],
+    "path": "prompts/F38-correct-extracted-details.md"
+  },
+  "F41": {
+    "id": "F41",
+    "title": "Internal notes",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f41.py",
+      "services/gateway/app/features/f41_internal_notes.py",
+      "apps/web/components/features/InternalNotes.tsx",
+      "apps/web/lib/features/f41_internal_notes.ts"
+    ],
+    "modifies": [
+      "apps/web/app/staff/enquiries/[id]/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Append reviewer notes with author and timestamp; show only in staff workspace; prohibit customer/PDF exposure; escape rendered content. Empty or over-4000-character note rejected; customer route never includes note text; unassigned staff denied.",
+    "signature": "async def append_note(actor: ActorContext, request: F41Request) -> F41Result",
+    "request": "enquiry_id: UUID; body: str; idempotency_key: UUID",
+    "response": "id: UUID; author_id: UUID; body: str; created_at: datetime",
+    "route": "POST /v1/staff/enquiries/{id}/notes",
+    "component": "InternalNotes",
+    "entry": "services/gateway/app/features/f41_internal_notes.py",
+    "tests": [
+      "services/gateway/tests/features/test_f41.py"
+    ],
+    "deps": [
+      "03",
+      "07",
+      "20"
+    ],
+    "path": "prompts/F41-internal-notes.md"
+  },
+  "F42": {
+    "id": "F42",
+    "title": "Assignments",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f42.py",
+      "services/gateway/app/features/f42_assignments.py",
+      "apps/web/components/features/AssignmentControl.tsx",
+      "apps/web/lib/features/f42_assignments.ts"
+    ],
+    "modifies": [
+      "apps/web/app/staff/enquiries/[id]/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Admin assigns active reviewer or unassigns; persist assignment history atomically; access changes immediately; demo reviewer access remains session-scoped. Non-admin assignment denied; disabled/nonreviewer assignee rejected; previous reviewer loses access on next request.",
+    "signature": "async def assign_enquiry(actor: ActorContext, request: F42Request) -> F42Result",
+    "request": "enquiry_id: UUID; assigned_to: UUID | None; expected_revision: int; idempotency_key: UUID",
+    "response": "assigned_to: UUID | None; assigned_at: datetime",
+    "route": "POST /v1/staff/enquiries/{id}/assignment",
+    "component": "AssignmentControl",
+    "entry": "services/gateway/app/features/f42_assignments.py",
+    "tests": [
+      "services/gateway/tests/features/test_f42.py"
+    ],
+    "deps": [
+      "03",
+      "07",
+      "20"
+    ],
+    "path": "prompts/F42-assignments.md"
+  },
+  "F43": {
+    "id": "F43",
+    "title": "Overdue indicators",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f43.py",
+      "services/gateway/app/features/f43_overdue_indicators.py",
+      "apps/web/components/features/OverdueBadge.tsx",
+      "apps/web/lib/features/f43_overdue_indicators.ts"
+    ],
+    "modifies": [
+      "apps/web/app/staff/enquiries/[id]/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Set due_at using configurable urgent/normal thresholds; display overdue only for unresolved states; sort overdue first when requested; store all times UTC. Approved/rejected items never overdue; daylight-saving display does not change deadline; thresholds not described as contractual SLA.",
+    "signature": "async def classify_deadline(actor: ActorContext, request: F43Request) -> F43Result",
+    "request": "enquiry_id: UUID; now: datetime",
+    "response": "due_at: datetime; overdue: bool; age_seconds: int",
+    "route": "GET /v1/staff/enquiries/{id}/deadline",
+    "component": "OverdueBadge",
+    "entry": "services/gateway/app/features/f43_overdue_indicators.py",
+    "tests": [
+      "services/gateway/tests/features/test_f43.py"
+    ],
+    "deps": [
+      "20"
+    ],
+    "path": "prompts/F43-overdue-indicators.md"
+  },
+  "F44": {
+    "id": "F44",
+    "title": "Conversation summary",
+    "area": "orchestrator",
+    "creates": [
+      "services/orchestrator/tests/features/test_f44.py",
+      "services/orchestrator/app/features/f44_conversation_summary.py",
+      "apps/web/components/features/ConversationSummary.tsx",
+      "apps/web/lib/features/f44_conversation_summary.ts",
+      "services/gateway/app/features/f44_summary_routes.py"
+    ],
+    "modifies": [
+      "apps/web/app/staff/enquiries/[id]/page.tsx",
+      "services/orchestrator/app/handlers.py",
+      "services/orchestrator/app/routes.py",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Produce staff-only concise summary from authorized messages and confirmed fields; store message IDs and revision; use shared budget wrapper; regenerate on relevant change. Outdated summary labelled stale; instructions inside messages ignored; exhausted budget leaves full conversation available.",
+    "signature": "async def summarize_enquiry(actor: ActorContext, request: F44Request) -> F44Result",
+    "request": "enquiry_id: UUID; expected_revision: int",
+    "response": "summary: str; source_message_ids: list[UUID]; revision: int",
+    "route": "POST /internal/enquiries/summary",
+    "component": "ConversationSummary",
+    "entry": "services/orchestrator/app/features/f44_conversation_summary.py",
+    "tests": [
+      "services/orchestrator/tests/features/test_f44.py"
+    ],
+    "deps": [
+      "09",
+      "13",
+      "20"
+    ],
+    "path": "prompts/F44-conversation-summary.md"
+  },
+  "F48": {
+    "id": "F48",
+    "title": "Input isolation",
+    "area": "orchestrator",
+    "creates": [
+      "services/orchestrator/tests/features/test_f48.py",
+      "services/orchestrator/app/features/f48_input_isolation.py"
+    ],
+    "modifies": [
+      "services/orchestrator/app/handlers.py",
+      "services/orchestrator/app/routes.py"
+    ],
+    "logic": "Treat customer text,OCR and imported evidence as data; separate trusted instructions; bound tool names,arguments,steps and output size; never execute model-produced templates. Prompt injection cannot call write tools,change roles or reveal secrets; tool result with rogue instructions remains inert.",
+    "signature": "def validate_tool_call(request: F48Request) -> F48Result",
+    "request": "tool_name: str; arguments_json: str; context: ToolContext",
+    "response": "allowed: bool; reason_code: str | None",
+    "route": "none",
+    "component": "none",
+    "entry": "services/orchestrator/app/features/f48_input_isolation.py",
+    "tests": [
+      "services/orchestrator/tests/features/test_f48.py"
+    ],
+    "deps": [
+      "10",
+      "11",
+      "12",
+      "13",
+      "16"
+    ],
+    "path": "prompts/F48-input-isolation.md"
+  },
+  "F55": {
+    "id": "F55",
+    "title": "Saved machines",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f55.py",
+      "services/gateway/app/features/f55_saved_machines.py",
+      "apps/web/components/features/SavedMachines.tsx",
+      "apps/web/lib/features/f55_saved_machines.ts"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Save confirmed model and serial with user label; list own active entries; archive entry; prefill a new enquiry but re-identify against current catalogue. Duplicate label permitted with distinct ID; foreign ID denied; stale configuration never reused as authoritative.",
+    "signature": "async def save_machine(actor: ActorContext, request: F55Request) -> F55Result",
+    "request": "label: str; model_id: int; serial_text: str; idempotency_key: UUID",
+    "response": "id: UUID; label: str; model_id: int; serial_text: str",
+    "route": "POST /v1/machines",
+    "component": "SavedMachines",
+    "entry": "services/gateway/app/features/f55_saved_machines.py",
+    "tests": [
+      "services/gateway/tests/features/test_f55.py"
+    ],
+    "deps": [
+      "07",
+      "19"
+    ],
+    "path": "prompts/F55-saved-machines.md"
+  },
+  "F56": {
+    "id": "F56",
+    "title": "Repeat enquiry",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f56.py",
+      "services/gateway/app/features/f56_repeat_enquiry.py",
+      "apps/web/components/features/RepeatEnquiry.tsx",
+      "apps/web/lib/features/f56_repeat_enquiry.ts"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Copy customer request and confirmed hints into a new enquiry; issue new ID/revision; link origin in audit; run matching,stock and review again. Never copy approval,allocation,draft or signed file URL; source ownership required; repeated submission deduplicated.",
+    "signature": "async def repeat_enquiry(actor: ActorContext, request: F56Request) -> F56Result",
+    "request": "source_enquiry_id: UUID; idempotency_key: UUID",
+    "response": "enquiry: EnquiryView",
+    "route": "POST /v1/enquiries/{id}/repeat",
+    "component": "RepeatEnquiry",
+    "entry": "services/gateway/app/features/f56_repeat_enquiry.py",
+    "tests": [
+      "services/gateway/tests/features/test_f56.py"
+    ],
+    "deps": [
+      "09",
+      "19",
+      "F19",
+      "F55"
+    ],
+    "path": "prompts/F56-repeat-enquiry.md"
+  },
+  "F57": {
+    "id": "F57",
+    "title": "Catalogue browser",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f57.py",
+      "services/gateway/app/features/f57_catalogue_browser.py",
+      "apps/web/components/features/CatalogueBrowser.tsx",
+      "apps/web/lib/features/f57_catalogue_browser.ts",
+      "apps/web/app/staff/catalogue/page.tsx"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Read published catalogue with model/category/text filters; page results; show part detail and supersession; staff can inspect fitment and sources. No unpublished import rows exposed; missing number returns 404; literal query cannot become SQL.",
+    "signature": "async def browse_catalogue(actor: ActorContext, request: F57Request) -> F57Result",
+    "request": "query: str | None = None; model_id: int | None = None; category: str | None = None; cursor: str | None = None; limit: int = 20",
+    "response": "parts: list[PartView]; next_cursor: str | None; version_id: UUID",
+    "route": "GET /v1/catalogue/parts",
+    "component": "CatalogueBrowser",
+    "entry": "services/gateway/app/features/f57_catalogue_browser.py",
+    "tests": [
+      "services/gateway/tests/features/test_f57.py"
+    ],
+    "deps": [
+      "02",
+      "06",
+      "18",
+      "F59"
+    ],
+    "path": "prompts/F57-catalogue-browser.md"
+  },
+  "F58": {
+    "id": "F58",
+    "title": "Catalogue imports",
+    "area": "worker",
+    "creates": [
+      "services/worker/tests/features/test_f58.py",
+      "services/worker/app/features/f58_catalogue_imports.py",
+      "apps/web/components/features/ImportWizard.tsx",
+      "apps/web/lib/features/f58_catalogue_imports.ts",
+      "services/gateway/app/features/f58_import_routes.py"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "services/worker/app/dispatcher.py",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Read CSV UTF-8 or XLSX without evaluating formulas; validate row schema,references,serial overlap,supersession cycles and source evidence; show dry-run report; explicit admin publish. Invalid batch changes no published data; file with macros/formulas rejected; 50000-row and 10MiB limits enforced; public demo cannot publish.",
+    "signature": "async def validate_import(actor: ActorContext, request: F58Request) -> F58Result",
+    "request": "batch_id: UUID; lease: JobLease",
+    "response": "valid: bool; row_count: int; errors: list[ImportErrorView]",
+    "route": "POST /v1/staff/imports",
+    "component": "ImportWizard",
+    "entry": "services/worker/app/features/f58_catalogue_imports.py",
+    "tests": [
+      "services/worker/tests/features/test_f58.py"
+    ],
+    "deps": [
+      "02",
+      "05",
+      "15",
+      "F59",
+      "F57"
+    ],
+    "path": "prompts/F58-catalogue-imports.md"
+  },
+  "F59": {
+    "id": "F59",
+    "title": "Catalogue versioning",
+    "area": "catalog",
+    "creates": [
+      "tests/acceptance/test_f59.py",
+      "tools/catalog/catalog/versioning.py",
+      "apps/web/components/features/CatalogueVersions.tsx",
+      "apps/web/lib/features/f59_catalogue_versioning.ts",
+      "services/gateway/app/features/f59_publish_routes.py",
+      "services/worker/app/jobs/catalog_publish.py"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "tools/catalog/catalog/__main__.py",
+      "services/gateway/app/api_v1.py",
+      "services/worker/app/dispatcher.py"
+    ],
+    "logic": "Snapshot validated catalogue canonically; hash records; serialize publication; preserve numeric IDs; atomically retire old version and activate new; invalidate pending enquiries on next action. Two publishers cannot leave two active versions; failed publish rolls back; old approval retains immutable evidence snapshot.",
+    "signature": "async def publish_version(actor: ActorContext, request: F59Request) -> F59Result",
+    "request": "version_id: UUID; expected_active_version_id: UUID; idempotency_key: UUID",
+    "response": "version_id: UUID; published_at: datetime; record_count: int",
+    "route": "POST /v1/staff/catalogue/publish",
+    "component": "CatalogueVersions",
+    "entry": "tools/catalog/catalog/versioning.py",
+    "tests": [
+      "tests/acceptance/test_f59.py"
+    ],
+    "deps": [
+      "02",
+      "05",
+      "06"
+    ],
+    "path": "prompts/F59-catalogue-versioning.md"
+  },
+  "F60": {
+    "id": "F60",
+    "title": "Missing-parts queue",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f60.py",
+      "services/gateway/app/features/f60_missing_parts_queue.py",
+      "apps/web/components/features/MissingPartsQueue.tsx",
+      "apps/web/lib/features/f60_missing_parts_queue.ts"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Record unresolved item once; allow assigned staff to mark investigating,resolved or unavailable with note; link back to enquiry; no automatic catalogue creation. Resolved status requires staff explanation; foreign item denied; empty search result is not fabricated stock.",
+    "signature": "async def update_missing_part(actor: ActorContext, request: F60Request) -> F60Result",
+    "request": "item_id: UUID; status: str; staff_note: str; expected_revision: int",
+    "response": "id: UUID; status: str; updated_at: datetime",
+    "route": "PATCH /v1/staff/missing-parts/{id}",
+    "component": "MissingPartsQueue",
+    "entry": "services/gateway/app/features/f60_missing_parts_queue.py",
+    "tests": [
+      "services/gateway/tests/features/test_f60.py"
+    ],
+    "deps": [
+      "03",
+      "20"
+    ],
+    "path": "prompts/F60-missing-parts-queue.md"
+  },
+  "F63": {
+    "id": "F63",
+    "title": "Metrics dashboard",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f63.py",
+      "services/gateway/app/features/f63_metrics_dashboard.py",
+      "apps/web/components/features/MetricsDashboard.tsx",
+      "apps/web/lib/features/f63_metrics_dashboard.ts",
+      "apps/web/app/staff/analytics/page.tsx"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "Show volume,status,review time,clarification and labelled accuracy with denominators; separate demo traffic; filter time window; scope reviewer data to assignments. Zero denominator displays unavailable; no fabricated percentage; demo traffic never silently improves operational metrics.",
+    "signature": "async def metrics_dashboard(actor: ActorContext, request: F63Request) -> F63Result",
+    "request": "query: MetricsQuery",
+    "response": "metrics: MetricsView",
+    "route": "GET /v1/staff/analytics",
+    "component": "MetricsDashboard",
+    "entry": "services/gateway/app/features/f63_metrics_dashboard.py",
+    "tests": [
+      "services/gateway/tests/features/test_f63.py"
+    ],
+    "deps": [
+      "21",
+      "23"
+    ],
+    "path": "prompts/F63-metrics-dashboard.md"
+  },
+  "F65": {
+    "id": "F65",
+    "title": "Correction feedback",
+    "area": "gateway",
+    "creates": [
+      "services/gateway/tests/features/test_f65.py",
+      "services/gateway/app/features/f65_correction_feedback.py",
+      "apps/web/components/features/CorrectionFeedback.tsx",
+      "apps/web/lib/features/f65_correction_feedback.ts"
+    ],
+    "modifies": [
+      "apps/web/app/page.tsx",
+      "services/gateway/app/api_v1.py"
+    ],
+    "logic": "List authorized before/after corrections; let admin curate anonymized labelled eval cases; record reviewer and source revision; never auto-train on unreviewed edits. Private text excluded from exported fixtures; duplicate case source detected; unreviewed correction cannot become ground truth.",
+    "signature": "async def curate_correction(actor: ActorContext, request: F65Request) -> F65Result",
+    "request": "correction_id: UUID; case_id: str; approved_expected: str",
+    "response": "case_id: str; source_revision: int; approved_by: UUID",
+    "route": "POST /v1/staff/corrections/{id}/eval-case",
+    "component": "CorrectionFeedback",
+    "entry": "services/gateway/app/features/f65_correction_feedback.py",
+    "tests": [
+      "services/gateway/tests/features/test_f65.py"
+    ],
+    "deps": [
+      "14",
+      "21",
+      "23",
+      "F63"
+    ],
+    "path": "prompts/F65-correction-feedback.md"
+  },
+  "F68": {
+    "id": "F68",
+    "title": "Recruiter documentation",
+    "area": "docs",
+    "creates": [
+      "tests/acceptance/test_f68.py",
+      "docs/RECRUITER_GUIDE.md"
+    ],
+    "modifies": [
+      "README.md"
+    ],
+    "logic": "Write concise overview,real architecture,quick start,demo paths,tests,trade-offs and limitations; link measured evidence; explain deterministic decisions and specialist tools. No invented accuracy,uptime,client relationship or production adoption; distinguish implementation status from specification.",
+    "signature": "Documentation contract: README.md and docs/RECRUITER_GUIDE.md",
+    "request": "source: validated hosted and test receipts",
+    "response": "README.md and docs/RECRUITER_GUIDE.md",
+    "route": "none",
+    "component": "none",
+    "entry": "docs/RECRUITER_GUIDE.md",
+    "tests": [
+      "tests/acceptance/test_f68.py"
+    ],
+    "deps": [
+      "21",
+      "23",
+      "22",
+      "24",
+      "25",
+      "26",
+      "27"
+    ],
+    "path": "prompts/F68-recruiter-documentation.md"
+  },
+  "F69": {
+    "id": "F69",
+    "title": "Demo walkthrough",
+    "area": "docs",
+    "creates": [
+      "tests/acceptance/test_f69.py",
+      "docs/DEMO_SCRIPT.md",
+      "docs/RECORDING_CHECKLIST.md"
+    ],
+    "modifies": [],
+    "logic": "Create 3-minute and 8-minute scripts covering happy path,missing serial,incompatibility,stock split and human review; include recording checklist and captions. Do not claim video exists until recorded; use synthetic data; show failure handling and reset; verify links before sending recruiters.",
+    "signature": "Documentation contract: docs/DEMO_SCRIPT.md and docs/RECORDING_CHECKLIST.md",
+    "request": "source: four verified demo scenarios",
+    "response": "docs/DEMO_SCRIPT.md and docs/RECORDING_CHECKLIST.md",
+    "route": "none",
+    "component": "none",
+    "entry": "docs/DEMO_SCRIPT.md",
+    "tests": [
+      "tests/acceptance/test_f69.py"
+    ],
+    "deps": [
+      "27",
+      "F68"
+    ],
+    "path": "prompts/F69-demo-walkthrough.md"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "guide_pages": 339,
+  "chapters": 123,
+  "prompt_files": 97,
+  "feature_traces": 69,
+  "model_schemas": 64,
+  "pdf_text_bounds_overflow_pages": [],
+  "visual_review": "All pages reviewed through contact sheets; representative pages inspected at full size. Final text changes on pages [8]",
+  "application_runtime_tests": "Not executed; kit validation only"
+}
