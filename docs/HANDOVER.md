@@ -124,7 +124,12 @@ Completed through 21 (Labelled evaluations):
 - Verification (exit 0): run_checks --prompt 21 -> test_21.py PASS; run_checks --feature F62 -> tests/acceptance/test_f62.py PASS; tests/evals/test_scenarios.py PASS (3) incl. validating the four demo labels against build_scenarios(generate_catalog(42)); ruff clean. Deterministic accuracy 1.0, 3 abstentions + 1 unlabelled reported separately.
 - BLOCKED: the live-model evaluation path (needs confirmed OpenAI credit) is separate from the deterministic suite and not run here.
 
-Next: execute prompt 22 (Security and failure recovery gate) per prompts/README.md, on its own branch.
+Completed through 22 (Security and failure recovery gate):
+- tests/integration/test_security_recovery.py owns assert_disposable_environment(TestConfig) (refuses a production DSN/project ref or non-local/test app_env) and the live security scenario class (foreign sessions, reset races, expired JWT, upload bombs, Redis down, worker crash, stale lease, API timeout, simultaneous approvals) which SKIP without a disposable local Supabase. tests/integration/test_rls.py + test_budget_races.py skip-gated on a disposable DB. tests/e2e/security.spec.ts is a Playwright deliverable (skips without a baseURL). services/gateway/tests/features/test_f04.py (demo isolation) + test_f54.py (JWT malformed/none-alg rejected; DB-sourced roles so forged claims are ignored; assigned-only). apps/web/tests/features/f53.test.tsx (api client maps 503/422/non-JSON to a typed ApiError with request id, no stack leak).
+- Verification (exit 0): run_checks --prompt 22 -> test_22.py PASS (disposable guard; require_access foreign/forged/missing -> 404; verify_facts rejects an oversold plan; no secret in the web bundle); gateway suite 36 passed; apps/web vitest 20 passed (adds f53); ruff clean.
+- BLOCKED (reported, skipped not faked): all live scenarios needing a disposable local Supabase (auth+storage), Redis and a running app for the Playwright e2e.
+
+Next: execute prompt 23 (Observability and credit limits) per prompts/README.md, on its own branch.
 
 Watch (unchanged): all live infrastructure remains BLOCKED and reported — Supabase Auth/DB/RLS, Redis, pgvector + BGE-M3 (torch not installed), live OpenAI (text + vision), Postgres LangGraph checkpointer, Playwright/Chromium PDF + e2e, Storage. The frontend toolchain (node 25 / pnpm 10.31) is installed and its vitest suite runs; run_checks has no pnpm wiring, so the per-prompt gate is the Python structural test and the vitest suite is run directly (reported, never faked). Use `uv sync --all-packages` (a bare `uv sync` prunes member deps).
 

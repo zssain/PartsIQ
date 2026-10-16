@@ -33,3 +33,4 @@ jobs, enquiries. Exact columns,keys,indexes and policies are in TECH_SPEC.md sec
 
 ## Verification evidence
 Covered by tests/foundations/test_19.py + test_20.py and apps/web vitest (f37 stale/409). Search lexical-fallback is reported by /readiness (prompt 06).
+| 2026-10-17 | 22 | apps/web f53.test.tsx asserts the api client maps 503/422/non-JSON to a typed ApiError with request id and no stack leak. | prompt/22 |

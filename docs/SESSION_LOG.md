@@ -170,3 +170,11 @@
 4. BLOCKED: live-model eval path (confirmed credit) separate from deterministic suite.
 5. Next: prompt 22 (security and failure recovery gate).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 22 (security and failure recovery gate)
+1. Work: tests/integration/test_security_recovery.py (assert_disposable_environment guard + live scenario class, skip without disposable DB), test_rls.py + test_budget_races.py (skip-gated), tests/e2e/security.spec.ts (Playwright deliverable), gateway test_f04.py (demo isolation) + test_f54.py (JWT malformed/none-alg reject, DB roles, assigned-only), apps/web f53.test.tsx (api error mapping).
+2. Verification (exit 0): run_checks --prompt 22 -> test_22.py PASS; gateway 36 passed; web vitest 20 passed; ruff clean.
+3. Design: disposable guard refuses production; forged JWT roles ignored (roles from DB); require_access denies foreign/missing-context with 404; verification rejects oversold; no secret in the browser bundle. Live scenarios skip (never faked).
+4. BLOCKED: disposable local Supabase (auth+storage), Redis, running app for e2e.
+5. Next: prompt 23 (observability and credit limits).
+6. Model/version: claude-opus-4-8[1m].
