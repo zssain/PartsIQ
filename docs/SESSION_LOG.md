@@ -27,3 +27,10 @@
 3. Limits: applying to a real database is BLOCKED (no Supabase/Postgres here); F20/F22/F28/F30 runtime behaviour owned by prompt 06.
 4. Next: prompt 03 (workflow schema and database permissions).
 5. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 03 (workflow schema and database permissions)
+1. Work: copied spec/sql/003 & 004 verbatim into supabase/migrations (application, rls). Added tools/checkpoints_setup.py (extracted checkpoint DDL in autocommit then 007 permissions in a tx; no langgraph dep; refuses reset), tools/schema_receipt.py (collect_schema_receipt, read-only), tests/integration/conftest.py (disposable-DB pool, skips without DB, prod denylist).
+2. Verification (exit 0): `run_checks --prompt 03` → test_03.py PASS (12 tests, 1 live-DB skip); new files ruff-clean (pre-existing legacy/kit ruff findings left untouched). Asserted verbatim copies, 5 NOLOGIN roles, 48 RLS tables/113 policies, per-item/revision candidate keys, no-invented-identity backfill, single-publication index, transaction-local app.actor_id, checkpoint setup order, schema-receipt shape.
+3. Limits: live RLS enforcement + two-actor-on-reused-pool BLOCKED (no Postgres here); run under tests/integration against disposable Supabase.
+4. Next: prompt 04 (private storage).
+5. Model/version: claude-opus-4-8[1m].

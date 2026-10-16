@@ -28,6 +28,7 @@ audit_log. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 03 | audit_log RLS (admin/reviewer read) and append-only grants migrated; application UPDATE/DELETE/TRUNCATE denied by role grants. Structural assertions in test_03.py. | prompt/03 |
 | 2026-10-17 | 01 | append_audit implemented: redacted, append-only, inserted in caller transaction so a failed audit rolls back the business write. Verified in tests/foundations/test_01.py. Owner prompt 14 finalizes the full trail. | prompt/01 |
 
 ## Verification evidence

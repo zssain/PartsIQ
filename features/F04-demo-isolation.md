@@ -28,6 +28,7 @@ demo_sessions, enquiries. Exact columns,keys,indexes and policies are in TECH_SP
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 03 | RLS + app_private.demo_active/can_read_enquiry/can_review migrated verbatim; demo session generation/expiry enforced in policy; transaction-local app.actor_id. Structural assertions in test_03.py; live enforcement under tests/integration. | prompt/03 |
 
 ## Verification evidence
 Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
