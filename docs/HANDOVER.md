@@ -82,7 +82,13 @@ Completed through 14 (Approval and revision transactions):
 - Verification (exit 0): run_checks --prompt 14 -> test_14.py PASS (13); orchestrator suite PASS (36, 1 skip) incl. test_f40/test_f47; run_checks --feature F49 -> tests/acceptance/test_f49.py PASS (3); ruff clean.
 - BLOCKED: the live locked Postgres transaction, the unique-publication/immutability/append-only triggers and application-role UPDATE/DELETE/TRUNCATE rejection are integration-only; tested here with a fake repository that mirrors those constraints.
 
-Next: execute prompt 15 (Worker leases and sweeper) per prompts/README.md, on its own branch.
+Completed through 15 (Worker leases and sweeper):
+- worker/app/leases.py: claim_job (fresh fencing token + attempts++), heartbeat (renew while token ours), finish_job (fenced by token AND current enquiry revision/session generation — a stale revision or old demo generation cannot commit, F52/F05). worker/app/dispatcher.py: persist-before-Redis enqueue_job (dedupe_key idempotent; push failure tolerated), ConcurrencyGuard (one nameplate + one export_pdf), Dispatcher drain flag for graceful shutdown. worker/app/sweeper.py: sweep_once reclaims pending/expired jobs and redispatches; a job past max_attempts is failed not retried. worker/app/internal.py: single internal-token-guarded storage sign-download route (Docker-network only; no orchestrator HTTP). worker/app/main.py: service app (readiness false until store+queue wired).
+- All DB/Redis/Storage I/O is behind injected ports; worker pyproject gained [tool.pytest.ini_options] for the isolated suite. No new package (redis/asyncpg live adapters are BLOCKED).
+- Verification (exit 0): run_checks --prompt 15 -> test_15.py PASS (14); worker suite PASS (10) incl. test_f51/test_f52; ruff clean.
+- BLOCKED: live asyncpg (FOR UPDATE SKIP LOCKED), Redis queue, Storage signing; tested with fake store/queue that mirror the locking/fencing/dedupe semantics.
+
+Next: execute prompt 16 (Nameplate vision job) per prompts/README.md, on its own branch.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 

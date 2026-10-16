@@ -114,3 +114,11 @@
 4. BLOCKED: live locked Postgres transaction + triggers (unique publication, immutability, append-only, UPDATE/DELETE/TRUNCATE rejection); tested via a fake repo mirroring those constraints.
 5. Next: prompt 15 (worker leases and sweeper).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 15 (worker leases and sweeper)
+1. Work: added worker leases.py (claim/heartbeat/finish with fresh token + attempts++ + token/revision/generation fencing), dispatcher.py (persist-before-Redis enqueue + dedupe, ConcurrencyGuard one nameplate+one pdf, Dispatcher drain flag), sweeper.py (sweep_once reclaim/redispatch, max_attempts -> failed), internal.py (internal-token signing route, no orchestrator HTTP), main.py. Added [tool.pytest.ini_options] to worker pyproject.
+2. Verification (exit 0): run_checks --prompt 15 -> test_15.py PASS (14); worker suite PASS (10) incl. test_f51/test_f52; ruff clean.
+3. Design: DB is the job source of truth (Redis is dispatch only); stale/expired/old-generation work cannot commit; heavy work bounded so it never starves HTTP intake.
+4. BLOCKED: live asyncpg SKIP LOCKED, Redis, Storage signing; tested with fakes mirroring the semantics.
+5. Next: prompt 16 (nameplate vision job).
+6. Model/version: claude-opus-4-8[1m].

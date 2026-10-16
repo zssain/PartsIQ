@@ -16,3 +16,9 @@ dependencies = []
 
 [tool.uv]
 package = false
+
+# Test discovery for the isolated worker suite (run in its own process by tools/run_checks.py).
+# ``app`` is on the path via pythonpath; partsiq_common comes from the shared workspace venv.
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
