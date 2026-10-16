@@ -1,15 +1,43 @@
-"""HTTP routes for the search service."""
+"""HTTP routes for the search service.
 
-from fastapi import APIRouter, Path, Request
+Every route requires the internal service token (CONSTRAINTS.md rule 13): the search
+service is private and never faces the public internet. When a token is configured it is
+enforced with a constant-time comparison; an unconfigured token is treated as local-dev
+and allowed (production always configures INTERNAL_SERVICE_TOKEN).
+"""
+
+import hmac
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Path, Request, status
 
 from app import schemas
 from app.service import SearchService
 
-router = APIRouter(prefix="/v1/search", tags=["search"])
+
+async def require_internal_token(
+    request: Request, x_internal_token: str | None = Header(default=None)
+) -> None:
+    settings = getattr(request.app.state, "settings", None)
+    expected = getattr(settings, "internal_service_token", None) if settings else None
+    if not expected:
+        return  # no token configured: local development only
+    if x_internal_token is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="internal token required")
+    if not hmac.compare_digest(x_internal_token, expected):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="invalid internal token")
+
+
+router = APIRouter(prefix="/v1/search", tags=["search"], dependencies=[Depends(require_internal_token)])
 
 
 def _service(request: Request) -> SearchService:
     return request.app.state.search_service
+
+
+@router.get("/readiness")
+async def readiness(request: Request) -> dict[str, bool]:
+    """Lexical readiness and semantic capability reported separately."""
+    return _service(request).readiness()
 
 
 @router.post("/identify", response_model=schemas.IdentifyResponse)

@@ -48,3 +48,10 @@
 3. Limits: base catalogue DB load (published catalogue_versions + immutable snapshot + evidence rows in one seeded transaction) and embedding (prompt 06) are BLOCKED here (no Postgres/BGE-M3).
 4. Next: prompt 06 (extend legacy search).
 5. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 06 (extend legacy search)
+1. Work: characterized legacy identify/lexical/fulfilment; added internal-token route auth + /readiness (lexical vs semantic separate); added embedding_ingestion.embed_version (1024-d/unit-norm/NaN validation + source sha256 + model_revision, injected provider/store); fixed service.py margin-before-limit, NaN rejection, ADR-018 supersession terminal-fitment; extended partsiq_common.embeddings, repository, catalog embedder, search config/Dockerfile/requirements-embeddings (CPU wheel pins).
+2. Verification (exit 0): run_checks --prompt 06 -> test_06.py PASS (10); isolated search suite PASS (71 incl. preserved legacy + F20..F34 offline via fake repo/encoder); 00-06 regression green; verify_kit PASSED; authored files ruff-clean (one pre-existing legacy E741 in test_fulfilment.py left untouched).
+3. BLOCKED: live asyncpg/pgvector, real BGE-M3 weights, torch/sentence-transformers install (~2.5GB, disk 95% full), real published-version embedding.
+4. Next: prompt 07 (authentication and demo sessions).
+5. Model/version: claude-opus-4-8[1m].

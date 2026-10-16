@@ -28,6 +28,7 @@ part_supersessions. Exact columns,keys,indexes and policies are in TECH_SPEC.md 
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 06 | supersession successor offered only with explicit terminal fitment (ADR-018); inherited-only rejected; old number displayed. test_f30.py + test_06.py. Live DB/BGE-M3 BLOCKED. | prompt/06 |
 | 2026-10-17 | 02 | part_supersessions + WITH RECURSIVE cycle protection migrated verbatim; part_number_key normalization present. Verified structurally in test_02.py. Chain-following owned by prompt 06. | prompt/02 |
 
 ## Verification evidence

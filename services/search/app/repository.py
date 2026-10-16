@@ -196,6 +196,47 @@ class SearchRepository:
         return [CompatibleMachine(r["id"], r["brand"], r["model_code"], r["display_name"], r["config_code"],
                                   float(r["quantity_per_unit"])) for r in rows]
 
+    async def fetch_embedding_sources(self, version_id: object) -> list[tuple[int, str]]:
+        """Return (part_id, source_text) for active parts of a published version.
+
+        Source text mirrors the catalogue embedder (tools/catalog embedder) so vectors
+        stay consistent whichever path produced them.
+        """
+        async with self._pool.acquire() as connection:
+            rows = await connection.fetch(
+                """SELECT p.id,
+                          p.name_en || ' | ' || p.name_ar || ' | ' || p.category || ' | ' ||
+                          COALESCE(string_agg(a.alias, '; ' ORDER BY a.alias), '') || ' | ' || p.description_en
+                              AS source_text
+                   FROM parts AS p
+                   LEFT JOIN part_aliases AS a ON a.part_id = p.id
+                   WHERE p.is_active
+                   GROUP BY p.id
+                   ORDER BY p.id"""
+            )
+        return [(r["id"], r["source_text"]) for r in rows]
+
+    async def upsert_embedding(
+        self,
+        part_id: int,
+        model_name: str,
+        source_text: str,
+        vector_literal: str,
+        model_revision: str,
+        source_hash: str,
+    ) -> None:
+        async with self._pool.acquire() as connection:
+            await connection.execute(
+                """INSERT INTO part_embeddings
+                       (part_id, model_name, source_text, embedding, model_revision, source_sha256)
+                   VALUES ($1, $2, $3, $4::vector, $5, $6)
+                   ON CONFLICT (part_id, model_name) DO UPDATE SET
+                       source_text = EXCLUDED.source_text, embedding = EXCLUDED.embedding,
+                       model_revision = EXCLUDED.model_revision, source_sha256 = EXCLUDED.source_sha256,
+                       created_at = now()""",
+                part_id, model_name, source_text, vector_literal, model_revision, source_hash,
+            )
+
     async def fetch_semantic_similarities(
         self, query_vector: str, model_name: str, part_ids: Sequence[int]
     ) -> dict[int, float]:

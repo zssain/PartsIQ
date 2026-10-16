@@ -28,6 +28,7 @@ warehouse_transfer_routes. Exact columns,keys,indexes and policies are in TECH_S
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 06 | integer transfer_days from approved route; local==0; no route -> unavailable not invented. test_f34.py. Live DB/BGE-M3 BLOCKED. | prompt/06 |
 
 ## Verification evidence
 Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.

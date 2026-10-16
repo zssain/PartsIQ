@@ -57,3 +57,29 @@ def to_vector_literal(vector: Sequence[float]) -> str:
     if len(vector) != EMBEDDING_DIMENSION:
         raise ValueError(f"Expected {EMBEDDING_DIMENSION} dimensions, received {len(vector)}")
     return "[" + ",".join(f"{component:.7f}" for component in vector) + "]"
+
+
+def validate_embedding(vector: Sequence[float], *, tolerance: float = 1e-3) -> None:
+    """Reject a vector of the wrong dimension, with NaN/inf, or not unit length.
+
+    BGE-M3 vectors are L2-normalised; the schema is VECTOR(1024). Enforcing both here
+    (prompt 06, F24) means a miscomputed embedding is refused rather than silently
+    stored and later ranked as if valid.
+    """
+    import math
+
+    if len(vector) != EMBEDDING_DIMENSION:
+        raise ValueError(f"Expected {EMBEDDING_DIMENSION} dimensions, received {len(vector)}")
+    if any(math.isnan(component) or math.isinf(component) for component in vector):
+        raise ValueError("embedding contains NaN or infinite components")
+    norm = math.sqrt(sum(component * component for component in vector))
+    if abs(norm - 1.0) > tolerance:
+        raise ValueError(f"embedding is not unit length (norm={norm:.6f})")
+
+
+def source_sha256(text: str) -> str:
+    """Stable hash of the embedded source text, stored alongside each vector so a
+    re-embed can detect unchanged inputs (prompt 06: upsert with source hash)."""
+    import hashlib
+
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()

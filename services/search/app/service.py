@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import math
 from dataclasses import asdict
 
 from partsiq_common.embeddings import EmbeddingProvider, to_vector_literal
@@ -88,10 +89,17 @@ class SearchService:
         all_ids |= {pid for chain in quoted_chains.values() for pid in chain}
         parts = await self._repository.fetch_parts(list(all_ids))
 
+        # ADR-018: a candidate must have EXPLICIT fitment. A superseded part's current
+        # successor is offered only when the successor itself is listed as compatible
+        # for this configuration; compatibility is never silently inherited across a
+        # supersession without the successor's own source (F30).
+        directly_compatible = {row.part_id for row in compatibility}
         candidates: dict[int, tuple[float, str, list[str]]] = {}
         for row in compatibility:
             current_id = current_by_origin.get(row.part_id, row.part_id)
             if current_id in candidates or not parts[current_id].is_active:
+                continue
+            if current_id != row.part_id and current_id not in directly_compatible:
                 continue
             superseded = [parts[pid].part_number for pid in chains.get(row.part_id, [row.part_id])[:-1]]
             candidates[current_id] = (row.quantity_per_unit, row.source_reference, superseded)
@@ -125,8 +133,17 @@ class SearchService:
             )
             if part_id in quoted_current:
                 score = 1.0
+            # F25: a NaN score is rejected rather than ranked unpredictably.
+            if math.isnan(score):
+                raise InvalidRequestError(f"non-numeric score computed for part {part_id}")
             scored.append((round(score, 5), part_id))
         scored.sort(key=lambda item: (item[0], -item[1]), reverse=True)
+
+        # F25: compute the runner-up margin over the FULL ranked set BEFORE truncating to
+        # the response limit, so limit=1 still reports a close runner-up as ambiguous.
+        positive = [item for item in scored if item[0] > 0]
+        top = positive[0][0] if positive else 0.0
+        second = positive[1][0] if len(positive) > 1 else 0.0
 
         results: list[schemas.CandidateOut] = []
         for rank, (score, part_id) in enumerate(scored[:limit], start=1):
@@ -163,8 +180,6 @@ class SearchService:
                 stock=[schemas.WarehouseStockOut(**asdict(s)) for s in stock.get(current.id, [])],
             ))
 
-        top = results[0].score if results else 0.0
-        second = results[1].score if len(results) > 1 else 0.0
         logger.info("part search completed", extra={
             "configuration_id": configuration.id, "candidate_pool": len(candidates),
             "returned": len(results), "top_score": top,
@@ -212,6 +227,14 @@ class SearchService:
     async def list_warehouses(self) -> list[schemas.WarehouseOut]:
         rows = await self._repository.fetch_warehouses()
         return [schemas.WarehouseOut(code=r["code"], name=r["name"], region=r["region"]) for r in rows]
+
+    def readiness(self) -> dict[str, bool]:
+        """Report lexical readiness and semantic capability SEPARATELY (prompt 06).
+
+        Lexical search runs in-process and is always ready; semantic search is available
+        only when an embedding provider (BGE-M3) has loaded in this search process.
+        """
+        return {"lexical": True, "semantic_capable": self._embedding_provider is not None}
 
     async def _resolve_part_number(self, part_number: str) -> tuple[PartRecord, list[PartRecord]]:
         key = part_number_key(part_number)

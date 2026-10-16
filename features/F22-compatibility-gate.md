@@ -28,6 +28,7 @@ part_compatibility. Exact columns,keys,indexes and policies are in TECH_SPEC.md 
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 06 | fitment fetched first; perfect lexical match outside fitment absent; empty fitment unavailable; source_reference carried. test_f22.py (fake repo). Live DB/BGE-M3 BLOCKED. | prompt/06 |
 | 2026-10-17 | 02 | part_compatibility relation migrated verbatim as the authoritative fitment source. Verified structurally in test_02.py. Ranking-over-members owned by prompt 06. | prompt/02 |
 
 ## Verification evidence

@@ -1,1 +1,9 @@
-sentence-transformers==3.3.1
+# Semantic-search extra for the search image ONLY (BGE-M3). Installed at image build
+# time with --extra-index-url https://download.pytorch.org/whl/cpu so torch resolves to
+# the CPU wheel (never CUDA on the EC2 CPU profile). Pins per docs/TECH_SPEC.md section 3.
+# Not part of the uv workspace lock: this multi-GB extra is built into the search image,
+# not the shared dev environment.
+torch==2.10.0+cpu
+numpy==2.4.2
+transformers==4.57.6
+sentence-transformers==5.2.3

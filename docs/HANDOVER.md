@@ -47,7 +47,12 @@ Completed through 05 (Catalogue — synthetic fixtures):
 
 Full regression: run_checks --prompt 00..05 all exit 0.
 
-Next: execute prompt 06 (Extend legacy search) per prompts/README.md, on its own branch.
+Completed through 06 (Search — extend legacy):
+- Characterized the preserved legacy domain (identify_machine, LexicalScorer, plan_fulfilment, parse_serial) in services/search/tests/test_characterization.py. Added internal-token auth to all search routes (constant-time; unconfigured = local dev) + a /readiness route reporting lexical readiness and semantic capability SEPARATELY. Added services/search/app/embedding_ingestion.py (`embed_version`: 1024-d/unit-norm/NaN validation, source-sha256, model_revision; provider+store injected). Fixed service.py: runner-up margin computed over the full ranked set BEFORE the response limit (F25), NaN scores rejected, and a superseded part's current successor is offered only with its OWN explicit fitment (ADR-018/F30). Extended partsiq_common.embeddings (validate_embedding, source_sha256), repository (embedding store methods), tools/catalog embedder (source_sha256+model_revision), search config/Dockerfile/requirements-embeddings (CPU-wheel pins recorded, not installed).
+- Tests: run_checks --prompt 06 → test_06.py PASS (10); full search suite PASS (71 incl. preserved legacy + F20/F21/F22/F23/F24/F25/F30/F33/F34) via isolated pytest. All offline with an in-memory fake repository + fake encoder.
+- BLOCKED (reported, not faked): live asyncpg/pgvector retrieval, real BGE-M3 load + weights, torch/sentence-transformers install (CPU wheels recorded in requirements-embeddings.txt but not installed — ~2.5 GB on a near-full disk), and embedding of a real published catalogue version.
+
+Next: execute prompt 07 (Authentication and demo sessions) per prompts/README.md, on its own branch.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 

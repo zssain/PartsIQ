@@ -28,6 +28,7 @@ equipment_models, model_configurations. Exact columns,keys,indexes and policies 
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 06 | identify_machine characterized + boundary-serial/mismatch/conflicting-hint cases in services/search/tests/features/test_f20.py. Live DB/BGE-M3 BLOCKED. | prompt/06 |
 | 2026-10-17 | 02 | Schema migration applied verbatim: serial-range EXCLUDE gist guarantees exactly-one configuration per serial; model_code trigram index preserved. Verified structurally in test_02.py. Runtime identify_machine owned by prompt 06. | prompt/02 |
 
 ## Verification evidence

@@ -18,7 +18,11 @@ COPY libs/partsiq_common /tmp/partsiq_common
 RUN pip install /tmp/partsiq_common && rm -rf /tmp/partsiq_common
 
 COPY services/search/requirements-embeddings.txt ./requirements-embeddings.txt
-RUN if [ "$INSTALL_EMBEDDINGS" = "true" ]; then pip install -r requirements-embeddings.txt; fi
+# BGE-M3 loads only here (CONSTRAINTS.md rule 4). torch is installed from the CPU wheel
+# index only — never CUDA wheels on the EC2 CPU profile (prompt 06).
+RUN if [ "$INSTALL_EMBEDDINGS" = "true" ]; then \
+        pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements-embeddings.txt; \
+    fi
 
 COPY services/search/app ./app
 

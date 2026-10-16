@@ -5,7 +5,7 @@ import logging
 
 import asyncpg
 
-from partsiq_common.embeddings import EmbeddingProvider, to_vector_literal
+from partsiq_common.embeddings import EmbeddingProvider, source_sha256, to_vector_literal
 
 logger = logging.getLogger("partsiq.catalog.embedder")
 
@@ -18,7 +18,9 @@ def build_embedding_text(name_en: str, name_ar: str, category: str, description:
     return f"{name_en} | {name_ar} | {category} | {alias_text} | {description}"
 
 
-async def embed_parts(connection: asyncpg.Connection, provider: EmbeddingProvider) -> int:
+async def embed_parts(
+    connection: asyncpg.Connection, provider: EmbeddingProvider, model_revision: str = ""
+) -> int:
     """Embed every active part and upsert the vectors. Returns the number of parts embedded."""
     rows = await connection.fetch(
         """SELECT p.id, p.name_en, p.name_ar, p.category, p.description_en,
@@ -38,11 +40,14 @@ async def embed_parts(connection: asyncpg.Connection, provider: EmbeddingProvide
         ]
         vectors = await asyncio.to_thread(provider.embed, texts)
         await connection.executemany(
-            """INSERT INTO part_embeddings (part_id, model_name, source_text, embedding)
-               VALUES ($1, $2, $3, $4::vector)
+            """INSERT INTO part_embeddings
+                   (part_id, model_name, source_text, embedding, model_revision, source_sha256)
+               VALUES ($1, $2, $3, $4::vector, $5, $6)
                ON CONFLICT (part_id, model_name)
-               DO UPDATE SET source_text = EXCLUDED.source_text, embedding = EXCLUDED.embedding, created_at = now()""",
-            [(r["id"], provider.model_name, text, to_vector_literal(vector))
+               DO UPDATE SET source_text = EXCLUDED.source_text, embedding = EXCLUDED.embedding,
+                   model_revision = EXCLUDED.model_revision, source_sha256 = EXCLUDED.source_sha256,
+                   created_at = now()""",
+            [(r["id"], provider.model_name, text, to_vector_literal(vector), model_revision, source_sha256(text))
              for r, text, vector in zip(batch, texts, vectors)],
         )
         embedded += len(batch)
