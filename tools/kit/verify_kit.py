@@ -50,7 +50,9 @@ def main():
   if not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest()!=a['sha256']:bad.append(a['path'])
  check('Brand asset hashes',not bad,str(bad))
  bad=[]
+ _skip_dirs={'.venv','venv','node_modules','.git','__pycache__','.next'}
  for p in ROOT.rglob('*.md'):
+  if _skip_dirs.intersection(p.relative_to(ROOT).parts):continue  # uncommitted build artifacts, not authored kit docs
   if any(token in p.read_text() for token in ['TODO','...','similar to above']):bad.append(str(p.relative_to(ROOT)))
  check('No unfinished prose markers',not bad,str(bad))
  for p in [ROOT/'spec/contracts.py',ROOT/'tools/kit/verify_kit.py']:

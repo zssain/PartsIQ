@@ -1,0 +1,10 @@
+{
+  "seed": 42,
+  "assets": [
+    {
+      "file": "Corvane_Air_CA-110_800000.png",
+      "sha256": "43705935a8d30706631cbdb8a07f879d3ed14c3a367b45e205a193d112b89664",
+      "bytes": 5253
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "missing_serial",
+  "text": "I need a hydraulic filter for a Corvane Air CA-110.",
+  "attachment_path": null,
+  "expected_status": "needs_information",
+  "expected_configuration_id": null,
+  "expected_part_ids": []
+}

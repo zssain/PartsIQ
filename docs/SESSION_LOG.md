@@ -41,3 +41,10 @@
 3. Limits: decoded-pixel cap/EXIF strip owned by prompt 16, duplicate-confirmation by prompt 08; live Supabase Storage BLOCKED here.
 4. Next: prompt 05 (synthetic catalogue and demo fixtures).
 5. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 05 (synthetic catalogue and demo fixtures)
+1. Work: added tools/demo/build_scenarios.py (build_scenarios/validate_scenarios/render_nameplate) and tools/demo/render_assets.py; generated scenarios.json + 4 scenarios/*.json + nameplate PNG + cited evidence PDF + hash manifests. Added Pillow 12.1.1 to the workspace and re-locked. Scoped verify_kit markdown scan to skip uncommitted build dirs (.venv/node_modules/.git).
+2. Verification (exit 0): `run_checks --prompt 05` → test_05.py PASS (9 tests); ruff clean; verify_kit PASSED; full regression prompts 00-05 all exit 0. Scenarios derived from real seed-42 records; DB ids == 1-based load ordinals; F02 rejections (incompatible expected part, unsupported stock claim) asserted; real PNG rendered.
+3. Limits: base catalogue DB load (published catalogue_versions + immutable snapshot + evidence rows in one seeded transaction) and embedding (prompt 06) are BLOCKED here (no Postgres/BGE-M3).
+4. Next: prompt 06 (extend legacy search).
+5. Model/version: claude-opus-4-8[1m].

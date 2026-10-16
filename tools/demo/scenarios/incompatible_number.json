@@ -1,0 +1,8 @@
+{
+  "id": "incompatible_number",
+  "text": "Does part CA-AF-1828 fit my Corvane Air CA-110 (A)?",
+  "attachment_path": null,
+  "expected_status": "needs_information",
+  "expected_configuration_id": 13,
+  "expected_part_ids": []
+}

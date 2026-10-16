@@ -20,6 +20,10 @@ requires-python = ">=3.12"
 # members with no deps yet, so they need no entry here.
 dependencies = [
     "partsiq-common",
+    # Prompt 05: synthetic nameplate/evidence rendering for demo fixtures. Owned here
+    # because the demo tooling (tools/demo) has no separate workspace project; the
+    # worker re-declares Pillow for runtime OCR image handling in prompt 16.
+    "Pillow==12.1.1",
 ]
 
 [tool.uv]

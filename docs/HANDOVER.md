@@ -40,7 +40,14 @@ Completed through 04 (Gateway/worker — private storage):
 - spec/sql/005 copied verbatim into supabase/migrations/..000500_storage.sql (4 private buckets; nameplate owner+pending RLS policy). services/gateway/app/storage.py (`create_upload` with the user token to a unique pending key; `sign_download` authorize-then-delegate to the worker with a typed resource id; magic-byte validation; 60s links; log redaction). services/worker/app/storage.py (sole Storage-admin holder; `sign_download` resolves a typed resource to bucket+key; `remove_object`; no DB-REST surface) + services/worker/app/__init__.py.
 - test_04.py: 14 cases pass (2 deferred skips) — magic validation, unique key, 60s expiry, redaction, contract size/MIME bounds, typed delegation, nonexistent object, bucket validation. Decoded-pixel cap/EXIF (prompt 16) and duplicate-confirmation (prompt 08) are explicitly deferred; live Supabase Storage is BLOCKED here.
 
-Next: execute prompt 05 (Synthetic catalogue and demo fixtures) per prompts/README.md; commit on branch `prompt/05-...`.
+Completed through 05 (Catalogue — synthetic fixtures):
+- tools/demo/build_scenarios.py (`build_scenarios`, `validate_scenarios`, `render_nameplate`) derives the four demo scenarios from REAL seed-42 records (database ids == 1-based load ordinals), and refuses to emit an undemonstrable scenario. tools/demo/render_assets.py generated scenarios.json, the four scenarios/*.json, a nameplate PNG, a cited evidence PDF, and hash manifests. Pillow 12.1.1 added to the workspace and re-locked.
+- test_05.py: 9 cases pass — determinism, scenario shapes, valid-set acceptance, rejection of an incompatible expected part and of an unsupported stock claim (F02), real PNG rendering, committed-fixture match.
+- verify_kit.py scoping fix: the markdown "unfinished prose" scan now skips uncommitted build dirs (.venv, node_modules, .git); authored-doc enforcement is unchanged. KIT VALIDATION PASSES.
+
+Full regression: run_checks --prompt 00..05 all exit 0.
+
+Next: execute prompt 06 (Extend legacy search) per prompts/README.md, on its own branch.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "mixed_photo",
+    "text": "محتاج هذا الجزء CA-AF-8973 for my Corvane Air CA-110 — see photo / شوف الصورة",
+    "attachment_path": "tools/demo/nameplates/Corvane_Air_CA-110_800000.png",
+    "expected_status": "awaiting_review",
+    "expected_configuration_id": 13,
+    "expected_part_ids": [
+      92
+    ]
+  },
+  {
+    "id": "missing_serial",
+    "text": "I need a hydraulic filter for a Corvane Air CA-110.",
+    "attachment_path": null,
+    "expected_status": "needs_information",
+    "expected_configuration_id": null,
+    "expected_part_ids": []
+  },
+  {
+    "id": "incompatible_number",
+    "text": "Does part CA-AF-1828 fit my Corvane Air CA-110 (A)?",
+    "attachment_path": null,
+    "expected_status": "needs_information",
+    "expected_configuration_id": 13,
+    "expected_part_ids": []
+  },
+  {
+    "id": "local_shortage",
+    "text": "Need CA-AF-8973 for Corvane Air CA-110 delivered to Jeddah urgently.",
+    "attachment_path": null,
+    "expected_status": "awaiting_review",
+    "expected_configuration_id": 13,
+    "expected_part_ids": [
+      92
+    ]
+  }
+]

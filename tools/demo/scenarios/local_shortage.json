@@ -1,0 +1,10 @@
+{
+  "id": "local_shortage",
+  "text": "Need CA-AF-8973 for Corvane Air CA-110 delivered to Jeddah urgently.",
+  "attachment_path": null,
+  "expected_status": "awaiting_review",
+  "expected_configuration_id": 13,
+  "expected_part_ids": [
+    92
+  ]
+}
