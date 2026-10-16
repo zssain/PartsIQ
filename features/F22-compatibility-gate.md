@@ -28,6 +28,7 @@ part_compatibility. Exact columns,keys,indexes and policies are in TECH_SPEC.md 
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 02 | part_compatibility relation migrated verbatim as the authoritative fitment source. Verified structurally in test_02.py. Ranking-over-members owned by prompt 06. | prompt/02 |
 
 ## Verification evidence
 Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.

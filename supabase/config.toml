@@ -1,0 +1,33 @@
+# Supabase CLI project configuration for LOCAL development only.
+# Managed dev/prod Postgres and extension versions are NOT fixed here; they are
+# collected from the real project by the schema receipt in prompt 03, rather than
+# falsely asserted by this kit (docs/TECH_SPEC.md section 3).
+
+project_id = "partsiq"
+
+[db]
+# Matches the legacy pgvector/pgvector:pg16 image; local only.
+port = 54322
+major_version = 16
+
+[db.pooler]
+enabled = false
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public"]
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+# Anonymous sign-in backs the synthetic public demo sessions (ADR-012).
+enable_anonymous_sign_ins = true
+
+[storage]
+enabled = true
+# Private buckets and policies are created by prompt 04's storage migration.

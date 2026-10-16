@@ -28,7 +28,11 @@ Completed through 01 (Common):
 - Root pyproject now depends on partsiq-common so `uv sync` installs its runtime deps.
 - tests/foundations/test_01.py: 27 stdlib cases (fakes for OpenAI + DB), all pass; `run_checks --prompt 01` exits 0; prompt 00 regression still green; ruff clean.
 
-Next: execute prompt 02 (Catalogue migration) per prompts/README.md; commit on branch `prompt/02-...`.
+Completed through 02 (Database — catalogue):
+- spec/sql/001 and 002 copied byte-for-byte into supabase/migrations/20261011000100_legacy_catalogue.sql and ..000200_legacy_search.sql (verified identical). supabase/config.toml (local only; managed versions deferred to the prompt-03 schema receipt). tools/apply_catalogue_schema.py applies additively via `supabase migration up` and refuses any reset/destructive command.
+- test_02.py: 10 cases pass (1 live-DB case skipped) — verifies verbatim copies, the serial-range EXCLUDE/compatibility/supersession-RECURSIVE/transfer_days constraints, and the no-reset guard. Applying to a real DB is BLOCKED (no Supabase/Postgres here).
+
+Next: execute prompt 03 (Workflow schema and database permissions) per prompts/README.md; commit on branch `prompt/03-...`.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 

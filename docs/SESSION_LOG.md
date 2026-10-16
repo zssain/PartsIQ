@@ -20,3 +20,10 @@
 3. Scope/limits: SDK max_retries=0 + 2 wrapper attempts verified; paid-budget=0, unknown-price-blocks, expiry-blocks, atomic cap verified; audit redaction + rollback-on-failure verified; actor_transaction sets transaction-local app.actor_id. Live OpenAI and live Postgres remain integration-only (fakes used here).
 4. Next: prompt 02 (catalogue migration).
 5. Model/version: claude-opus-4-8[1m] (Claude Opus 4.8, 1M context).
+
+## 2026-10-17 - Prompt 02 (catalogue migration)
+1. Work: copied spec/sql/001 & 002 byte-for-byte into supabase/migrations (legacy_catalogue, legacy_search); added supabase/config.toml (local) and tools/apply_catalogue_schema.py (additive `migration up`, refuses reset).
+2. Verification (exit 0): `run_checks --prompt 02` → test_02.py PASS (10 tests, 1 live-DB skip); ruff clean. Verbatim copy + serial-exclusion/compatibility/supersession-RECURSIVE/transfer_days + no-reset guard asserted.
+3. Limits: applying to a real database is BLOCKED (no Supabase/Postgres here); F20/F22/F28/F30 runtime behaviour owned by prompt 06.
+4. Next: prompt 03 (workflow schema and database permissions).
+5. Model/version: claude-opus-4-8[1m].
