@@ -138,3 +138,11 @@
 4. BLOCKED: live Playwright/Chromium, Storage upload, approved-snapshot DB load. Pre-existing unrelated: tools/catalog pytest collection (stray __init__ shadows inner package).
 5. Next: prompt 18 (frontend shell and authentication).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 18 (frontend shell and authentication)
+1. Work: created apps/web Next.js 16 App Router shell; installed exact pnpm pins (committed pnpm-lock.yaml). Landing (F01) with journey + synthetic notice (no affiliation) + Start demo/architecture links + conditional repo link; invited-staff-only login (no public signup); lib/api.ts (bearer in Authorization header, typed ApiError, request-id); lib/auth.ts (browser Supabase, NEXT_PUBLIC_* only, anonymous demo); lib/contracts.ts; BrandLogo (alt, no stretch); tokens.css; configs; brand assets under public/brand.
+2. Verification: run_checks --prompt 18 -> test_18.py PASS (structural + security invariants); apps/web vitest f01.test.tsx PASS (4) on node 25 / pnpm 10.31; python ruff clean.
+3. Design: all business calls through the gateway; only Supabase Auth bypasses it; no secret in NEXT_PUBLIC/URL/source; real-client signup disabled. The per-prompt gate is the Python structural test (run_checks has no pnpm wiring); the vitest suite is run directly and reported (not faked).
+4. BLOCKED: live Supabase Auth + gateway; Playwright e2e specs (prompts 22/27).
+5. Next: prompt 19 (customer chat and demo).
+6. Model/version: claude-opus-4-8[1m].

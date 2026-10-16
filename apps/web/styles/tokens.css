@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* PartsIQ brand tokens (brand/tokens.css): navy + gold. Light values here; dark theme is
+   layered by F08. Kept as CSS custom properties so components reference tokens, not hexes. */
+:root {
+  --pq-navy: #0b1f3a;
+  --pq-navy-600: #13315c;
+  --pq-gold: #c9a227;
+  --pq-bg: #f8fafc;
+  --pq-fg: #0b1f3a;
+  --pq-muted: #6b7280;
+  --pq-border: #e5e7eb;
+}
+
+html {
+  color: var(--pq-fg);
+  background: var(--pq-bg);
+}
+
+body {
+  margin: 0;
+  font-family: "Noto Sans", system-ui, -apple-system, sans-serif;
+}
+
+[dir="rtl"] {
+  font-family: "Noto Sans Arabic", "Noto Naskh Arabic", system-ui, sans-serif;
+}

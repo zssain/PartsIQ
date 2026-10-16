@@ -102,7 +102,12 @@ Completed through 17 (Approved enquiry PDF):
 - Env note: this workspace has members whose deps are not reachable from the root project, so use `uv sync --all-packages` (a bare `uv sync` prunes orchestrator/worker deps like langgraph). The venv is currently complete; all 00-17 foundations + gateway/search/orchestrator/worker suites pass. Pre-existing/unrelated: the tools/catalog pytest suite fails to collect due to a stray tools/catalog/__init__.py shadowing the inner `catalog` package (owned by prompt 00; not exercised by the per-prompt gate) — left untouched.
 - BLOCKED: live Playwright/Chromium PDF rendering, Storage upload, approved-snapshot DB load.
 
-Next: execute prompt 18 (Frontend shell and authentication) per prompts/README.md, on its own branch.
+Completed through 18 (Frontend shell and authentication):
+- apps/web Next.js 16 App Router shell created and the exact pnpm pins installed (next 16.2.12, react 19.2.6, @supabase/ssr 0.8.0, tailwindcss 4.1.18, vitest 4.1.11, …) → committed apps/web/pnpm-lock.yaml. Files: tsconfig/next.config/postcss/eslint/vitest configs, app/layout.tsx, app/page.tsx (F01 landing: journey, synthetic-demo notice with no affiliation claim, Start demo + architecture links, repo link hidden when NEXT_PUBLIC_REPO_URL unset), app/login/page.tsx (invited-staff only; no public signup), styles/tokens.css (navy/gold), lib/api.ts (typed ApiError, bearer in Authorization header NOT the URL, request-id surfaced), lib/auth.ts (browser Supabase with only NEXT_PUBLIC_* values; anonymous demo; staff password), lib/contracts.ts (TS mirrors), components/BrandLogo.tsx (meaningful alt, no stretch), tests/setup.ts, playwright.config.ts. Brand PNG/font assets copied under apps/web/public/brand.
+- Verification: run_checks --prompt 18 -> tests/foundations/test_18.py PASS (structural: pins, required files, bearer-not-URL, only public Supabase values, no secret in apps/web, no public signup, synthetic notice, conditional repo link, logo alt). apps/web vitest: tests/features/f01.test.tsx PASS (4) via the installed toolchain (node 25 / pnpm 10.31). Python ruff clean.
+- Note: run_checks has no pnpm wiring, so the per-prompt gate is the Python structural test; the vitest suite is run directly and reported here (it passes, not faked). node_modules/.next are gitignored.
+
+Next: execute prompt 19 (Customer chat and demo) per prompts/README.md, on its own branch.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 

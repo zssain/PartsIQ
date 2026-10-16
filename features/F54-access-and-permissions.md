@@ -28,6 +28,7 @@ profiles, staff_roles. Exact columns,keys,indexes and policies are in TECH_SPEC.
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 18 | web half: bearer in Authorization header (not URL), only public NEXT_PUBLIC_* Supabase values in the browser, no secret in apps/web, no public real-client signup (tests/foundations/test_18.py). Server verification owned by 07/22. | prompt/18 |
 | 2026-10-17 | 07 | Supabase issuer/audience/expiry/algorithm verified via cached JWKS (refresh-once); roles from DB not JWT; assigned-only real review; forged role ignored. test_07.py. Live Supabase Auth + DB BLOCKED. | prompt/07 |
 
 ## Verification evidence
