@@ -1,13 +1,16 @@
 """Gateway application entry point."""
 
+import functools
+
 import httpx
 from fastapi import FastAPI
 
 from partsiq_common.app_factory import create_service_app
 
 from app import __version__
+from app.api_v1 import router as api_v1_router
 from app.config import GatewaySettings
-from app.rate_limit import FixedWindowRateLimiter
+from app.rate_limit import FixedWindowRateLimiter, allow_within_limit
 from app.routes import router
 from app.security import parse_api_keys
 
@@ -21,6 +24,8 @@ async def on_startup(app: FastAPI) -> None:
         limit=settings.rate_limit_per_minute,
         window_seconds=60,
     )
+    # Boolean, fail-closed rate-limit adapter used by the intake use cases.
+    app.state.rate_allow = functools.partial(allow_within_limit, app.state.rate_limiter)
     app.state.upstreams = {
         "orchestrator": str(settings.orchestrator_url).rstrip("/"),
         "search": str(settings.search_url).rstrip("/"),
@@ -42,7 +47,8 @@ app = create_service_app(
     settings,
     title="PartsIQ Gateway",
     version=__version__,
-    routers=[router],
+    routers=[router, api_v1_router],
+    requires_database=True,
     requires_redis=True,
     on_startup=on_startup,
     on_shutdown=on_shutdown,

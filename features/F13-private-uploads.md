@@ -28,6 +28,7 @@ enquiry_attachments. Exact columns,keys,indexes and policies are in TECH_SPEC.md
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 08 | confirm_upload validates real bytes/magic after confirmation; duplicate confirmation idempotent; nonexistent -> 404; server-generated object names; atomic intake + idempotency-key (same payload returns existing, different -> 409); rate-limit before DB. tests/foundations/test_08.py. Decoded-pixel cap/EXIF is prompt 16. | prompt/08 |
 | 2026-10-17 | 04 | Private buckets + gateway create_upload (unique pending key, user-token signed upload) + worker typed-resource download signing (60s) + magic-byte validation implemented. Verified in test_04.py. Decoded-pixel cap/EXIF (prompt 16) and duplicate-confirmation (prompt 08) deferred; live Storage integration pending. | prompt/04 |
 
 ## Verification evidence

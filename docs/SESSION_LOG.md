@@ -62,3 +62,10 @@
 3. BLOCKED: live Supabase Auth, live DB (roles/sessions persistence, row-lock reset, job cancellation + storage cleanup). Full HTTP route wiring integrates at prompt 08 (owns api_v1).
 4. Next: prompt 08 (enquiry intake and limits).
 5. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 08 (enquiry intake and limits)
+1. Work: added gateway enquiries.py (create_enquiry/add_message: canonical-hash idempotency, stale-revision 409, atomic commit via injected repo), uploads.py (confirm_upload: magic validation, duplicate idempotency, nonexistent 404), api_v1.py (v1 routes, bearer actor, 202-after-commit, error envelope). Modified rate_limit.py (fail-closed allow_within_limit adapter), config.py (Supabase/internal fields), main.py (register api_v1, requires_database=True, rate_allow).
+2. Verification (exit 0): run_checks --prompt 08 -> test_08.py PASS (12); ruff clean. Idempotency same/different-payload, stale revision, rate-limit-before-DB, confirm magic/duplicate/nonexistent asserted.
+3. BLOCKED: live DB atomic transaction (enquiry+message+revision+event), Redis limiter, Storage byte fetch; concrete DB repositories wired at runtime only.
+4. Next: prompt 09 (deterministic durable workflow).
+5. Model/version: claude-opus-4-8[1m].

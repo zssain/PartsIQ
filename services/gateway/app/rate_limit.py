@@ -50,3 +50,13 @@ class FixedWindowRateLimiter:
             remaining=max(self._limit - count, 0),
             reset_after_seconds=self._window_seconds - (now % self._window_seconds),
         )
+
+
+async def allow_within_limit(limiter: "FixedWindowRateLimiter", identity: str) -> bool:
+    """Boolean adapter for the intake use cases. Fails CLOSED: if Redis is unavailable
+    the request is rejected (prompt 08), never allowed through un-limited."""
+    try:
+        result = await limiter.hit(identity)
+    except RateLimiterUnavailableError:
+        return False
+    return result.allowed
