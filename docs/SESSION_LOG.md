@@ -98,3 +98,11 @@
 4. BLOCKED: live verification_results Postgres adapter and the F29 evidence-viewer UI binding (later feature prompt).
 5. Next: prompt 13 (reply specialist and renderer).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 13 (reply specialist and renderer)
+1. Work: added specialists/reply.py (draft_reply -> ReplySlots via shared wrapper; validate_slots rejects digits/identifiers in prose; strict schema rejects unsupported slots), rendering.py (render_reply: code-owned layout, html.escape all text, Arabic RTL + LTR-isolated identifiers, non-guaranteed transfer estimates, no price/quotation, no Jinja on model output), prompts/reply.txt. Modified handlers.py (make_draft_handler: provider/credit failure -> phase needs_staff_draft, no paid fallback) and graph.py (docstring connection).
+2. Verification (exit 0): run_checks --prompt 13 -> test_13.py PASS (16); orchestrator suite PASS (28, 1 skip) incl. test_f45; ruff clean.
+3. Design: model writes prose only; code inserts every number/allocation; unapproved facts never reach prose; staff authors controlled slots through the same gate on provider failure (F45).
+4. BLOCKED: live OpenAI + live drafts Postgres adapter.
+5. Next: prompt 14 (approval and revision transactions).
+6. Model/version: claude-opus-4-8[1m].

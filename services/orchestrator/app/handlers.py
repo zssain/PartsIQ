@@ -10,9 +10,20 @@ from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, fields
+from typing import Any, Protocol
+from uuid import UUID
 
+from app.rendering import render_reply
+from app.specialists.reply import draft_reply
 from app.verification import VerificationStore, run_verification
-from partsiq_common.contracts import EnquiryState
+from partsiq_common.contracts import (
+    BudgetReservation,
+    EnquiryState,
+    Locale,
+    ReplySlots,
+    VerifiedFacts,
+)
+from partsiq_common.errors import PartsIQError
 
 Handler = Callable[[EnquiryState], Awaitable[EnquiryState]]
 
@@ -60,3 +71,47 @@ def make_verify_handler(store: VerificationStore) -> Handler:
         return state.model_copy(update={"verification_id": verification_id, "phase": "verified"})
 
     return verify
+
+
+class DraftStore(Protocol):
+    """Loads the current verified facts+locale and persists one draft per (enquiry, revision)."""
+
+    async def load_facts(self, enquiry_id: UUID, revision: int) -> tuple[VerifiedFacts, Locale] | None: ...
+
+    async def persist_draft(
+        self,
+        enquiry_id: UUID,
+        revision: int,
+        locale: Locale,
+        slots: ReplySlots,
+        facts: VerifiedFacts,
+        rendered_text: str,
+    ) -> UUID: ...
+
+
+def make_draft_handler(store: DraftStore, *, budget: BudgetReservation, client: Any | None = None) -> Handler:
+    """Adapt the reply specialist + renderer (prompt 13) into the graph's ``draft`` node.
+
+    The model fills only the prose slots; the renderer inserts every fact in a code-owned
+    layout. A provider/credit failure is surfaced (phase ``needs_staff_draft``) so staff can
+    author a controlled draft through the same slot schema (F45) rather than the workflow
+    emitting an un-reviewed or faked reply. The store is injected for offline testing.
+    """
+
+    async def draft(state: EnquiryState) -> EnquiryState:
+        loaded = await store.load_facts(state.enquiry_id, state.revision)
+        if loaded is None:
+            raise PartsIQError("NOT_FOUND", internal_detail="no verified facts to draft from")
+        facts, locale = loaded
+        try:
+            slots = await draft_reply(facts, locale, budget=budget, client=client)
+        except PartsIQError as exc:
+            if exc.code in ("DEPENDENCY_UNAVAILABLE", "CREDIT_UNAVAILABLE"):
+                # No paid fallback (ADR-015): hand off to staff authoring, do not fabricate prose.
+                return state.model_copy(update={"phase": "needs_staff_draft"})
+            raise
+        rendered = render_reply(slots, facts, locale)
+        draft_id = await store.persist_draft(state.enquiry_id, state.revision, locale, slots, facts, rendered)
+        return state.model_copy(update={"draft_id": draft_id, "phase": "drafted"})
+
+    return draft

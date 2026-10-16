@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/orchestrator |
 | Implementing prompts | 13; foundations 13 |
 | Affected flows | FLOW.md row 13 |
@@ -14,9 +14,9 @@ Generate greeting,explanation and closing as structured slots; code inserts all 
 Voice,quotations,external messaging,payments,actual stock reservations and automatic approval are excluded.
 
 ## Acceptance criteria
-- [ ] Generate greeting,explanation and closing as structured slots; code inserts all numbers and allocations; choose Arabic or English from confirmed preference.
-- [ ] Unapproved critical facts never rendered; unsupported slots rejected; provider failure permits staff-authored controlled draft.
-- [ ] Test output and implementation commit recorded before status changes to done.
+- [x] Generate greeting,explanation and closing as structured slots; code inserts all numbers and allocations; choose Arabic or English from confirmed preference.
+- [x] Unapproved critical facts never rendered; unsupported slots rejected; provider failure permits staff-authored controlled draft.
+- [x] Test output and implementation commit recorded before status changes to done.
 
 ## Data touched
 drafts. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 and spec/sql. No feature may silently introduce a column absent from that schema.
@@ -28,6 +28,7 @@ drafts. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 and
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 13 | draft_reply structured slots + validate_slots prose guard; render_reply code-owned escaped layout; staff-authored fallback on provider failure. | prompt/13 |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+services/orchestrator/tests/features/test_f45.py PASS under the orchestrator suite (28 passed, 1 skipped) and tests/foundations/test_13.py (16); run_checks --prompt 13 exits 0; ruff clean. Live OpenAI and the live drafts adapter remain BLOCKED (fake client + in-memory store).

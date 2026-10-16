@@ -11,7 +11,10 @@ The ``verify`` node is backed by the deterministic verification gate (prompt 12,
 ``app.verification`` via ``app.handlers.make_verify_handler``): it persists one named
 rule-result set and records the verification id on the state. A failed verification is
 surfaced to the human review gate rather than auto-advancing to a recommendation — pass/fail
-is never an LLM decision (CONSTRAINTS rule 5). The router/handler wiring is unchanged, so
+is never an LLM decision (CONSTRAINTS rule 5). The ``draft`` node is backed by the reply
+specialist + code renderer (prompt 13, via ``app.handlers.make_draft_handler``): the model
+fills prose slots only and code inserts every fact; a provider/credit failure routes to
+staff authoring instead of a faked reply (F45). The router/handler wiring is unchanged, so
 all existing callers of ``build_graph`` are preserved.
 """
 from __future__ import annotations

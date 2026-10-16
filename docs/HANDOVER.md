@@ -68,7 +68,14 @@ Completed through 12 (Deterministic verification):
 - Verification (exit 0): run_checks --prompt 12 -> test_12.py PASS (24); orchestrator suite PASS (22, 1 skip) incl. test_f46; search suite PASS (75) incl. test_f28; 00-12 regression all exit 0; ruff clean; verify_kit PASSED; gateway suite PASS (15, unaffected).
 - BLOCKED (reported, not faked): the live verification_results Postgres adapter (UNIQUE(enquiry_id,revision)) and the F29 evidence-viewer UI binding (a later feature prompt) remain integration work; tested here only through an in-memory store + typed fixtures.
 
-Next: execute prompt 13 (Reply specialist and renderer) per prompts/README.md, on its own branch.
+Completed through 13 (Reply specialist and renderer):
+- orchestrator/app/specialists/reply.py: draft_reply fills ONLY ReplySlots (greeting/explanation/closing) via the shared call_structured wrapper with a fact-free brief; validate_slots rejects any slot carrying a digit (ASCII/Arabic-Indic) or identifier-looking token, and the strict schema rejects unsupported slots. prompts/reply.txt instructs prose-only, no numbers/identifiers/prices.
+- orchestrator/app/rendering.py: render_reply builds the message in code — greeting/explanation + code-owned part/quantity/warehouse/estimate lines + closing. All text html.escape'd (F27); Arabic RTL with identifiers in LTR <bdi>; transfer times labelled non-guaranteed estimates; no price/quotation wording. No Jinja is evaluated on model output.
+- handlers.make_draft_handler wires it into the graph draft node; a provider/credit failure routes to phase "needs_staff_draft" (staff authors controlled slots through the same validate_slots gate) — no paid fallback, no faked prose (ADR-015/F45). graph.py docstring records the connection; build_graph signature preserved.
+- Verification (exit 0): run_checks --prompt 13 -> test_13.py PASS (16); orchestrator suite PASS (28, 1 skip) incl. test_f45; ruff clean.
+- BLOCKED: live OpenAI structured output and the live drafts Postgres adapter (UNIQUE(enquiry_id,revision)); tested here with a fake client + in-memory store.
+
+Next: execute prompt 14 (Approval and revision transactions) per prompts/README.md, on its own branch.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 
