@@ -113,7 +113,15 @@ Completed through 19 (Customer chat and demo):
 - Note: prompt 19's FILES TO CREATE lists test_f02/f05/f09/f11/f13 (created here); spec/file-ownership.json records some of those creators as 20/22 — followed the prompt, manifest left unchanged. These feature tests exercise entry points built in earlier prompts (05/07/08/10/11).
 - BLOCKED: live gateway/Supabase/Storage; Playwright e2e (22/27).
 
-Next: execute prompt 20 (Staff workspace and timeline) per prompts/README.md, on its own branch.
+Completed through 20 (Staff workspace and timeline):
+- apps/web review components: Workspace.tsx (assembles the current snapshot — revision badge, candidates with evidence-derived match explanations + "Match score" label (never a probability), warehouse stock available/warehouse/timestamp, named verification results, draft, timeline, staff-only notes kept separate from customer messages; explicit empty states; absent evidence shown unavailable), ApprovalControls.tsx (approve only when verification.passed && awaiting_review; posts expected_revision + idempotency key so a double-click publishes once; 409 forces reload + fresh review; reject requires a reason; structured prose edit; approved-PDF export action + queue status), Timeline.tsx (persisted stages only, customer-vs-staff wait, retry on failure). Pages: app/staff/inbox/page.tsx, app/staff/enquiries/[id]/page.tsx.
+- Verification: run_checks --prompt 20 -> tests/foundations/test_20.py PASS. apps/web vitest: f18 + f27 + f37 (+f01+f15) = 17 passed. Cross-service feature tests PASS in their suites: gateway test_f03 (demo role switching 404s) -> gateway 28; search test_f32 (net available, negative clamped, unknown warehouse rejected) -> search 80; orchestrator test_f39 (approve-only-verified, double-click once, stale/failed-verification blocked) -> orch 47/1 skip; worker test_f61 (approved-only export, no price/notes) -> worker 22. Python ruff clean; verify_kit PASSED.
+
+Prompts 13–20 complete (this session). Full regression: run_checks --prompt 00..20 all exit 0; --feature F02/F49 exit 0; gateway/search/orchestrator/worker suites + web vitest (17) all green; verify_kit PASSED. The tools/catalog pytest collection error is pre-existing/unrelated (stray tools/catalog/__init__.py) and not exercised by the per-prompt gate.
+
+Next: execute prompt 21 (Quality — evals) per prompts/README.md, on its own branch.
+
+Watch (unchanged): all live infrastructure remains BLOCKED and reported — Supabase Auth/DB/RLS, Redis, pgvector + BGE-M3 (torch not installed), live OpenAI (text + vision), Postgres LangGraph checkpointer, Playwright/Chromium PDF + e2e, Storage. The frontend toolchain (node 25 / pnpm 10.31) is installed and its vitest suite runs; run_checks has no pnpm wiring, so the per-prompt gate is the Python structural test and the vitest suite is run directly (reported, never faked). Use `uv sync --all-packages` (a bare `uv sync` prunes member deps).
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 

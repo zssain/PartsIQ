@@ -32,3 +32,4 @@ exports. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 an
 
 ## Verification evidence
 tests/foundations/test_17.py PASS (incl. a pypdf-validated single-page PDF via a fake renderer); worker suite PASS (19); ruff clean. Live Playwright/Chromium + Storage upload BLOCKED.
+| 2026-10-17 | 20 | staff ApprovalControls adds the approved-PDF download action + queue status; worker test_f61 asserts approved-only + no price/notes. | prompt/20 |

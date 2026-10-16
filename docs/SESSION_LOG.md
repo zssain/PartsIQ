@@ -154,3 +154,11 @@
 4. Note: created the prompt-listed feature tests even where file-ownership records creator 20/22; manifest unchanged. BLOCKED: live gateway/Supabase/Storage; Playwright e2e.
 5. Next: prompt 20 (staff workspace and timeline).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 20 (staff workspace and timeline)
+1. Work: apps/web review components Workspace (assembles revision/candidates/match-explanations/stock/verification/draft/timeline/staff-notes with empty states; score labelled match score not probability; absent evidence unavailable), ApprovalControls (approve only verified-current, expected_revision + idempotency key, 409 -> reload, reject requires reason, structured prose edit, approved-PDF action), Timeline (persisted stages, customer vs staff wait, retry); staff inbox + enquiry pages. Feature tests: f18/f27/f37 (web vitest), test_f03 (gateway), test_f32 (search), test_f39 (orchestrator), test_f61 (worker), test_20 (foundation).
+2. Verification: run_checks --prompt 20 -> test_20.py PASS; web vitest 17 passed (f01/f15/f18/f27/f37); gateway 28 / search 80 / orchestrator 47(+1 skip) / worker 22; python ruff clean; verify_kit PASSED. Full 00-20 foundation regression all exit 0.
+3. Design: only current verified state enables approve; publication double-click publishes once and a concurrent edit defeats a stale approval; staff notes never mixed with customer messages; scores are a match score, not a calibrated probability; no fabricated progress.
+4. BLOCKED: live gateway/Supabase/Storage/orchestrator; Playwright e2e (22/27).
+5. Next: prompt 21 (quality / evals). Prompts 13-20 complete this session.
+6. Model/version: claude-opus-4-8[1m].
