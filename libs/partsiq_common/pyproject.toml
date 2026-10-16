@@ -5,16 +5,31 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "partsiq-common"
 version = "0.1.0"
-description = "Shared configuration, logging, persistence and health-check utilities for PartsIQ services."
+description = "Shared contracts, AI/budget/audit clients, configuration, logging and persistence for PartsIQ services."
 requires-python = ">=3.12"
+# Pins upgraded from the legacy baseline to the docs/TECH_SPEC.md section 3 releases
+# (prompt 01). asyncpg is retained for the preserved legacy search/catalogue pools;
+# psycopg is added for the new transactional repositories and the LangGraph checkpointer.
 dependencies = [
-    "fastapi==0.115.6",
-    "uvicorn[standard]==0.34.0",
-    "pydantic==2.10.4",
-    "pydantic-settings==2.7.1",
-    "asyncpg==0.30.0",
-    "redis==5.2.1",
+    "fastapi==0.135.1",
+    "uvicorn[standard]==0.41.0",
+    "pydantic==2.12.5",
+    "pydantic-settings==2.13.1",
+    "httpx==0.28.1",
+    "asyncpg==0.31.0",
+    "psycopg[binary]==3.3.3",
+    "psycopg-pool==3.3.0",
+    "redis==7.3.0",
+    "openai==3.19.2",
+    "structlog==25.5.0",
+    "tenacity==9.1.2",
+    "PyJWT==2.12.1",
+    "cryptography==46.0.5",
+    "python-multipart==0.0.22",
 ]
 
 [tool.setuptools.packages.find]
 include = ["partsiq_common*"]
+
+[tool.setuptools.package-data]
+partsiq_common = ["ai/prices.json"]

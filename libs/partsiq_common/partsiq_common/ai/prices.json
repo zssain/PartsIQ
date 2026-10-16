@@ -1,0 +1,8 @@
+{
+  "currency": "USD",
+  "unit": "per_1m_tokens",
+  "note": "Prices used only to estimate and cap spend against a confirmed free-credit allowance. An unknown model here blocks the call (F64); it is never a licence to guess a price.",
+  "models": {
+    "gpt-4.1-mini-2025-04-14": {"input": 0.40, "output": 1.60}
+  }
+}

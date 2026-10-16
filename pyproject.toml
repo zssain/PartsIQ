@@ -15,10 +15,18 @@ name = "partsiq"
 version = "0.1.0"
 description = "PartsIQ monorepo — AI-assisted spare-parts identification on synthetic data."
 requires-python = ">=3.12"
-dependencies = []
+# The virtual root depends on the shared library so `uv sync` installs partsiq-common
+# and its runtime deps into the workspace environment. orchestrator/worker are virtual
+# members with no deps yet, so they need no entry here.
+dependencies = [
+    "partsiq-common",
+]
 
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+partsiq-common = { workspace = true }
 
 [tool.uv.workspace]
 # Members are the uv-managed Python packages that share this lock.
