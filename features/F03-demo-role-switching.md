@@ -28,6 +28,7 @@ demo_sessions. Exact columns,keys,indexes and policies are in TECH_SPEC.md secti
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 07 | same anonymous identity/session; review authorized only for own active session; foreign enquiry -> 404; forged reviewer role never grants membership. tests/foundations/test_07.py. Live Supabase Auth + DB BLOCKED. | prompt/07 |
 
 ## Verification evidence
 Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.

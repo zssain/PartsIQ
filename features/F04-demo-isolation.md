@@ -28,6 +28,7 @@ demo_sessions, enquiries. Exact columns,keys,indexes and policies are in TECH_SP
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 07 | session bound to verified anonymous identity; generation/expiry checked; foreign/stale demo -> NOT_FOUND. test_07.py. Live Supabase Auth + DB BLOCKED. | prompt/07 |
 | 2026-10-17 | 03 | RLS + app_private.demo_active/can_read_enquiry/can_review migrated verbatim; demo session generation/expiry enforced in policy; transaction-local app.actor_id. Structural assertions in test_03.py; live enforcement under tests/integration. | prompt/03 |
 
 ## Verification evidence

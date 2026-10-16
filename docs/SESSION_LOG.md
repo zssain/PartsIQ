@@ -55,3 +55,10 @@
 3. BLOCKED: live asyncpg/pgvector, real BGE-M3 weights, torch/sentence-transformers install (~2.5GB, disk 95% full), real published-version embedding.
 4. Next: prompt 07 (authentication and demo sessions).
 5. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 07 (authentication and demo sessions)
+1. Work: added gateway auth.py (Supabase JWT verify via cached JWKS, refresh-once, DB-sourced roles, authenticate()), permissions.py (require_access mirroring RLS; assigned-only real review; own-active-demo; foreign->404), demo.py (create_demo rate-limit-before-DB; reset_demo idempotent generation increment). All dependency-injected.
+2. Verification (exit 0): run_checks --prompt 07 -> test_07.py PASS (18) with a real RSA keypair/JWKS round-trip + fakes; ruff clean. Expired/wrong-issuer/wrong-audience/disallowed-alg/forged-role all rejected; unknown-kid refreshes once; access + demo flows asserted.
+3. BLOCKED: live Supabase Auth, live DB (roles/sessions persistence, row-lock reset, job cancellation + storage cleanup). Full HTTP route wiring integrates at prompt 08 (owns api_v1).
+4. Next: prompt 08 (enquiry intake and limits).
+5. Model/version: claude-opus-4-8[1m].
