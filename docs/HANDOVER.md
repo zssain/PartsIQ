@@ -119,7 +119,12 @@ Completed through 20 (Staff workspace and timeline):
 
 Prompts 13–20 complete (this session). Full regression: run_checks --prompt 00..20 all exit 0; --feature F02/F49 exit 0; gateway/search/orchestrator/worker suites + web vitest (17) all green; verify_kit PASSED. The tools/catalog pytest collection error is pre-existing/unrelated (stray tools/catalog/__init__.py) and not exercised by the per-prompt gate.
 
-Next: execute prompt 21 (Quality — evals) per prompts/README.md, on its own branch.
+Completed through 21 (Labelled evaluations):
+- tools/evals/run.py + __init__.py: evaluate_case (exact status+compat match; never a model confidence; failures keep actual), run_suite(cases, live=False, *, solve) (injected resolver; deterministic mode imports/calls no OpenAI), dataset_sha256 (pins the fixture), accuracy (excludes unlabelled, reports abstention separately), build_run_receipt (live runs record git SHA + model id), deterministic_solver (seed-42 scenario-keyed resolver; injection text ignored). tests/evals/cases.json: 11 labelled cases covering the four demos + arabic/typo/serial-boundary/ambiguity/multi-item-stock/injection + an unlabelled unreadable case.
+- Verification (exit 0): run_checks --prompt 21 -> test_21.py PASS; run_checks --feature F62 -> tests/acceptance/test_f62.py PASS; tests/evals/test_scenarios.py PASS (3) incl. validating the four demo labels against build_scenarios(generate_catalog(42)); ruff clean. Deterministic accuracy 1.0, 3 abstentions + 1 unlabelled reported separately.
+- BLOCKED: the live-model evaluation path (needs confirmed OpenAI credit) is separate from the deterministic suite and not run here.
+
+Next: execute prompt 22 (Security and failure recovery gate) per prompts/README.md, on its own branch.
 
 Watch (unchanged): all live infrastructure remains BLOCKED and reported — Supabase Auth/DB/RLS, Redis, pgvector + BGE-M3 (torch not installed), live OpenAI (text + vision), Postgres LangGraph checkpointer, Playwright/Chromium PDF + e2e, Storage. The frontend toolchain (node 25 / pnpm 10.31) is installed and its vitest suite runs; run_checks has no pnpm wiring, so the per-prompt gate is the Python structural test and the vitest suite is run directly (reported, never faked). Use `uv sync --all-packages` (a bare `uv sync` prunes member deps).
 

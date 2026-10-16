@@ -162,3 +162,11 @@
 4. BLOCKED: live gateway/Supabase/Storage/orchestrator; Playwright e2e (22/27).
 5. Next: prompt 21 (quality / evals). Prompts 13-20 complete this session.
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 21 (labelled evaluations)
+1. Work: tools/evals/run.py + __init__.py (evaluate_case, run_suite injected-solver, dataset_sha256, accuracy excl. unlabelled + abstention, build_run_receipt git-sha/model-id, deterministic_solver); tests/evals/cases.json (11 labelled cases: 4 demos + arabic/typo/serial/ambiguity/stock/injection + unlabelled); tests/evals/test_scenarios.py.
+2. Verification (exit 0): run_checks --prompt 21 -> test_21.py PASS; --feature F62 -> test_f62.py PASS; test_scenarios.py PASS (3, incl. demo labels validated against build_scenarios); ruff clean.
+3. Design: deterministic suite makes no OpenAI call; accuracy never uses model confidence; failures keep actual output; fixture disjoint from prompt templates; injection ignored.
+4. BLOCKED: live-model eval path (confirmed credit) separate from deterministic suite.
+5. Next: prompt 22 (security and failure recovery gate).
+6. Model/version: claude-opus-4-8[1m].
