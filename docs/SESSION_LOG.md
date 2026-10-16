@@ -122,3 +122,11 @@
 4. BLOCKED: live asyncpg SKIP LOCKED, Redis, Storage signing; tested with fakes mirroring the semantics.
 5. Next: prompt 16 (nameplate vision job).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 16 (nameplate vision job)
+1. Work: added worker jobs/nameplate.py (validate_image with Pillow + decoded-pixel cap; read_nameplate via OpenAI vision through the shared client, EXIF-strip/orientation-normalize, code-owned attachment_id + mandatory confirmation, partial-null, provider failure recoverable) and jobs/__init__.py; gateway ocr_confirmation.py (confirm_extraction: owner/assigned/own-session auth, stale 409, verbatim serial, blank-serial missing flow) + route in api_v1.py; dispatcher handler registry (register_handler/get_handler) wired for "nameplate" in worker main.
+2. Verification (exit 0): run_checks --prompt 16 -> test_16.py PASS; worker suite PASS (19) incl. test_f14; gateway suite PASS (15, regression); ruff clean.
+3. Design: model confidence is never treated as accuracy (confirmation always required); image text is data not instructions; unconfirmed OCR never authorizes matching.
+4. BLOCKED: live OpenAI vision, Storage fetch, lease-fenced DB persistence of extraction + ocr_completed event.
+5. Next: prompt 17 (approved enquiry pdf).
+6. Model/version: claude-opus-4-8[1m].

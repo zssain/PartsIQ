@@ -9,12 +9,27 @@ behind injected ports; the live adapters are integration work.
 """
 from __future__ import annotations
 
-from typing import Protocol
+from collections.abc import Awaitable, Callable
+from typing import Any, Protocol
 from uuid import UUID
 
 # Initial bounded concurrency per job kind (ADR-009: small, predictable worker).
 CONCURRENCY_LIMITS: dict[str, int] = {"nameplate": 1, "export_pdf": 1}
 DEFAULT_LIMIT = 1
+
+# Job-kind -> handler registry. Handlers are registered by their owning prompt (16 nameplate,
+# 17 export_pdf, …) so the dispatcher routes a claimed job to the right code without importing
+# every job module itself. Kept here, the single owner of dispatch, per the one-creator rule.
+JobHandler = Callable[..., Awaitable[Any]]
+JOB_HANDLERS: dict[str, JobHandler] = {}
+
+
+def register_handler(kind: str, handler: JobHandler) -> None:
+    JOB_HANDLERS[kind] = handler
+
+
+def get_handler(kind: str) -> JobHandler | None:
+    return JOB_HANDLERS.get(kind)
 
 
 class JobQueue(Protocol):

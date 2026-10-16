@@ -16,9 +16,10 @@ from fastapi import APIRouter, Header, HTTPException, Path, Request, status
 from fastapi.responses import JSONResponse
 
 from app import enquiries as enquiries_uc
+from app import ocr_confirmation as ocr_uc
 from app import uploads as uploads_uc
 from app.auth import authenticate
-from partsiq_common.contracts import EnquiryCreate, MessageCreate
+from partsiq_common.contracts import ConfirmExtraction, EnquiryCreate, MessageCreate
 from partsiq_common.errors import PartsIQError, error_envelope, http_status_for
 
 router = APIRouter(prefix="/v1", tags=["intake"])
@@ -81,6 +82,20 @@ async def confirm_upload(request: Request, attachment_id: UUID = Path()):
             actor, attachment_id,
             repo=_require(request, "upload_repo"), fetch_bytes=_require(request, "fetch_object_bytes"),
         )
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return view.model_dump(mode="json")
+
+
+@router.post("/enquiries/{enquiry_id}/extractions/{extraction_id}/confirm")
+async def confirm_extraction(
+    body: ConfirmExtraction, request: Request, enquiry_id: UUID = Path(), extraction_id: UUID = Path()
+):
+    actor = await _actor(request)
+    if body.extraction_id != extraction_id:
+        return _as_response(PartsIQError("MALFORMED_REQUEST", internal_detail="extraction id mismatch"), request)
+    try:
+        view = await ocr_uc.confirm_extraction(actor, enquiry_id, body, repo=_require(request, "ocr_repo"))
     except PartsIQError as exc:
         return _as_response(exc, request)
     return view.model_dump(mode="json")

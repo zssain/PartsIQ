@@ -88,7 +88,14 @@ Completed through 15 (Worker leases and sweeper):
 - Verification (exit 0): run_checks --prompt 15 -> test_15.py PASS (14); worker suite PASS (10) incl. test_f51/test_f52; ruff clean.
 - BLOCKED: live asyncpg (FOR UPDATE SKIP LOCKED), Redis queue, Storage signing; tested with fake store/queue that mirror the locking/fencing/dedupe semantics.
 
-Next: execute prompt 16 (Nameplate vision job) per prompts/README.md, on its own branch.
+Completed through 16 (Nameplate vision job):
+- worker/app/jobs/nameplate.py: validate_image (Pillow decode, media-type match, MAX_DIMENSION + 40 MP decoded-pixel cap, sha256) and read_nameplate (EXIF-stripped/orientation-normalized/bounded image to OpenAI vision via the shared client; extracts model_text/serial_text/issues only; code forces the authoritative attachment_id and confirmation_required=True — model confidence is never accuracy, ADR-013; partial fields stay null; provider/budget failure raises a recoverable error). Prompt isolation: image text is data, never instructions.
+- gateway/app/ocr_confirmation.py: confirm_extraction (owner/assigned/own-session auth else 404; expected-revision stale -> 409; serial stored verbatim so leading zeros survive; blank corrected serial -> missing-serial flow). Registered POST /v1/enquiries/{id}/extractions/{extraction_id}/confirm in api_v1.py.
+- dispatcher gained a job-kind handler registry (register_handler/get_handler); worker main registers "nameplate".
+- Verification (exit 0): run_checks --prompt 16 -> test_16.py PASS; worker suite PASS (19) incl. test_f14; gateway suite PASS (15, regression); ruff clean.
+- BLOCKED: live OpenAI vision, Storage object fetch, DB persistence of the extraction + ocr_completed workflow event (the lease-fenced write path from prompt 15). Tested with a fake vision client, real in-memory Pillow images, and fake repos.
+
+Next: execute prompt 17 (Approved enquiry PDF) per prompts/README.md, on its own branch.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 
