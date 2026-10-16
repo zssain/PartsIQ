@@ -95,7 +95,14 @@ Completed through 16 (Nameplate vision job):
 - Verification (exit 0): run_checks --prompt 16 -> test_16.py PASS; worker suite PASS (19) incl. test_f14; gateway suite PASS (15, regression); ruff clean.
 - BLOCKED: live OpenAI vision, Storage object fetch, DB persistence of the extraction + ocr_completed workflow event (the lease-fenced write path from prompt 15). Tested with a fake vision client, real in-memory Pillow images, and fake repos.
 
-Next: execute prompt 17 (Approved enquiry PDF) per prompts/README.md, on its own branch.
+Completed through 17 (Approved enquiry PDF):
+- worker/app/jobs/export_pdf.py: render_export_html fills a TRUSTED, code-owned Jinja template (autoescape on; only the already-escaped reply is |safe) — logo, bilingual text, verified selections, references/citations, synthetic-demo watermark, non-guaranteed-estimate note, long names wrap (word-break), no price/quotation wording. export_enquiry refuses anything but an approved immutable revision, renders via an injected HTML->PDF port, hashes the bytes, uploads to the exports bucket and persists the export record under the lease. templates/enquiry_summary.html + bundled brand fonts/logo under app/static/brand (verified vs SHA256SUMS). Worker registers the "export_pdf" handler.
+- Packages: `uv pip install Jinja2==3.1.6 pypdf==6.8.0` (used offline); playwright==1.58.0 pinned in worker pyproject and locked, but its Chromium browser binary is a deferred/BLOCKED download (deployment image, prompt 24) — the Chromium render is the injected port. uv.lock change is purely additive (jinja2, markupsafe, pypdf, playwright, pyee, greenlet).
+- Verification (exit 0): run_checks --prompt 17 -> test_17.py PASS (incl. a pypdf-validated single-page PDF through the fake renderer); worker suite PASS (19); ruff clean.
+- Env note: this workspace has members whose deps are not reachable from the root project, so use `uv sync --all-packages` (a bare `uv sync` prunes orchestrator/worker deps like langgraph). The venv is currently complete; all 00-17 foundations + gateway/search/orchestrator/worker suites pass. Pre-existing/unrelated: the tools/catalog pytest suite fails to collect due to a stray tools/catalog/__init__.py shadowing the inner `catalog` package (owned by prompt 00; not exercised by the per-prompt gate) — left untouched.
+- BLOCKED: live Playwright/Chromium PDF rendering, Storage upload, approved-snapshot DB load.
+
+Next: execute prompt 18 (Frontend shell and authentication) per prompts/README.md, on its own branch.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 

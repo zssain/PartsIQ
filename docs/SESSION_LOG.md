@@ -130,3 +130,11 @@
 4. BLOCKED: live OpenAI vision, Storage fetch, lease-fenced DB persistence of extraction + ocr_completed event.
 5. Next: prompt 17 (approved enquiry pdf).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 17 (approved enquiry pdf)
+1. Work: added worker jobs/export_pdf.py (render_export_html via trusted autoescaped Jinja template; export_enquiry: approved-immutable-only, injected HTML->PDF port, sha256, exports-bucket upload, persist under lease), templates/enquiry_summary.html, bundled brand fonts+logo under app/static/brand. Registered export_pdf handler. Added Jinja2/pypdf (installed) + playwright (locked; Chromium deferred) to worker pyproject; uv.lock additive.
+2. Verification (exit 0): run_checks --prompt 17 -> test_17.py PASS (pypdf-validated single-page PDF via fake renderer); worker suite PASS (19); ruff clean. After re-lock used `uv sync --all-packages` to keep member deps (langgraph etc.); 00-17 foundations + 4 service suites green.
+3. Design: watermark + non-guaranteed estimate always present; no price/quotation; staff notes/secrets excluded; no model-authored template evaluated; Chromium render is an injected, locked-down port.
+4. BLOCKED: live Playwright/Chromium, Storage upload, approved-snapshot DB load. Pre-existing unrelated: tools/catalog pytest collection (stray __init__ shadows inner package).
+5. Next: prompt 18 (frontend shell and authentication).
+6. Model/version: claude-opus-4-8[1m].

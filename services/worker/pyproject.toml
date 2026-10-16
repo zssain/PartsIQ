@@ -12,7 +12,15 @@ name = "partsiq-worker"
 version = "0.1.0"
 description = "PartsIQ worker (durable jobs over Redis). Application code added from prompt 04/15."
 requires-python = ">=3.12"
-dependencies = []
+# Prompt 17 pins for the PDF export job. Jinja2 and pypdf are installed and used offline;
+# the playwright PYTHON package is locked here, but its Chromium browser binary
+# (`playwright install chromium`) is a heavy download deferred to the deployment image
+# (prompt 24) and is BLOCKED in this environment — the HTML->PDF step is an injected port.
+dependencies = [
+    "Jinja2==3.1.6",
+    "pypdf==6.8.0",
+    "playwright==1.58.0",
+]
 
 [tool.uv]
 package = false

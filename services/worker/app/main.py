@@ -13,6 +13,7 @@ from fastapi import FastAPI
 
 from app.dispatcher import register_handler
 from app.internal import router as internal_router
+from app.jobs.export_pdf import export_enquiry
 from app.jobs.nameplate import read_nameplate
 from partsiq_common.app_factory import create_service_app
 from partsiq_common.config import BaseServiceSettings
@@ -23,8 +24,9 @@ settings = BaseServiceSettings(service_name="partsiq-worker")
 
 
 async def on_startup(app: FastAPI) -> None:
-    # Register job-kind handlers with the dispatcher owner (prompt 16: nameplate OCR).
+    # Register job-kind handlers with the dispatcher owner (16: nameplate OCR, 17: PDF export).
     register_handler("nameplate", read_nameplate)
+    register_handler("export_pdf", export_enquiry)
     # Live job store / Redis queue / Storage backend are wired here from the DB pool and
     # Storage credential; left unset offline so readiness is honestly false.
     app.state.store = getattr(app.state, "store", None)

@@ -1,0 +1,50 @@
+<!doctype html>
+{# Trusted, code-owned export template (prompt 17 — F61). Rendered with Jinja2 autoescape;
+   the only |safe value is the reply, which was produced by the code-owned reply renderer
+   (prompt 13) and is already HTML-escaped. No model-authored template is ever evaluated.
+   Chromium renders this with external requests, JavaScript and arbitrary file access
+   disabled; only the bundled local brand assets under asset_dir are read. No price or
+   quotation wording appears, and staff notes/secrets are never passed in. #}
+<html lang="{{ locale }}" dir="{{ 'rtl' if locale == 'ar' else 'ltr' }}">
+<head>
+<meta charset="utf-8">
+<title>PartsIQ enquiry summary</title>
+<style>
+  @font-face { font-family: "NotoSans"; src: url("file://{{ asset_dir }}/fonts/NotoSans.ttf"); }
+  @font-face { font-family: "NotoSansArabic"; src: url("file://{{ asset_dir }}/fonts/NotoSansArabic.ttf"); }
+  @font-face { font-family: "NotoNaskhArabic"; src: url("file://{{ asset_dir }}/fonts/NotoNaskhArabic.ttf"); }
+  html { font-family: {{ 'NotoSansArabic, NotoNaskhArabic' if locale == 'ar' else 'NotoSans' }}, sans-serif; }
+  body { margin: 32px; color: #0b1f3a; }
+  .watermark { position: fixed; top: 40%; inset-inline: 0; text-align: center;
+    font-size: 64px; color: rgba(11,31,58,0.08); transform: rotate(-24deg); }
+  header { display: flex; align-items: center; gap: 16px; border-bottom: 2px solid #c9a227; padding-bottom: 12px; }
+  header img { height: 48px; }
+  .identifier { font-family: NotoSans, monospace; }
+  .references li { word-break: break-word; }           /* long Arabic/identifier strings wrap, never clip */
+  .estimate { color: #6b7280; font-size: 0.9em; }
+  footer { margin-top: 24px; border-top: 1px solid #e5e7eb; padding-top: 8px; font-size: 0.8em; color: #6b7280; }
+</style>
+</head>
+<body>
+  {% if synthetic %}<div class="watermark">SYNTHETIC DEMO</div>{% endif %}
+  <header>
+    <img src="file://{{ asset_dir }}/logo-original.png" alt="PartsIQ">
+    <h1>Enquiry summary</h1>
+  </header>
+
+  <section class="reply">{{ reply | safe }}</section>
+
+  <section class="references">
+    <h2>{{ 'المراجع' if locale == 'ar' else 'References' }}</h2>
+    <ul>
+      {% for item in facts.items %}
+      <li><bdi dir="ltr" class="identifier">{{ item.part_number }}</bdi> — {{ item.source_reference }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <p class="estimate">{{ 'مدد النقل تقديرية وغير مضمونة.' if locale == 'ar' else 'Transfer times are estimates only and are not guaranteed.' }}</p>
+
+  <footer>{{ 'بيانات توضيحية اصطناعية — للاطلاع فقط وليست عرضًا تجاريًا.' if locale == 'ar' else 'Synthetic demonstration data — reference only, not a commercial offer.' }}</footer>
+</body>
+</html>
