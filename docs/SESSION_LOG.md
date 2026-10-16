@@ -76,3 +76,10 @@
 3. Design: no fake-success nodes shipped (handlers None -> readiness false); blocking states are interrupts; next_step is the single decision point. BLOCKED: live Postgres checkpointer/event inbox, enquiry row-lock serialization.
 4. Next: prompt 10 (intake specialist).
 5. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 10 (intake specialist)
+1. Work: added specialists/intake.py (extract_intake via shared call_structured + IntakeResult schema; prompts/intake.txt trusted instructions; customer text as untrusted data; missing quantity preserved null; confirmed machine fields merged forward), specialists/__init__.py.
+2. Verification (exit 0): run_checks --prompt 10 -> test_10.py PASS (5) with a fake OpenAI client; orchestrator suite PASS (9, 1 skip) incl. test_f10; ruff clean. Bilingual preserved, invalid-quantity/disallowed-field rejected, confirmed-machine-not-overwritten asserted.
+3. BLOCKED: live OpenAI structured output.
+4. Next: prompt 11 (parts specialist and tools).
+5. Model/version: claude-opus-4-8[1m].
