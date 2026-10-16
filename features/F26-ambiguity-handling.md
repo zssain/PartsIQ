@@ -28,6 +28,7 @@ enquiry_items. Exact columns,keys,indexes and policies are in TECH_SPEC.md secti
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 11 | tested score/margin thresholds in code decide ambiguous_part; LLM cannot override low confidence; unavailable candidate choice returns 409; tool calls bounded (4); stale catalogue rejected. test_11.py + services/orchestrator/tests/features/test_f26.py. Live search service/OpenAI BLOCKED. | prompt/11 |
 
 ## Verification evidence
 Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.

@@ -28,6 +28,7 @@ messages, enquiry_items. Exact columns,keys,indexes and policies are in TECH_SPE
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 11 | parts specialist emits code-decided clarification codes (needs_model/ambiguous_part/none); candidate ids restricted to the compatible set; LLM phrasing only. tests/foundations/test_11.py. Live search service/OpenAI BLOCKED. | prompt/11 |
 | 2026-10-17 | 09 | controller reason codes drive code-owned clarify step; pending question persists as an interrupt until answered; repeat events don't duplicate. tests/foundations/test_09.py. | prompt/09 |
 
 ## Verification evidence

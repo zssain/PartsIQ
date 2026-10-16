@@ -52,7 +52,16 @@ Completed through 06 (Search — extend legacy):
 - Tests: run_checks --prompt 06 → test_06.py PASS (10); full search suite PASS (71 incl. preserved legacy + F20/F21/F22/F23/F24/F25/F30/F33/F34) via isolated pytest. All offline with an in-memory fake repository + fake encoder.
 - BLOCKED (reported, not faked): live asyncpg/pgvector retrieval, real BGE-M3 load + weights, torch/sentence-transformers install (CPU wheels recorded in requirements-embeddings.txt but not installed — ~2.5 GB on a near-full disk), and embedding of a real published catalogue version.
 
-Next: execute prompt 07 (Authentication and demo sessions) per prompts/README.md, on its own branch.
+Completed through 11 (offline-faithful; live infra BLOCKED and reported, never faked):
+- 07 gateway auth.py/permissions.py/demo.py (Supabase JWT via cached JWKS refresh-once, DB-sourced roles, assigned-only review, idempotent demo reset) — test_07 PASS (18, real RSA/JWKS round-trip).
+- 08 gateway enquiries.py/uploads.py/api_v1.py (canonical-hash idempotency, stale-revision 409, confirm magic/duplicate/404, 202-after-commit) — test_08 PASS (12).
+- 09 orchestrator controller.next_step + graph (langgraph) + events.consume_event + handlers/state/routes/runner/main — test_09 PASS (15, real build_graph on InMemorySaver); orchestrator suite PASS.
+- 10 orchestrator specialists/intake.extract_intake (strict IntakeResult, missing-quantity null, confirmed-field merge) — test_10 PASS (5).
+- 11 orchestrator specialists/parts.run_parts + tools.ToolSession + search_client (compatible-only candidates, code thresholds, 4-call bound, stale-version reject, 409 on unavailable choice) — test_11 PASS (11).
+- Added langgraph 1.1.3 + langgraph-checkpoint-postgres 3.0.4 to the lock. Full regression run_checks --prompt 00..11 all exit 0; verify_kit PASSED.
+- BLOCKED throughout: live Supabase Auth/DB/RLS, Redis, pgvector + BGE-M3 (torch not installed), live OpenAI, Postgres LangGraph checkpointer. Concrete DB/HTTP wiring for runtime is deferred to where its service exists.
+
+Next: execute prompt 12 (Deterministic verification) per prompts/README.md, on its own branch.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 

@@ -83,3 +83,10 @@
 3. BLOCKED: live OpenAI structured output.
 4. Next: prompt 11 (parts specialist and tools).
 5. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 11 (parts specialist and tools)
+1. Work: added orchestrator search_client.py (typed read-only adapter to the internal search service, injected HTTP), tools.py (ToolSession: 4-call bound, stale-catalogue rejection, read-only identify/search_parts only), specialists/parts.py (run_parts: candidate ids restricted to the compatible search set, code score/margin thresholds decide clarification, validate_selection 409 on unavailable choice).
+2. Verification (exit 0): run_checks --prompt 11 -> test_11.py PASS (11); orchestrator suite PASS (12, 1 skip) incl. test_f26; ruff clean; 00-11 regression green; verify_kit PASSED.
+3. Design: deterministic code owns candidate restriction + clarification; the LLM only phrases explanation and cannot override low confidence or inject incompatible parts. BLOCKED: live search service HTTP + OpenAI.
+4. Next: prompt 12 (deterministic verification).
+5. Model/version: claude-opus-4-8[1m].
