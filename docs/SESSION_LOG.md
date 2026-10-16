@@ -34,3 +34,10 @@
 3. Limits: live RLS enforcement + two-actor-on-reused-pool BLOCKED (no Postgres here); run under tests/integration against disposable Supabase.
 4. Next: prompt 04 (private storage).
 5. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 04 (private storage)
+1. Work: copied spec/sql/005 verbatim into supabase/migrations (4 private buckets, nameplate owner+pending policy). Added services/gateway/app/storage.py (create_upload, sign_download delegate, magic validation, 60s, redaction), services/worker/app/storage.py (admin-only signer + remove_object, no DB REST), services/worker/app/__init__.py.
+2. Verification (exit 0): `run_checks --prompt 04` → test_04.py PASS (14 tests, 2 deferred skips); new files ruff-clean. Division of trust (gateway user-token upload vs worker admin signing), typed resource delegation, 60s expiry, magic-byte spoof rejection, nonexistent-object 404, bucket validation asserted.
+3. Limits: decoded-pixel cap/EXIF strip owned by prompt 16, duplicate-confirmation by prompt 08; live Supabase Storage BLOCKED here.
+4. Next: prompt 05 (synthetic catalogue and demo fixtures).
+5. Model/version: claude-opus-4-8[1m].
