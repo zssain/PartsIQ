@@ -28,6 +28,7 @@ messages, enquiry_revisions. Exact columns,keys,indexes and policies are in TECH
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 09 | typed EnquiryState persisted via checkpointer; resume by enquiry+revision thread; old-revision event obsolete; foreign thread has no state. services/orchestrator/tests/features/test_f12.py. | prompt/09 |
 | 2026-10-17 | 03 | Per-item/per-revision candidate keys and enquiry_items/messages schema migrated; checkpoints schema created via extracted DDL (autocommit) + RLS/grants. Structural assertions in test_03.py. Resume/compaction owned by prompt 09. | prompt/03 |
 
 ## Verification evidence

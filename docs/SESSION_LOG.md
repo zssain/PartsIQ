@@ -69,3 +69,10 @@
 3. BLOCKED: live DB atomic transaction (enquiry+message+revision+event), Redis limiter, Storage byte fetch; concrete DB repositories wired at runtime only.
 4. Next: prompt 09 (deterministic durable workflow).
 5. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 09 (deterministic durable workflow)
+1. Work: added orchestrator app (controller.next_step pure state machine with 12-step cap; state.py thread key per enquiry+revision; handlers.WorkflowHandlers + readiness gate; graph.build_graph via langgraph driven by the controller; events.consume_event dedup/stale-obsolete/retry; routes start/resume + readiness; runner batch; main). Added langgraph==1.1.3 + langgraph-checkpoint-postgres==3.0.4 to the lock.
+2. Verification (exit 0): run_checks --prompt 09 -> test_09.py PASS (15) incl. a real build_graph run on InMemorySaver with test-double handlers; orchestrator suite PASS (7, 1 skip) test_f12/test_f50; 00-09 regression green; verify_kit PASSED; ruff clean.
+3. Design: no fake-success nodes shipped (handlers None -> readiness false); blocking states are interrupts; next_step is the single decision point. BLOCKED: live Postgres checkpointer/event inbox, enquiry row-lock serialization.
+4. Next: prompt 10 (intake specialist).
+5. Model/version: claude-opus-4-8[1m].

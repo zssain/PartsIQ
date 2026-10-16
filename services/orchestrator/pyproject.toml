@@ -9,9 +9,18 @@
 [project]
 name = "partsiq-orchestrator"
 version = "0.1.0"
-description = "PartsIQ orchestrator (durable LangGraph workflow). Application code added from prompt 09."
+description = "PartsIQ orchestrator (durable LangGraph workflow)."
 requires-python = ">=3.12"
-dependencies = []
+# Prompt 09 pins (docs/TECH_SPEC.md section 3). The Postgres checkpointer library also
+# brings the exact checkpoint schema applied by prompt 03.
+dependencies = [
+    "partsiq-common",
+    "langgraph==1.1.3",
+    "langgraph-checkpoint-postgres==3.0.4",
+]
 
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+partsiq-common = { workspace = true }

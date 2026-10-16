@@ -28,6 +28,7 @@ workflow_events. Exact columns,keys,indexes and policies are in TECH_SPEC.md sec
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 09 | Postgres checkpointer graph + DB event inbox; thread key per enquiry+revision; duplicate events obsolete (no repeat publication); stale revision/generation obsolete. test_f50.py + test_09.py. Live Postgres checkpointer BLOCKED. | prompt/09 |
 
 ## Verification evidence
 Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.

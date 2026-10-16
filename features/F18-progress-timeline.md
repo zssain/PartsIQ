@@ -28,6 +28,7 @@ workflow_events, jobs. Exact columns,keys,indexes and policies are in TECH_SPEC.
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 09 | controller exposes deterministic stages/wait reasons (await_ocr/confirm/clarify/review as interrupts); no fake completed progress. test_09.py (controller). | prompt/09 |
 
 ## Verification evidence
 Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
