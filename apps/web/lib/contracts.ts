@@ -94,3 +94,9 @@ export interface ConfirmExtraction {
   model_text: string;
   serial_text: string;
 }
+
+export interface AttachmentView {
+  id: string;
+  status: "pending" | "validated" | "rejected" | "deleted";
+  error_code: string | null;
+}

@@ -28,6 +28,7 @@ demo_sessions, jobs. Exact columns,keys,indexes and policies are in TECH_SPEC.md
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 19 | gateway reset idempotency test (test_f05) + demo reset UI clearing client cache. Full reset (job cancel/storage cleanup) owned by 15/22. | prompt/19 |
 | 2026-10-17 | 15 | lease fencing enforces that late work from an old session generation cannot commit (F05 invariant). UI/reset test owned by prompt 22. | prompt/15 |
 | 2026-10-17 | 07 | reset idempotent per key returns same generation; generation increment under row lock (repo); rate limit before DB. test_07.py. Live Supabase Auth + DB BLOCKED. | prompt/07 |
 

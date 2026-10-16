@@ -107,7 +107,13 @@ Completed through 18 (Frontend shell and authentication):
 - Verification: run_checks --prompt 18 -> tests/foundations/test_18.py PASS (structural: pins, required files, bearer-not-URL, only public Supabase values, no secret in apps/web, no public signup, synthetic notice, conditional repo link, logo alt). apps/web vitest: tests/features/f01.test.tsx PASS (4) via the installed toolchain (node 25 / pnpm 10.31). Python ruff clean.
 - Note: run_checks has no pnpm wiring, so the per-prompt gate is the Python structural test; the vitest suite is run directly and reported here (it passes, not faked). node_modules/.next are gitignored.
 
-Next: execute prompt 19 (Customer chat and demo) per prompts/README.md, on its own branch.
+Completed through 19 (Customer chat and demo):
+- apps/web components: Chat.tsx (AbortController + bounded exponential backoff polling with hidden-tab throttle; send is idempotency-keyed + revision-bound and preserves unsent text on failure; React escapes message text), Progress.tsx (persisted stages only, waiting-customer vs waiting-staff, retry on failed poll — no fabricated completion), OcrConfirmation.tsx (serial kept verbatim incl. leading zeros, confirm/correct, {extraction,onConfirm} contract + extractionId/expectedRevision plumbing), UploadCard.tsx (MIME allowlist + 10 MB cap + signed upload + confirm), app/chat/[id]/page.tsx, app/demo/page.tsx (four seed-42 scenario cards + reset that clears client cache).
+- Verification: run_checks --prompt 19 -> tests/foundations/test_19.py PASS (structural + invariants). apps/web vitest: f01 + f15 = 8 passed. Cross-service feature tests PASS in their suites: orchestrator test_f09 (bilingual intake) + test_f11 (clarifications) -> orch 43 passed/1 skip; gateway test_f05 (demo reset idempotency) + test_f13 (upload magic/duplicate/404) -> gateway 22 passed; acceptance test_f02 (four seed-42 scenarios + reject incompatible/unsupported) PASS. Python ruff clean.
+- Note: prompt 19's FILES TO CREATE lists test_f02/f05/f09/f11/f13 (created here); spec/file-ownership.json records some of those creators as 20/22 — followed the prompt, manifest left unchanged. These feature tests exercise entry points built in earlier prompts (05/07/08/10/11).
+- BLOCKED: live gateway/Supabase/Storage; Playwright e2e (22/27).
+
+Next: execute prompt 20 (Staff workspace and timeline) per prompts/README.md, on its own branch.
 
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 

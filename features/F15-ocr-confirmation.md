@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | apps/web |
 | Implementing prompts | 19; foundations 16, 19 |
 | Affected flows | FLOW.md row 19 |
@@ -14,9 +14,9 @@ Show cropped or original nameplate beside extracted identifiers; require user co
 Voice,quotations,external messaging,payments,actual stock reservations and automatic approval are excluded.
 
 ## Acceptance criteria
-- [ ] Show cropped or original nameplate beside extracted identifiers; require user confirm or correction; record actor and time; preserve leading zeros in serial text.
+- [x] Show cropped or original nameplate beside extracted identifiers; require user confirm or correction; record actor and time; preserve leading zeros in serial text.
 - [ ] Unconfirmed OCR never authorizes matching; blank corrected serial triggers missing-serial flow; stale confirmation returns 409.
-- [ ] Test output and implementation commit recorded before status changes to done.
+- [x] Test output and implementation commit recorded before status changes to done.
 
 ## Data touched
 extractions, enquiry_items. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 and spec/sql. No feature may silently introduce a column absent from that schema.
@@ -28,7 +28,8 @@ extractions, enquiry_items. Exact columns,keys,indexes and policies are in TECH_
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 19 | OcrConfirmation UI shows the photo beside editable identifiers; verbatim serial; blank serial -> missing-serial flow (f15.test.tsx). | prompt/19 |
 | 2026-10-17 | 16 | gateway confirm_extraction backend: auth-or-404, stale 409, verbatim serial (leading zeros), blank-serial missing flow (tests/foundations/test_16.py). UI test f15.test.tsx owned by prompt 19. | prompt/16 |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+apps/web/tests/features/f15.test.tsx PASS (4, vitest); backend confirm_extraction tested in tests/foundations/test_16.py.

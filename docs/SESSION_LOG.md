@@ -146,3 +146,11 @@
 4. BLOCKED: live Supabase Auth + gateway; Playwright e2e specs (prompts 22/27).
 5. Next: prompt 19 (customer chat and demo).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 19 (customer chat and demo)
+1. Work: apps/web Chat (AbortController + bounded backoff + hidden-tab throttle; idempotent revision-bound send preserving unsent text), Progress (customer vs staff wait, retry, no fabricated completion), OcrConfirmation (verbatim serial), UploadCard (MIME+size+signed+confirm), chat/[id] + demo pages (four seed-42 scenarios + reset clears cache). Feature tests: test_f02 (acceptance), test_f05/test_f13 (gateway), test_f09/test_f11 (orchestrator), f15.test.tsx (web), test_19 (foundation).
+2. Verification: run_checks --prompt 19 -> test_19.py PASS; web vitest f01+f15 = 8 passed; orchestrator 43 passed/1 skip; gateway 22 passed; acceptance test_f02 PASS; python ruff clean.
+3. Design: only server-returned (approved) recommendations appear; code-owned clarifications; graceful failures preserve input and retry safely; reset clears old-generation client cache.
+4. Note: created the prompt-listed feature tests even where file-ownership records creator 20/22; manifest unchanged. BLOCKED: live gateway/Supabase/Storage; Playwright e2e.
+5. Next: prompt 20 (staff workspace and timeline).
+6. Model/version: claude-opus-4-8[1m].

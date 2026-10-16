@@ -28,6 +28,7 @@ demo_sessions. Exact columns,keys,indexes and policies are in TECH_SPEC.md secti
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 19 | demo page uses the same anonymous session; role switching UI + authorization test (test_f03) owned by prompt 20. | prompt/19 |
 | 2026-10-17 | 07 | same anonymous identity/session; review authorized only for own active session; foreign enquiry -> 404; forged reviewer role never grants membership. tests/foundations/test_07.py. Live Supabase Auth + DB BLOCKED. | prompt/07 |
 
 ## Verification evidence
