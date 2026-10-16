@@ -1,0 +1,18 @@
+# PartsIQ worker service — asynchronous jobs (nameplate OCR, PDF export,
+# catalogue import/publish, storage cleanup) consumed from a Redis queue.
+#
+# Skeleton only at prompt 00: a registered, virtual uv workspace member with NO
+# runtime dependencies yet. Its application package (services/worker/app/**) starts
+# at prompt 04 (storage) and 15 (leases/dispatcher); real dependencies (psycopg,
+# redis, Pillow, openai, Jinja2, playwright, …) are added by those prompts. Adding
+# them here would be a forward dependency, which prompt 00 forbids.
+
+[project]
+name = "partsiq-worker"
+version = "0.1.0"
+description = "PartsIQ worker (durable jobs over Redis). Application code added from prompt 04/15."
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv]
+package = false

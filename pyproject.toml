@@ -1,0 +1,50 @@
+# Root of the PartsIQ uv workspace.
+#
+# Why a single workspace + single uv.lock (TECH_SPEC.md section 1): the new Python
+# code (common library, orchestrator, worker) resolves against ONE lock so every
+# service runs identical pinned transitive dependencies. The legacy gateway, search
+# and catalogue services keep their own requirements*.txt and are executed in
+# ISOLATED test processes (see tools/run_checks.py) because all four service
+# packages share the `app` import name and cannot be imported into one interpreter.
+#
+# This root is a virtual project (package = false): it is never built or published,
+# it only groups the members and the shared development toolchain.
+
+[project]
+name = "partsiq"
+version = "0.1.0"
+description = "PartsIQ monorepo — AI-assisted spare-parts identification on synthetic data."
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+# Members are the uv-managed Python packages that share this lock.
+# gateway/search/catalog are deliberately absent: they are preserved legacy
+# services with no pyproject.toml in spec/file-ownership.json.
+members = [
+    "libs/partsiq_common",
+    "services/orchestrator",
+    "services/worker",
+]
+
+# Development toolchain for the whole workspace. Exact pins are owned by prompt 00
+# per docs/TECH_SPEC.md section 3; runtime libraries are added by their own prompts.
+[dependency-groups]
+dev = [
+    "pytest==9.0.2",
+    "pytest-asyncio==1.3.0",
+    "ruff==0.15.6",
+    "mypy==1.19.1",
+    "PyYAML==6.0.3",
+]
+
+[tool.ruff]
+# Legacy domain modules are preserved verbatim; keep linting advisory and scoped.
+target-version = "py312"
+line-length = 100
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

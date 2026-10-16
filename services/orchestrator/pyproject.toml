@@ -1,0 +1,17 @@
+# PartsIQ orchestrator service — LangGraph durable workflow.
+#
+# Skeleton only at prompt 00: a registered, virtual uv workspace member with NO
+# runtime dependencies yet. Its application package (services/orchestrator/app/**)
+# and its real dependencies (langgraph, langgraph-checkpoint-postgres, psycopg,
+# openai, …) are introduced by prompt 09 onward. Introducing them here would be a
+# forward dependency, which prompt 00's definition of done forbids.
+
+[project]
+name = "partsiq-orchestrator"
+version = "0.1.0"
+description = "PartsIQ orchestrator (durable LangGraph workflow). Application code added from prompt 09."
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv]
+package = false

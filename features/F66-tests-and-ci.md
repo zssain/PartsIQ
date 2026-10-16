@@ -28,6 +28,7 @@ none. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 and s
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 00 | Runner foundation implemented: tools/run_checks.py dispatches each test in its own process, guards against a production database, and reports BLOCKED (never passed) for missing suites. Verified by tests/foundations/test_00.py. Status stays planned; full CI (tests/acceptance/test_f66.py, images, action SHAs) is prompt 25. | prompt/00-bootstrap |
 
 ## Verification evidence
 Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
