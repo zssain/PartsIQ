@@ -142,7 +142,12 @@ Completed through 24 (Production containers and Caddy):
 - Verification (exit 0): run_checks --prompt 24 -> test_24.py PASS (prod compose clean; verifier catches every violation class; all four Dockerfiles digest-pinned; only Caddy publishes 80/443; separate worker/sweeper/consumer commands); ruff clean.
 - BLOCKED: building/pushing/running the images needs Docker + a registry; the recorded base digests are placeholders to re-verify against the live registry manifest at deploy (prompt 26/27).
 
-Next: execute prompt 25 (CI and controlled deployment) per prompts/README.md, on its own branch.
+Completed through 25 (CI and controlled deployment):
+- .github/workflows/ci.yml: service-isolated Python tests (matrix per suite, APP_ENV=test), frontend lint/tsc/vitest, local-Postgres RLS integration, deterministic evals; least-privilege permissions (contents: read); all actions pinned to recorded commit SHAs. .github/workflows/deploy-backend.yml: workflow_dispatch ONLY (never pull_request), GHCR build/push, a migrate job that runs before the deploy job, deploy gated by the production GitHub environment (manual approval) + the INFRA_READY flag (off until prompt 26), AWS access via OIDC id-token (no static keys). tools/ci_checks.py: check_ci_configuration static-validates SHA pinning, permissions, OIDC/environment gating, migration-before-activation and the no-pull_request rule.
+- Verification (exit 0): run_checks --prompt 25 -> test_25.py PASS (committed workflows clean; the checker catches unpinned actions / missing permissions / pull_request deploy / no environment); run_checks --feature F66 -> tests/acceptance/test_f66.py PASS; ruff clean.
+- BLOCKED: running CI / building+pushing GHCR images / assuming the AWS OIDC role require GitHub + AWS; the recorded action SHAs must be re-verified against each action's release at setup.
+
+Next: execute prompt 26 (AWS free-plan deployment) per prompts/README.md, on its own branch.
 
 Watch (unchanged): all live infrastructure remains BLOCKED and reported — Supabase Auth/DB/RLS, Redis, pgvector + BGE-M3 (torch not installed), live OpenAI (text + vision), Postgres LangGraph checkpointer, Playwright/Chromium PDF + e2e, Storage. The frontend toolchain (node 25 / pnpm 10.31) is installed and its vitest suite runs; run_checks has no pnpm wiring, so the per-prompt gate is the Python structural test and the vitest suite is run directly (reported, never faked). Use `uv sync --all-packages` (a bare `uv sync` prunes member deps).
 

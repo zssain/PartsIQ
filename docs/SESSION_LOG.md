@@ -194,3 +194,11 @@
 4. BLOCKED: image build/push/run (Docker + registry); recorded base digests re-verified at deploy.
 5. Next: prompt 25 (ci and controlled deployment).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 25 (ci and controlled deployment)
+1. Work: .github/workflows/ci.yml (service-isolated python matrix + frontend + RLS integration + evals; contents:read; SHA-pinned actions; APP_ENV=test), deploy-backend.yml (workflow_dispatch only; build-push -> migrate -> deploy; environment approval + INFRA_READY gate; OIDC id-token), tools/ci_checks.py (check_ci_configuration).
+2. Verification (exit 0): run_checks --prompt 25 -> test_25.py PASS; --feature F66 -> test_f66.py PASS; ruff clean.
+3. Design: no prod DB in tests; no secrets to fork PRs (deploy never on pull_request); deployment disabled until infra ready; migration precedes image activation; actions SHA-pinned.
+4. BLOCKED: live CI run, GHCR build/push, AWS OIDC assume; action SHAs to re-verify at setup.
+5. Next: prompt 26 (aws free-plan deployment).
+6. Model/version: claude-opus-4-8[1m].

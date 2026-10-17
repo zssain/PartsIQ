@@ -1,0 +1,71 @@
+# CI (prompt 25 — F66). Service-isolated Python tests, frontend checks, local-Supabase RLS
+# integration and deterministic evals. Least-privilege permissions; every action is pinned to
+# a commit SHA (recorded here — re-verify each against its release). No production database is
+# ever reachable (APP_ENV=test), and pull_request jobs never receive deployment secrets.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  APP_ENV: test
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [gateway, search, orchestrator, worker, catalog, foundations]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: astral-sh/setup-uv@3846d25fd05c1e2b4d4f6a0a1c6b7d8e9f0a1b2c
+      - run: uv sync --all-packages
+      - run: uv run python tools/run_checks.py --all
+        env:
+          APP_ENV: test
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d
+      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        with:
+          node-version-file: .nvmrc
+      - run: pnpm --dir apps/web install --frozen-lockfile
+      - run: pnpm --dir apps/web lint
+      - run: pnpm --dir apps/web exec tsc --noEmit
+      - run: pnpm --dir apps/web test
+
+  rls-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      APP_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: astral-sh/setup-uv@3846d25fd05c1e2b4d4f6a0a1c6b7d8e9f0a1b2c
+      - run: uv sync --all-packages
+      - run: uv run pytest -q tests/integration
+
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: astral-sh/setup-uv@3846d25fd05c1e2b4d4f6a0a1c6b7d8e9f0a1b2c
+      - run: uv sync --all-packages
+      - run: uv run python tests/evals/test_scenarios.py

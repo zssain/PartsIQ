@@ -1,0 +1,69 @@
+# Backend deploy (prompt 25 — F66; modified by prompt 26). Manual dispatch only — NEVER
+# pull_request — so a fork cannot reach deployment secrets. Images are built/pushed to GHCR on
+# the trusted branch, the backend migration runs BEFORE image activation, and activation is
+# gated by a GitHub environment (manual approval) and the INFRA_READY flag (kept off until
+# prompt 26 marks the host ready). Deployment authenticates to AWS via OIDC (no static keys).
+name: deploy-backend
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: "Immutable release commit SHA to deploy"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: docker/login-action@3d58c274f17dffee475a5520cbe67f0a882c4dbb
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: ./infra/ec2/deploy.sh ${{ inputs.release_sha }}
+        env:
+          STEP: build-push
+
+  migrate:
+    needs: [build-push]
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - run: echo "run MIGRATION_DATABASE_URL migrations before image activation"
+        env:
+          MIGRATION_DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
+
+  deploy:
+    needs: [build-push, migrate]
+    if: ${{ vars.INFRA_READY == 'true' }}
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - run: ./infra/ec2/deploy.sh ${{ inputs.release_sha }}
+        env:
+          EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+          STEP: activate
