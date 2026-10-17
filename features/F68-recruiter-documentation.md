@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | docs |
 | Implementing prompts | F68; foundations 21, 22, 23, 24, 25, 26, 27 |
 | Affected flows | FLOW.md row F68 |
@@ -28,6 +28,7 @@ none. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 and s
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F68 | docs/RECRUITER_GUIDE.md (honest overview, no invented claims, impl-vs-spec) + README link | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: run_checks --feature F68 -> tests/acceptance/test_f68.py PASS (6 cases). ruff clean. python-docx authorized but not installed (no consumer; markdown deliverable) — documented deviation.

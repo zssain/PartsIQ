@@ -325,3 +325,9 @@ Completed through F65 (correction feedback):
 - Verification: gateway suite 141 passed incl. tests/features/test_f65.py (10 cases: curate, exclude-private-text, non-admin 403, unreviewed 409, dup source 409, dup case 409, empty label 422, missing 404, dependency failure, list before/after); ruff clean; vitest 44.
 - BLOCKED: live corrections/eval-case adapter.
 - Next: F68 (recruiter documentation — acceptance).
+
+Completed through F68 (recruiter documentation):
+- docs/RECRUITER_GUIDE.md: overview, real architecture, quick start, four demo paths, tests, trade-offs, limitations, deterministic-decisions + specialist-tools explanation, and an explicit implementation-status-vs-specification section. README.md links the guide + SESSION_LOG/HANDOVER as measured evidence.
+- Verification: run_checks --feature F68 -> tests/acceptance/test_f68.py PASS (6 cases incl. a forbidden-claims scan: no invented accuracy/uptime/clients/production adoption); ruff clean.
+- PACKAGE DEVIATION: python-docx==1.2.0 authorized but not installed — no consumer (deliverable is markdown; test validates markdown). Deliberate reduce-scope to avoid an unused dependency + re-lock risk.
+- Next: F69 (demo walkthrough).

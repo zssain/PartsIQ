@@ -165,3 +165,10 @@ API key handling and route safety.
 5. Chat interface and staff review dashboard.
 6. Evaluation suite gated in CI, Langfuse tracing, Prometheus and Grafana.
 7. Helm charts and Kubernetes deployment with worker autoscaling.
+
+## Recruiter guide
+
+A concise, honest overview — architecture, quick start, demo paths, tests, trade-offs and
+limitations, with implementation status distinguished from specification — is in
+[docs/RECRUITER_GUIDE.md](docs/RECRUITER_GUIDE.md). Measured evidence (actual commands and test
+counts) lives in [docs/SESSION_LOG.md](docs/SESSION_LOG.md) and [docs/HANDOVER.md](docs/HANDOVER.md).

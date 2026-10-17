@@ -411,3 +411,11 @@
 4. BLOCKED: live corrections/eval-case adapter.
 5. Next: F68 (recruiter documentation).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F68 (recruiter documentation)
+1. Work: docs/RECRUITER_GUIDE.md (overview, real architecture, quick start, four demo paths, tests, trade-offs, limitations, deterministic decisions + specialist tools, implementation-status-vs-specification). README.md links the guide + measured-evidence docs.
+2. Verification: run_checks --feature F68 -> tests/acceptance/test_f68.py PASS (6: required sections, deterministic+specialist-tools, impl-vs-spec distinction, measured-evidence links, no invented claims, README links guide); ruff clean.
+3. Design: no invented accuracy/uptime/client/production-adoption claims (forbidden-pattern test); specification is explicitly distinguished from implemented-and-tested; live infra documented as BLOCKED.
+4. PACKAGE DEVIATION: python-docx==1.2.0 was authorized but NOT installed — the deliverable is markdown (RECRUITER_GUIDE.md) and its test validates markdown, so the package has no consumer; installing it would add an unused dependency and re-lock risk. Documented here as a deliberate reduce-scope decision (does not exceed approval).
+5. Next: F69 (demo walkthrough).
+6. Model/version: claude-opus-4-8[1m].
