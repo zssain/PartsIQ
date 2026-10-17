@@ -152,7 +152,15 @@ Completed through 26 (AWS free-plan deployment):
 - Verification (exit 0): run_checks --prompt 26 -> test_26.py PASS (preflight allow/block cases incl. no-credit/expired/peak>instance/headroom; scripts reject bad SHA / unprotected env file; accept good inputs); prompt 25 + F66 still green; ruff clean.
 - BLOCKED: real EC2 provisioning (SSM, encrypted volume, IAM), image pull/activation and SSM access require the AWS account; recorded region/sizing are operator-verified receipts, not provisioned here.
 
-Next: execute prompt 27 (Vercel and hosted acceptance) per prompts/README.md, on its own branch.
+Completed through 27 (Vercel and hosted acceptance):
+- tools/hosted_acceptance.py: run_hosted_acceptance(base_url, api_url) -> HostedReceipt — rejects non-HTTPS URLs outside localhost, runs the four demo scenarios (each incl. approval + PDF) via an injected client, and reports exactly which passed/failed; is_available() is the single honest gate (available ONLY when all four pass). With no client wired it refuses rather than fabricate a pass. infra/vercel/README.md: separate preview/prod bindings; only publishable Supabase key + gateway URL are NEXT_PUBLIC; exact-origin CORS (no wildcard); documented free-tier limits (Supabase inactivity pausing, AWS credit expiry, single-host). tests/e2e/hosted.spec.ts: Playwright hosted spec (skips without a baseURL).
+- Verification (exit 0): run_checks --prompt 27 -> test_27.py PASS (HTTPS rejection, localhost allowed, no-client refusal, all-pass available, any-failure blocks availability; README public-only + no-wildcard + documented limits); ruff clean.
+- BLOCKED: the real hosted run (live Vercel + EC2 + Supabase) and the Playwright hosted spec; deployment is not claimed available until those pass.
+
+=== BUILD COMPLETE (numeric prompts 00-27) ===
+Full regression this session: run_checks --prompt 00..27 all exit 0; --feature F02/F49/F62/F64/F66/F67 all exit 0; gateway 36 / search 80 / orchestrator 47(+1 skip) / worker 22; apps/web vitest 20 (6 files); verify_kit PASSED; ruff clean. Every live-infrastructure dependency (Supabase Auth/DB/RLS, Redis, pgvector+BGE-M3/torch, live OpenAI text+vision, Postgres LangGraph checkpointer, Playwright/Chromium, Storage, AWS/EC2/SSM, Vercel, hosted acceptance) remains BLOCKED and is reported as such — never faked. Use `uv sync --all-packages` (a bare `uv sync` prunes member deps).
+
+Remaining (not in the numeric sequence, not requested this session): the F-coverage prompts in prompts/README.md (e.g. F06/F07/F08, F16/F17/F19…, F68/F69 docs) layer additional feature UIs/routes on top of this foundation.
 
 Watch (unchanged): all live infrastructure remains BLOCKED and reported — Supabase Auth/DB/RLS, Redis, pgvector + BGE-M3 (torch not installed), live OpenAI (text + vision), Postgres LangGraph checkpointer, Playwright/Chromium PDF + e2e, Storage. The frontend toolchain (node 25 / pnpm 10.31) is installed and its vitest suite runs; run_checks has no pnpm wiring, so the per-prompt gate is the Python structural test and the vitest suite is run directly (reported, never faked). Use `uv sync --all-packages` (a bare `uv sync` prunes member deps).
 

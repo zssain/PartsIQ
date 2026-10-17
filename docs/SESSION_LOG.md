@@ -210,3 +210,11 @@
 4. BLOCKED: real EC2 provisioning/activation/SSM (AWS account required); region/sizing are operator receipts.
 5. Next: prompt 27 (vercel and hosted acceptance).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 27 (vercel and hosted acceptance)
+1. Work: tools/hosted_acceptance.py (run_hosted_acceptance: HTTPS-only outside localhost, four-scenario check incl. approval+PDF via injected client, is_available gate, refuses with no client), infra/vercel/README.md (separate preview/prod bindings, public-only NEXT_PUBLIC, exact-origin CORS, documented free-tier limits), tests/e2e/hosted.spec.ts (Playwright, skips offline).
+2. Verification (exit 0): run_checks --prompt 27 -> test_27.py PASS; ruff clean. FULL build regression 00-27 all exit 0; F02/F49/F62/F64/F66/F67 pass; gateway/search/orchestrator/worker suites + web vitest (20) + verify_kit all green.
+3. Design: deployment not claimed available unless real hosted checks pass; no wildcard CORS; only publishable key public; free-tier limits documented as measured facts.
+4. BLOCKED: live Vercel/EC2/Supabase hosted run + Playwright hosted spec.
+5. Next: numeric build 00-27 complete; the F-coverage prompts (prompts/README.md) remain.
+6. Model/version: claude-opus-4-8[1m].
