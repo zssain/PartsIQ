@@ -1,17 +1,21 @@
+import { cookies } from "next/headers";
 import type { JSX, ReactNode } from "react";
 
 import "../styles/tokens.css";
+import { requestLocale } from "@/i18n/request";
 
 export const metadata = {
   title: "PartsIQ — synthetic demo",
   description: "AI-assisted spare-parts identification. Independent synthetic demonstration project.",
 };
 
-// Base responsive shell (locale/theme wiring is layered by F06/F07/F08). The lang/dir
-// default to English LTR here; the locale switcher updates them.
-export default function RootLayout({ children }: { children: ReactNode }): JSX.Element {
+// Root shell. F07: lang/dir come from the `locale` preference cookie (default English LTR).
+// Theme (F08) and the responsive shell (F06) are layered below.
+export default async function RootLayout({ children }: { children: ReactNode }): Promise<JSX.Element> {
+  const store = await cookies();
+  const { locale, direction } = requestLocale(store.get("locale")?.value ?? null);
   return (
-    <html lang="en" dir="ltr">
+    <html lang={locale} dir={direction}>
       <body>
         <div style={{ maxWidth: 960, margin: "0 auto", padding: "16px" }}>{children}</div>
       </body>

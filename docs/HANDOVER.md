@@ -289,3 +289,9 @@ Completed through F36 (staff inbox):
 - Verification: gateway suite 124 passed incl. tests/features/test_f36.py (9 cases: reviewer-assigned-only, admin-all, unassigned hidden, status/overdue/query filters, stable paging + constant scoped_total, limit 422, cursor 422, dependency failure); ruff clean; vitest 29.
 - BLOCKED: live scope-aware inbox adapter.
 - Next: F07 (Arabic/English interface — web, vitest-gated).
+
+Completed through F07 (Arabic and English interface):
+- apps/web: lib/features/f07_arabic_and_english_interface.ts (resolve_locale preference>default-en, derived direction; strict translate throws on a missing key), messages/en.json + ar.json (identical keys), i18n/request.ts (cookie->locale + catalog), LocaleSwitcher (persists the cookie, isolates identifiers with <bdi>, never reloads). layout.tsx now async: reads the `locale` cookie and sets <html lang/dir>.
+- Verification: apps/web vitest 34 passed (8 files, +5 F07 cases: default/arabic direction, en/ar key parity, missing-key throw, bdi isolation + dir, unsent draft preserved across a switch).
+- BLOCKED: none specific; the server-side cookie read runs only in a real request.
+- Next: F08 (light and dark themes).

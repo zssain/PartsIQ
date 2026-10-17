@@ -1,0 +1,19 @@
+{
+  "app.title": "بارتس آي كيو",
+  "app.tagline": "من الاستفسار إلى رد قطع الغيار المعتمد",
+  "nav.architecture": "كيف يعمل (البنية)",
+  "nav.history": "استفساراتك",
+  "nav.staff": "مساحة عمل الموظفين",
+  "nav.catalogue": "الكتالوج (الموظفون)",
+  "nav.imports": "الاستيراد (الموظفون)",
+  "action.start_demo": "ابدأ العرض التجريبي",
+  "action.send": "إرسال",
+  "action.approve": "اعتماد",
+  "action.reject": "رفض",
+  "state.loading": "جارٍ التحميل…",
+  "state.empty": "لا يوجد شيء لعرضه بعد.",
+  "state.error": "حدث خطأ ما.",
+  "locale.english": "English",
+  "locale.arabic": "العربية",
+  "theme.toggle": "تبديل السمة"
+}

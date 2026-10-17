@@ -1,0 +1,19 @@
+{
+  "app.title": "PartsIQ",
+  "app.tagline": "From enquiry to approved parts reply",
+  "nav.architecture": "How it works (architecture)",
+  "nav.history": "Your enquiries",
+  "nav.staff": "Staff workspace",
+  "nav.catalogue": "Catalogue (staff)",
+  "nav.imports": "Imports (staff)",
+  "action.start_demo": "Start demo",
+  "action.send": "Send",
+  "action.approve": "Approve",
+  "action.reject": "Reject",
+  "state.loading": "Loading…",
+  "state.empty": "Nothing to show yet.",
+  "state.error": "Something went wrong.",
+  "locale.english": "English",
+  "locale.arabic": "العربية",
+  "theme.toggle": "Toggle theme"
+}

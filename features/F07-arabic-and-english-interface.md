@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | apps/web |
 | Implementing prompts | F07; foundations 18, 19, 20 |
 | Affected flows | FLOW.md row F07 |
@@ -28,6 +28,7 @@ profiles. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 a
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F07 | resolve_locale + en/ar catalogs + i18n/request + LocaleSwitcher + layout lang/dir | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: apps/web vitest 34 passed (8 files) incl. tests/features/f07.test.tsx (5 cases: locale/direction, key parity, missing-key throw, bdi isolation, draft preserved). vitest is the gate; no Python owner.

@@ -363,3 +363,11 @@
 4. BLOCKED: live scope-aware inbox adapter (RLS + assignment + overdue).
 5. Next: F07 (Arabic and English interface, web).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F07 (Arabic and English interface)
+1. Work: apps/web lib/features/f07_arabic_and_english_interface.ts (resolve_locale: preference wins, English default, direction derived; strict translate throws on missing key), messages/en.json + ar.json (identical key sets), i18n/request.ts (cookie->locale + catalog), components/features/LocaleSwitcher.tsx (persists cookie, bdi-isolates identifiers, no reload). layout.tsx reads the locale cookie server-side and sets html lang/dir.
+2. Verification: apps/web vitest 34 passed (8 files; +5 F07 cases: default/ar direction, key parity, missing-key throw, bdi isolation+dir, draft preserved across switch). vitest is the gate.
+3. Design: missing translation fails tests (strict translate + key-parity assertion); language switch is a client cookie/locale change so the enquiry id + unsent draft persist; identifiers wrapped in <bdi> stay readable in RTL.
+4. BLOCKED: none specific (pure client i18n); server cookie read exercised only at runtime.
+5. Next: F08 (light and dark themes).
+6. Model/version: claude-opus-4-8[1m].
