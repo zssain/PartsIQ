@@ -17,6 +17,7 @@ from uuid import UUID
 
 from app.features.f17_multi_part_enquiries import unresolved_ids
 from app.features.f44_conversation_summary import is_stale as _summary_is_stale
+from app.features.f48_input_isolation import F48Request, validate_tool_call
 from app.rendering import render_reply
 from app.specialists.reply import draft_reply
 from app.verification import VerificationStore, run_verification
@@ -59,6 +60,19 @@ def reset_derived_state(state: EnquiryState) -> EnquiryState:
 def summary_needs_refresh(state: EnquiryState, summary_revision: int) -> bool:
     """F44: a stored conversation summary must be regenerated once the revision has moved on."""
     return _summary_is_stale(summary_revision, state.revision)
+
+
+def guard_tool_call(tool_name: str, arguments_json: str, context) -> None:
+    """F48: refuse any model-proposed tool call that is not an allowlisted, typed read tool.
+
+    Every tool the parts specialist dispatches passes through here first, so a prompt-injected
+    instruction cannot invoke a write tool, change roles, reveal secrets, or add an argument.
+    Raises VALIDATION_FAILED carrying the isolation reason code; the string arguments stay inert
+    data once allowed.
+    """
+    verdict = validate_tool_call(F48Request(tool_name=tool_name, arguments_json=arguments_json, context=context))
+    if not verdict.allowed:
+        raise PartsIQError("VALIDATION_FAILED", internal_detail=f"tool call blocked: {verdict.reason_code}")
 
 
 @dataclass(frozen=True, slots=True)

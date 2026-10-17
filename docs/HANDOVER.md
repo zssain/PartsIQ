@@ -307,3 +307,9 @@ Completed through F06 (responsive layouts):
 - Verification: apps/web vitest 44 passed (10 files, +6 F06 cases); f01 still green.
 - BLOCKED: none specific (200% zoom / device-width are manual checks).
 - Next: F48 (input isolation, orchestrator).
+
+Completed through F48 (input isolation):
+- services/orchestrator/app/features/f48_input_isolation.py: validate_tool_call(F48Request)->F48Result — only the read-only allowlist (identify, search_parts) with typed/required/nullable arguments, a 4KB cap, and a step-budget gate; a bool cannot pose as an int; label_tool_result keeps tool results inert data. handlers.guard_tool_call raises VALIDATION_FAILED on a denied call (the specialist dispatch gate); routes.py docstring records the boundary.
+- Verification: orchestrator suite 87+1skip incl. tests/features/test_f48.py (14 cases: allow read tool, injected-query-inert, write/role/secret UNKNOWN_TOOL, unknown arg, wrong type, bool-not-int, missing required, non-JSON, non-object, oversized, step-budget, guard raise/pass, labelled result).
+- BLOCKED: none specific.
+- Next: F63 (metrics dashboard).

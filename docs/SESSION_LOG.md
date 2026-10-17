@@ -387,3 +387,11 @@
 4. BLOCKED: none specific (client layout); real 200% zoom / device widths are manual checks.
 5. Next: F48 (input isolation).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F48 (input isolation)
+1. Work: services/orchestrator/app/features/f48_input_isolation.py (validate_tool_call: read-only allowlist identify/search_parts only; typed+required+nullable arg checks; bool-not-int guard; 4KB arg cap; step-budget gate; label_tool_result marks results inert). handlers.guard_tool_call raises VALIDATION_FAILED on deny; routes.py docstring notes the isolation boundary.
+2. Verification: orchestrator suite 87 passed + 1 skip incl. tests/features/test_f48.py (14); ruff clean. No web owner.
+3. Design: customer/OCR/evidence text is data; injected instruction in a query stays a query (allowed, inert); write/role/secret tools are not on the allowlist (UNKNOWN_TOOL); unknown/extra/typed-wrong/oversized/non-JSON args denied; tool results returned as labelled data, never trusted instructions; model templates never executed.
+4. BLOCKED: none specific (pure validation gate wired into the specialist dispatch).
+5. Next: F63 (metrics dashboard).
+6. Model/version: claude-opus-4-8[1m].

@@ -6,6 +6,10 @@ so production stays not-ready until the full specialist set is registered (promp
 The module-level ``router`` is a prefix-free parent that mounts the public ``/v1/workflow``
 routes and the token-guarded ``/internal`` routes, so main.py keeps including one router.
 Internal routes use the internal service token and the propagated actor context (F17).
+
+Input isolation (F48): any AI tool call reached through these routes is validated by
+app.handlers.guard_tool_call against a read-only allowlist before dispatch, so a prompt-injected
+instruction carried in customer/OCR/evidence text can never escalate into a write tool here.
 """
 from __future__ import annotations
 
