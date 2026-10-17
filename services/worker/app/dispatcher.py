@@ -45,6 +45,13 @@ def register_catalog_publish() -> None:
     register_handler("catalog_publish", publish_catalogue_job)
 
 
+def register_catalog_import() -> None:
+    """Register the F58 catalogue-import dry-run validation handler (owner wiring)."""
+    from app.features.f58_catalogue_imports import validate_import_job
+
+    register_handler("catalog_import", validate_import_job)
+
+
 def photo_quality_gate(image: bytes, media_type: str) -> Any:
     """Cheap, local photo-quality pre-check run BEFORE a paid vision call (F16).
 

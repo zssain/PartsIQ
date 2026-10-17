@@ -220,3 +220,10 @@ Completed through F57 (catalogue browser):
 - Verification: gateway suite 71 passed incl. tests/features/test_f57.py (10 cases); ruff clean; apps/web vitest 20 passed.
 - BLOCKED: live published-version read adapter + search part_detail integration.
 - Next: F58 (catalogue imports).
+
+Completed through F58 (catalogue imports):
+- services/worker/app/features/f58_catalogue_imports.py: validate_import(actor, F58Request)->F58Result, a DRY RUN over an injected ImportStore. Reads CSV (UTF-8) and XLSX (openpyxl read_only, data_only=False) WITHOUT evaluating formulas (formula cells -> FORMULA_NOT_ALLOWED), rejects macro workbooks (zip vbaProject), enforces 10MiB/50000-row limits, and validates schema/model-references/serial-overlap/supersession-cycles/source-evidence. Never writes published data; catalogue_admin/admin only. dispatcher.register_catalog_import() + validate_import_job lease wrapper.
+- NEW PACKAGE: openpyxl==3.1.5 (+ et-xmlfile) — uv pip installed, pinned in worker pyproject, uv.lock additive (23/0). gateway f58_import_routes (create/report/validate, admin-only, queue to worker) + 3 /v1/staff/imports routes. apps/web: lib + ImportWizard + app/staff/imports/page.tsx; landing nav link.
+- Verification: worker suite 48 passed incl. tests/features/test_f58.py (15 cases: valid CSV/XLSX, schema, CSV+XLSX formula rejection, unknown model, bad source, serial overlap, supersession cycle, macro rejection, file-too-large, too-many-rows, non-admin 403, missing batch 404, dependency failure); gateway 71; ruff clean; vitest 20.
+- BLOCKED: live import_batches store, worker execution, gateway->worker enqueue, real upload path.
+- Next: F60 (missing-parts queue).

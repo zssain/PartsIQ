@@ -274,3 +274,12 @@
 4. BLOCKED: live published-version read-replica adapter + search part_detail integration.
 5. Next: F58 (catalogue imports).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F58 (catalogue imports)
+1. Work: services/worker/app/features/f58_catalogue_imports.py (validate_import dry-run: CSV UTF-8 + XLSX via openpyxl read_only/data_only=False — formulas seen as data_type 'f' and rejected, never evaluated; macros detected via zip vbaProject; 10MiB/50000-row limits; schema/model-ref/serial-overlap/supersession-cycle/source-evidence checks; never writes published data; admin-only). dispatcher.register_catalog_import() + validate_import_job lease wrapper. gateway f58_import_routes.py (create/get-report/validate, admin-only, queue to worker, demo cannot alter) + api_v1 POST /v1/staff/imports, GET /v1/staff/imports/{id}, POST .../validate. apps/web lib + ImportWizard + app/staff/imports/page.tsx; landing staff nav link.
+2. Packages: uv pip install openpyxl==3.1.5 (+ et-xmlfile) into the venv; pinned in services/worker/pyproject.toml; uv lock additive (23 insertions, 0 deletions — no other pin changed).
+3. Verification: worker suite 48 passed incl. tests/features/test_f58.py (15); gateway suite 71 passed; ruff clean; apps/web vitest 20 passed.
+4. Design: formulas never evaluated (read-only workbook); macros rejected; dry run writes nothing; publication only after valid status via F59; demo cannot alter the shared catalogue.
+5. BLOCKED: live import_batches store + worker execution + gateway->worker enqueue; real XLSX upload path.
+6. Next: F60 (missing-parts queue).
+7. Model/version: claude-opus-4-8[1m].

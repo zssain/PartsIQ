@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/worker |
 | Implementing prompts | F58; foundations 02, 05, 15 |
 | Affected flows | FLOW.md row F58 |
@@ -28,6 +28,7 @@ import_batches, import_rows. Exact columns,keys,indexes and policies are in TECH
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F58 | validate_import dry-run (CSV/XLSX, no formula eval, macro/limit/schema checks) + dispatcher + gateway routes + web ImportWizard | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: worker suite 48 passed incl. services/worker/tests/features/test_f58.py (15 cases). gateway 71; ruff clean; apps/web vitest 20. openpyxl==3.1.5 pinned (uv.lock additive). Live import store + worker execution BLOCKED.

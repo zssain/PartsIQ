@@ -23,6 +23,7 @@ from app.features import f19_enquiry_history as history_uc
 from app.features import f55_saved_machines as machines_uc
 from app.features import f56_repeat_enquiry as repeat_uc
 from app.features import f57_catalogue_browser as catalogue_uc
+from app.features import f58_import_routes as import_uc
 from app.features import f59_publish_routes as publish_uc
 from partsiq_common.contracts import ConfirmExtraction, EnquiryCreate, MessageCreate
 from partsiq_common.errors import PartsIQError, error_envelope, http_status_for
@@ -167,6 +168,36 @@ async def catalogue_part_detail(request: Request, part_number: str = Path()):
     except PartsIQError as exc:
         return _as_response(exc, request)
     return detail.model_dump(mode="json")
+
+
+@router.post("/staff/imports", status_code=status.HTTP_202_ACCEPTED)
+async def create_import(body: import_uc.CreateImportBody, request: Request):
+    actor = await _actor(request)
+    try:
+        result = await import_uc.create_import(actor, body, control=_require(request, "import_control"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result
+
+
+@router.get("/staff/imports/{batch_id}")
+async def get_import_report(request: Request, batch_id: UUID = Path()):
+    actor = await _actor(request)
+    try:
+        report = await import_uc.get_import_report(actor, batch_id, control=_require(request, "import_control"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return report
+
+
+@router.post("/staff/imports/{batch_id}/validate", status_code=status.HTTP_202_ACCEPTED)
+async def validate_import(request: Request, batch_id: UUID = Path()):
+    actor = await _actor(request)
+    try:
+        result = await import_uc.request_validate(actor, batch_id, control=_require(request, "import_control"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result
 
 
 @router.post("/staff/catalogue/publish", status_code=status.HTTP_202_ACCEPTED)
