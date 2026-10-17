@@ -1,0 +1,207 @@
+# Production stack — single-workflow edition (prompt 24). One EC2 host, Docker Compose,
+# Caddy edge (ADR-002).
+#
+# ONE immutable application image (apps/api/Dockerfile, tag ${RELEASE_SHA}) runs BOTH the API
+# and the worker/sweeper — they differ only by `command`. Caddy is the ONLY container that
+# publishes host ports (80/443). api, worker, sweeper and redis stay on the private `internal`
+# bridge and are reachable by name only (expose, never ports). Base/infra images pin an
+# @sha256 digest from spec/images.lock.json (re-verify at deploy). Read-only rootfs where
+# possible, tmpfs for PDF rendering, bounded logs and measured CPU/memory limits. Secrets come
+# ONLY from the validated env file as ${VAR} references; none are embedded here. PostgreSQL
+# (Supabase, managed) owns the durable jobs queue and is NOT redeployed on this host; Redis is
+# private and used only for rate limits/notifications. No LangGraph/orchestrator/search service.
+#
+# Inspect interpolation without leaking secrets:
+#   docker compose -f infra/compose.production.yml config
+name: partsiq
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "3" }
+
+# Shared application environment for every role of the single image. Secrets are ${VAR} refs
+# resolved from the validated env file; fixture/live selection is explicit (never auto-fallback).
+x-app-env: &app-env
+  APP_ENV: ${APP_ENV:-prod}
+  DATA_SOURCE: ${DATA_SOURCE:-snowflake}
+  AI_MODE: ${AI_MODE:-live}
+  REAL_ONBOARDING_ENABLED: ${REAL_ONBOARDING_ENABLED:-false}
+  REDIS_URL: ${REDIS_URL}
+  ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+  SEMANTIC_SEARCH_ENABLED: ${SEMANTIC_SEARCH_ENABLED:-false}
+
+networks:
+  internal:
+    driver: bridge
+
+services:
+  # ---- Public edge: the ONLY container that publishes host ports ------------------------
+  caddy:
+    image: caddy:2.11.4-alpine@sha256:6aeddd44c3078b0f9a35206472a11420648a79c184603ef95957d0a20044cb2b
+    restart: unless-stopped
+    networks: [internal]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      API_DOMAIN: ${API_DOMAIN}
+    depends_on: [api]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "caddy", "version"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 128m, cpus: "0.25" }
+
+  # ---- API role of the single image (uvicorn factory) -----------------------------------
+  api:
+    image: ghcr.io/partsiq/partsiq:${RELEASE_SHA}
+    restart: unless-stopped
+    read_only: true
+    networks: [internal]
+    expose: ["8000"]
+    command:
+      - uvicorn
+      - partsiq.main:create_app
+      - --factory
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --workers
+      - "1"
+    environment:
+      <<: *app-env
+      DATABASE_URL_API: ${DATABASE_URL_API}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_JWT_ISSUER: ${SUPABASE_JWT_ISSUER}
+      SUPABASE_JWT_AUDIENCE: ${SUPABASE_JWT_AUDIENCE}
+    depends_on: [redis]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "python", "/app/tools/healthcheck.py"]
+      interval: 10s
+      timeout: 3s
+      start_period: 20s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 512m, cpus: "0.75" }
+
+  # ---- Worker role of the SAME image (durable jobs) -------------------------------------
+  worker:
+    image: ghcr.io/partsiq/partsiq:${RELEASE_SHA}
+    restart: unless-stopped
+    read_only: true
+    networks: [internal]
+    command: ["python", "-m", "partsiq.jobs.main"]
+    tmpfs:
+      - /tmp/pdf
+    environment:
+      <<: *app-env
+      DATABASE_URL_WORKFLOW: ${DATABASE_URL_WORKFLOW}
+      DATABASE_URL_WORKER: ${DATABASE_URL_WORKER}
+      DATABASE_URL_SEARCH: ${DATABASE_URL_SEARCH}
+      DATABASE_URL_CATALOGUE: ${DATABASE_URL_CATALOGUE}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_TEXT_MODEL: ${OPENAI_TEXT_MODEL}
+      OPENAI_VISION_MODEL: ${OPENAI_VISION_MODEL}
+      SNOWFLAKE_ACCOUNT: ${SNOWFLAKE_ACCOUNT}
+      SNOWFLAKE_PRIVATE_KEY_FILE: ${SNOWFLAKE_PRIVATE_KEY_FILE}
+      SNOWFLAKE_PRIVATE_KEY_PASSWORD: ${SNOWFLAKE_PRIVATE_KEY_PASSWORD}
+    depends_on: [redis]
+    logging: *logging
+    # No HTTP port on the worker: the healthcheck is a trivial in-process liveness probe.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 1024m, cpus: "1.0" }
+
+  # ---- Sweeper role of the SAME image (expired-lease reaper) -----------------------------
+  sweeper:
+    image: ghcr.io/partsiq/partsiq:${RELEASE_SHA}
+    restart: unless-stopped
+    read_only: true
+    networks: [internal]
+    command: ["python", "-m", "partsiq.jobs.main", "--sweeper"]
+    environment:
+      <<: *app-env
+      DATABASE_URL_WORKER: ${DATABASE_URL_WORKER}
+      DATABASE_URL_WORKFLOW: ${DATABASE_URL_WORKFLOW}
+    depends_on: [redis]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 256m, cpus: "0.25" }
+
+  # ---- Optional semantic worker (implementation step 10) --------------------------------
+  # OFF by default (profile `semantic`). The BGE-M3 encoder is loaded by the WORKER ONLY —
+  # the API never imports it on startup. Carries a MEASURED RAM reservation; BGE-M3 is NOT
+  # promised to fit a free micro instance. Benchmark memory before enabling (DEPLOYMENT §6)
+  # and keep it transparently disabled when capacity is insufficient. Select explicitly:
+  #   docker compose -f infra/compose.production.yml --profile semantic up -d worker-semantic
+  worker-semantic:
+    image: ghcr.io/partsiq/partsiq:${RELEASE_SHA}
+    profiles: ["semantic"]
+    restart: unless-stopped
+    networks: [internal]
+    command: ["python", "-m", "partsiq.jobs.main"]
+    tmpfs:
+      - /tmp/pdf
+    environment:
+      <<: *app-env
+      SEMANTIC_SEARCH_ENABLED: "true"
+      BGE_MODEL_REVISION: ${BGE_MODEL_REVISION}
+      DATABASE_URL_WORKER: ${DATABASE_URL_WORKER}
+      DATABASE_URL_SEARCH: ${DATABASE_URL_SEARCH}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on: [redis]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        # Measured floor for BGE-M3 + CPU torch; reserve, do not promise free-tier fit.
+        reservations: { memory: 2560m }
+        limits: { memory: 3072m, cpus: "1.5" }
+
+  # ---- Private Redis: rate limits / notifications only (PostgreSQL owns jobs) ------------
+  redis:
+    image: redis:7.4.8-alpine@sha256:7aec734b2bb298a1d769fd8729f13b8514a41bf90fcdd1f38ec52267fbaa8ee6
+    restart: unless-stopped
+    networks: [internal]
+    expose: ["6379"]
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 256m, cpus: "0.25" }
+
+volumes:
+  caddy_data:
+  caddy_config:

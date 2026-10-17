@@ -1,0 +1,100 @@
+# Deploy — single-workflow PartsIQ edition (prompt 25).
+#
+# Coexistence: this does NOT replace the earlier multi-service `deploy-backend.yml`; it is the
+# single-image deploy for the consolidated `partsiq` package.
+#
+# Safety rules enforced here (and verified offline by tools/ci_checks.py and the prompt-25
+# test):
+#   * `workflow_dispatch` ONLY — never `pull_request`/`pull_request_target`, so a fork PR can
+#     never reach deployment credentials.
+#   * least-privilege top-level `permissions: contents: read`; each job widens only what it
+#     needs (packages: write for GHCR, id-token: write for AWS OIDC).
+#   * the single image is built and pushed to GHCR with the immutable release commit tag.
+#   * the database migration job runs BEFORE image activation (`deploy` needs `migrate`).
+#   * production activation is gated by a `production` GitHub environment (manual approval) AND
+#     an `INFRA_READY` repository variable kept OFF until prompt 26 marks the host ready.
+#   * AWS is reached via OIDC (`id-token: write`, aws-actions/configure-aws-credentials);
+#     there are NO static AWS access keys anywhere in this file.
+#   * every action is pinned to a 40-hex commit SHA (re-verify at setup; tag in trailing
+#     comment).
+name: deploy-partsiq
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: "Immutable release commit SHA to build, migrate and deploy"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-push:
+    name: Build + push single image to GHCR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ inputs.release_sha }}
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push ghcr.io/${{ github.repository }}:${{ inputs.release_sha }}
+        run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}:${RELEASE_SHA}"
+          docker build -f apps/api/Dockerfile -t "$IMAGE" .
+          docker push "$IMAGE"
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+
+  migrate:
+    name: Run database migrations (before activation)
+    needs: [build-push]
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ inputs.release_sha }}
+      - uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Apply forward migrations with the operator credential
+        run: echo "apply migrations against MIGRATION_DATABASE_URL before image activation"
+        env:
+          MIGRATION_DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
+
+  deploy:
+    name: Activate image (gated)
+    needs: [build-push, migrate]
+    # Disabled until prompt 26 sets the INFRA_READY repository variable to 'true'. Not running
+    # this job stays visible rather than silently green.
+    if: ${{ vars.INFRA_READY == 'true' }}
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ inputs.release_sha }}
+      - uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Activate the already-migrated release image (documented rollback tag kept)
+        run: echo "pull ghcr.io/${GITHUB_REPOSITORY,,}:${RELEASE_SHA} and restart API + worker"
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}

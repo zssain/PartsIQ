@@ -1,0 +1,36 @@
+# Caddy edge — single-workflow edition (prompt 24).
+#
+# Caddy is the ONLY publicly published container (80/443). It terminates TLS automatically
+# for the operator-supplied ${API_DOMAIN} and reverse-proxies to the single `partsiq`
+# application image running in API mode (service name: api, internal port 8000). The worker,
+# sweeper and Redis stay on the private Docker network and are never exposed here.
+#
+# (The repository's root ./Caddyfile is the earlier multi-service edge and is preserved;
+# this infra/Caddyfile serves the single-image stack in infra/compose.production.yml.)
+{
+	admin off
+	email ops@{$API_DOMAIN}
+}
+
+{$API_DOMAIN} {
+	encode gzip
+
+	# Security headers: HSTS, nosniff, clickjacking DENY; hide the upstream server banner.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# The only public ingress: proxy /v1, /health and the rest of the API surface to the
+	# internal API container. Active health probing uses the credit-free /health route.
+	reverse_proxy api:8000 {
+		health_uri /health
+		health_interval 10s
+		health_timeout 3s
+	}
+}
+
+# Plain HTTP on :80 is redirected to HTTPS by Caddy automatically.

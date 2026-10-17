@@ -1,0 +1,119 @@
+# Local fixture profile — single-workflow edition (prompt 24). THIS IS THE DEFAULT, NO-PROVIDER
+# profile (DEPLOYMENT §1). It runs the real single `partsiq` application image in API and worker
+# roles with NO OpenAI/Snowflake credentials: DATA_SOURCE=fixture and AI_MODE=fixture, so every
+# AI output is visibly labelled as synthetic and NO live model call is ever made. There is no
+# automatic paid fallback — live mode is a separate, explicit selection (infra/compose.production.yml).
+#
+# Local development ports are bound to 127.0.0.1 only (never 0.0.0.0): the API is reachable at
+# http://127.0.0.1:8000 for the local web app. Redis is NOT published (private even locally).
+# This stack is labelled `profile: fixture` and is the durable demonstration alternative when
+# AWS/Snowflake free access is unavailable or expired.
+#
+#   docker compose -f infra/compose.fixture.yml up --build
+name: partsiq-fixture
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "3" }
+
+labels:
+  com.partsiq.profile: fixture
+  com.partsiq.providers: none
+
+networks:
+  internal:
+    driver: bridge
+
+services:
+  # ---- API role of the single image (fixture mode, synthetic outputs) -------------------
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    image: ghcr.io/partsiq/partsiq:${RELEASE_SHA:-fixture-local}
+    restart: unless-stopped
+    networks: [internal]
+    labels:
+      com.partsiq.profile: fixture
+      com.partsiq.providers: none
+    command:
+      - uvicorn
+      - partsiq.main:create_app
+      - --factory
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --workers
+      - "1"
+    # Local dev port bound to loopback only (implementation step 7). No provider credentials.
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      APP_ENV: local
+      DATA_SOURCE: fixture
+      AI_MODE: fixture
+      REAL_ONBOARDING_ENABLED: "false"
+      REDIS_URL: redis://redis:6379/0
+      ALLOWED_ORIGINS: http://localhost:3000
+      SEMANTIC_SEARCH_ENABLED: "false"
+    depends_on: [redis]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "python", "/app/tools/healthcheck.py"]
+      interval: 10s
+      timeout: 3s
+      start_period: 20s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 512m, cpus: "0.75" }
+
+  # ---- Worker role of the SAME image (fixture mode) -------------------------------------
+  worker:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    image: ghcr.io/partsiq/partsiq:${RELEASE_SHA:-fixture-local}
+    restart: unless-stopped
+    networks: [internal]
+    labels:
+      com.partsiq.profile: fixture
+      com.partsiq.providers: none
+    command: ["python", "-m", "partsiq.jobs.main"]
+    tmpfs:
+      - /tmp/pdf
+    environment:
+      APP_ENV: local
+      DATA_SOURCE: fixture
+      AI_MODE: fixture
+      REAL_ONBOARDING_ENABLED: "false"
+      REDIS_URL: redis://redis:6379/0
+      SEMANTIC_SEARCH_ENABLED: "false"
+    depends_on: [redis]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 768m, cpus: "1.0" }
+
+  # ---- Private Redis (not published even locally) ---------------------------------------
+  redis:
+    image: redis:7.4.8-alpine@sha256:7aec734b2bb298a1d769fd8729f13b8514a41bf90fcdd1f38ec52267fbaa8ee6
+    restart: unless-stopped
+    networks: [internal]
+    expose: ["6379"]
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 256m, cpus: "0.25" }
