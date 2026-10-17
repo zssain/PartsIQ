@@ -129,7 +129,14 @@ Completed through 22 (Security and failure recovery gate):
 - Verification (exit 0): run_checks --prompt 22 -> test_22.py PASS (disposable guard; require_access foreign/forged/missing -> 404; verify_facts rejects an oversold plan; no secret in the web bundle); gateway suite 36 passed; apps/web vitest 20 passed (adds f53); ruff clean.
 - BLOCKED (reported, skipped not faked): all live scenarios needing a disposable local Supabase (auth+storage), Redis and a running app for the Playwright e2e.
 
-Next: execute prompt 23 (Observability and credit limits) per prompts/README.md, on its own branch.
+Completed through 23 (Observability and credit limits):
+- tools/credit_allowance.py: validate_allowance(amount, expires_at, paid_budget) -> CreditAllowance — manually confirmed (never inferred from a key); non-zero paid budget / non-positive amount / expired credit all block. services/gateway/app/metrics.py: get_metrics (staff-only; demos excluded unless include_demo; median review + nearest-rank p95 + summed estimated cost). tools/check_readiness.py: readiness_report (per-subsystem probes; unconfigured/failing = False; lexical vs semantic reported separately).
+- Connected through owners (additive, callers preserved): ai/client.py call_structured gains an optional outage-safe tracer that emits a redacted span with request/enquiry ids; ai/budget.py gains reserve_for_request (worst-case atomic reservation; unknown price blocks; uncertain requests retain the reservation); telemetry.py gains LangfuseExporter (lazy import, strict timeout; the Tracer already swallows exporter outages) + build_tracer.
+- Packages: langfuse==3.14.5 installed in the dev env and pinned as the partsiq-common optional [trace] extra (lazy-imported; app runs without it). uv.lock re-locked (adds langfuse + opentelemetry deps + protobuf/wrapt/backoff; packaging 26.3->25.0 workspace-wide) — full 00-23 regression + all service suites + verify_kit verified green after the change.
+- Verification (exit 0): run_checks --prompt 23 -> test_23.py PASS; --feature F64 + F67 PASS; prompt 01 regression + gateway/search/orchestrator/worker suites green; ruff clean.
+- BLOCKED: a live Langfuse sink and the live metrics DB are integration-only; tested with fake exporters/repos.
+
+Next: execute prompt 24 (Production containers and Caddy) per prompts/README.md, on its own branch.
 
 Watch (unchanged): all live infrastructure remains BLOCKED and reported — Supabase Auth/DB/RLS, Redis, pgvector + BGE-M3 (torch not installed), live OpenAI (text + vision), Postgres LangGraph checkpointer, Playwright/Chromium PDF + e2e, Storage. The frontend toolchain (node 25 / pnpm 10.31) is installed and its vitest suite runs; run_checks has no pnpm wiring, so the per-prompt gate is the Python structural test and the vitest suite is run directly (reported, never faked). Use `uv sync --all-packages` (a bare `uv sync` prunes member deps).
 

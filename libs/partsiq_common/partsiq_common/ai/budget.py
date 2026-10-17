@@ -175,3 +175,24 @@ class InMemoryBudgetLedger:
                 "consumed_usd": str(self._consumed_total),
                 "free_credit_usd": str(self.policy.free_credit_usd),
             }
+
+
+def reserve_for_request(
+    ledger: InMemoryBudgetLedger,
+    *,
+    model: str,
+    max_input_tokens: int,
+    max_output_tokens: int,
+    account_id: str,
+    now: datetime,
+    session_id: str | None = None,
+    prices: dict | None = None,
+) -> BudgetReservation:
+    """Reserve the WORST-CASE cost for one attempt before the call (prompt 23, F64).
+
+    Uses the maximum input+output tokens so a reservation can never under-reserve; an
+    unknown price raises CREDIT_UNAVAILABLE (never guessed). On an uncertain outcome the
+    caller must NOT release the reservation — it is retained conservatively against the cap.
+    """
+    worst_case = estimate_cost_usd(model, max_input_tokens, max_output_tokens, prices)
+    return ledger.reserve(account_id, worst_case, now, session_id=session_id)

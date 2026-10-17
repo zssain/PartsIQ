@@ -178,3 +178,11 @@
 4. BLOCKED: disposable local Supabase (auth+storage), Redis, running app for e2e.
 5. Next: prompt 23 (observability and credit limits).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 23 (observability and credit limits)
+1. Work: tools/credit_allowance.py (validate_allowance), services/gateway/app/metrics.py (get_metrics staff-only, median/p95/cost, demos excluded), tools/check_readiness.py (readiness_report). Additive connections: client.call_structured optional outage-safe tracer (redacted span + ids); budget.reserve_for_request (worst-case atomic); telemetry.LangfuseExporter + build_tracer. langfuse==3.14.5 pinned as partsiq-common optional [trace] extra; uv.lock re-locked (packaging 26.3->25.0).
+2. Verification (exit 0): run_checks --prompt 23 PASS; --feature F64/F67 PASS; prompt 01 + all four service suites green; verify_kit PASSED; ruff clean; full 00-23 regression green.
+3. Design: allowance is explicit config, not key-inferred; worst-case reserved per attempt; tracing optional + outage-safe; local budget accounting authoritative; metrics exclude demos by default.
+4. BLOCKED: live Langfuse sink + live metrics DB (fakes used).
+5. Next: prompt 24 (production containers and caddy).
+6. Model/version: claude-opus-4-8[1m].

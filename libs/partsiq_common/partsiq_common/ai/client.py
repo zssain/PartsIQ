@@ -29,6 +29,7 @@ from partsiq_common.contracts import (
     SummaryResult,
 )
 from partsiq_common.errors import PartsIQError
+from partsiq_common.telemetry import Tracer
 
 logger = logging.getLogger("partsiq.ai")
 
@@ -81,11 +82,15 @@ async def call_structured(
     budget: BudgetReservation,
     *,
     client: Any | None = None,
+    tracer: Tracer | None = None,
 ) -> AIResult:
     """Call OpenAI once (up to MAX_ATTEMPTS) and return validated structured output.
 
     ``budget`` is a reservation already taken by the caller against the allowance
-    ledger; it is threaded through for correlation and cost settlement.
+    ledger; it is threaded through for correlation and cost settlement. An optional
+    ``tracer`` emits a redacted span per outcome (prompt 23, F67) — propagating the
+    request/enquiry ids and the stage/status/token counts — and never raises, so a
+    tracing outage cannot affect the call or the local budget accounting.
     """
     active_client = client or build_openai_client()
     messages = _build_messages(request)
@@ -110,12 +115,21 @@ async def call_structured(
             output_json = response.choices[0].message.content or ""
             _validate_output(request.output_schema_name, output_json)
             usage = response.usage
-            return AIResult(
+            result = AIResult(
                 output_json=output_json,
                 input_tokens=getattr(usage, "prompt_tokens", 0),
                 output_tokens=getattr(usage, "completion_tokens", 0),
                 provider_request_id=getattr(response, "id", "") or "",
             )
+            if tracer is not None:  # redacted span; never raises (F67)
+                tracer.emit(
+                    "ai.call",
+                    {"stage": request.stage, "model": request.model, "attempt": attempt, "status": "ok",
+                     "input_tokens": result.input_tokens, "output_tokens": result.output_tokens},
+                    request_id=str(request.request_key),
+                    enquiry_id=str(request.enquiry_id) if request.enquiry_id else None,
+                )
+            return result
         except Exception as exc:  # noqa: BLE001 — classify to a safe code, never leak detail
             last_error = exc
             logger.warning(
@@ -129,6 +143,14 @@ async def call_structured(
                 },
             )
 
+    if tracer is not None:
+        tracer.emit(
+            "ai.call",
+            {"stage": request.stage, "model": request.model, "attempt": MAX_ATTEMPTS, "status": "error",
+             "error_type": type(last_error).__name__ if last_error else "unknown"},
+            request_id=str(request.request_key),
+            enquiry_id=str(request.enquiry_id) if request.enquiry_id else None,
+        )
     raise PartsIQError(
         "DEPENDENCY_UNAVAILABLE",
         internal_detail=f"openai failed after {MAX_ATTEMPTS} attempts: {type(last_error).__name__}",
