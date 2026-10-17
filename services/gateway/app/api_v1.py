@@ -25,6 +25,7 @@ from app.features import f56_repeat_enquiry as repeat_uc
 from app.features import f57_catalogue_browser as catalogue_uc
 from app.features import f58_import_routes as import_uc
 from app.features import f59_publish_routes as publish_uc
+from app.features import f60_missing_parts_queue as missing_uc
 from partsiq_common.contracts import ConfirmExtraction, EnquiryCreate, MessageCreate
 from partsiq_common.errors import PartsIQError, error_envelope, http_status_for
 
@@ -198,6 +199,23 @@ async def validate_import(request: Request, batch_id: UUID = Path()):
     except PartsIQError as exc:
         return _as_response(exc, request)
     return result
+
+
+@router.patch("/staff/missing-parts/{item_id}")
+async def update_missing_part(body: missing_uc.MissingPartUpdateBody, request: Request, item_id: UUID = Path()):
+    actor = await _actor(request)
+    try:
+        result = await missing_uc.update_missing_part(
+            actor,
+            missing_uc.F60Request(
+                item_id=item_id, status=body.status, staff_note=body.staff_note,
+                expected_revision=body.expected_revision,
+            ),
+            repo=_require(request, "missing_parts_repo"),
+        )
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
 
 
 @router.post("/staff/catalogue/publish", status_code=status.HTTP_202_ACCEPTED)

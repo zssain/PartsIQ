@@ -227,3 +227,10 @@ Completed through F58 (catalogue imports):
 - Verification: worker suite 48 passed incl. tests/features/test_f58.py (15 cases: valid CSV/XLSX, schema, CSV+XLSX formula rejection, unknown model, bad source, serial overlap, supersession cycle, macro rejection, file-too-large, too-many-rows, non-admin 403, missing batch 404, dependency failure); gateway 71; ruff clean; vitest 20.
 - BLOCKED: live import_batches store, worker execution, gateway->worker enqueue, real upload path.
 - Next: F60 (missing-parts queue).
+
+Completed through F60 (missing-parts queue):
+- services/gateway/app/features/f60_missing_parts_queue.py: record_missing (idempotent one row per item, no stock field) + update_missing_part(actor, F60Request)->F60Result over an injected MissingPartsRepository. Valid statuses investigating/resolved/unavailable; resolving requires a staff explanation (-> 422); invalid status -> 422; foreign item -> 404; stale revision -> 409; links back to the enquiry; status updates never create catalogue rows or fabricate stock.
+- api_v1: PATCH /v1/staff/missing-parts/{item_id}. apps/web: lib + MissingPartsQueue (Resolve blocked without a note); landing Staff-workspace link.
+- Verification: gateway suite 79 passed incl. tests/features/test_f60.py (8 cases: idempotent record no-stock, investigating, resolved-needs-note 422, resolved ok, invalid status 422, foreign 404, stale 409, dependency failure); ruff clean; vitest 20.
+- BLOCKED: live missing_parts adapter + RLS + assignment.
+- Next: F35 (stock freshness).

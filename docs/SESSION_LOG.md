@@ -283,3 +283,11 @@
 5. BLOCKED: live import_batches store + worker execution + gateway->worker enqueue; real XLSX upload path.
 6. Next: F60 (missing-parts queue).
 7. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F60 (missing-parts queue)
+1. Work: services/gateway/app/features/f60_missing_parts_queue.py (record_missing idempotent one-per-item with no stock field; update_missing_part investigating/resolved/unavailable with note; resolved requires explanation -> 422; invalid status -> 422; foreign item -> 404; stale revision -> 409; links back to enquiry; no catalogue creation). api_v1 PATCH /v1/staff/missing-parts/{item_id}. apps/web lib + MissingPartsQueue (Resolve disabled without a note); landing Staff workspace link.
+2. Verification: gateway suite 79 passed incl. tests/features/test_f60.py (8); ruff clean; apps/web vitest 20 passed.
+3. Design: empty search is recorded, never fabricated as stock (MissingEntry has no availability field); assigned-only; status update never creates catalogue rows.
+4. BLOCKED: live missing_parts Postgres adapter + RLS + assignment.
+5. Next: F35 (stock freshness).
+6. Model/version: claude-opus-4-8[1m].
