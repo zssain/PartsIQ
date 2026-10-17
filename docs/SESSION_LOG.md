@@ -395,3 +395,11 @@
 4. BLOCKED: none specific (pure validation gate wired into the specialist dispatch).
 5. Next: F63 (metrics dashboard).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F63 (metrics dashboard)
+1. Work: services/gateway/app/features/f63_metrics_dashboard.py (metrics_dashboard wraps prompt-23 get_metrics; admin sees labelled-accuracy eval metrics, reviewer gets operational counts only (eval withheld); labelled_accuracy returns None on a zero denominator — never a fabricated %; demo excluded by default). api_v1 GET /v1/staff/analytics. apps/web lib + MetricsDashboard (accuracy with denominator or "unavailable") + app/staff/analytics/page.tsx; landing Analytics link.
+2. Verification: gateway suite 131 passed incl. tests/features/test_f63.py (7); ruff clean; apps/web vitest 44 passed.
+3. Design: demo traffic never silently blended (include_demo default False); evaluation accuracy admin-only; every ratio carries its denominator; zero denominator -> unavailable.
+4. BLOCKED: live metrics adapter (ai_usage durations + decision timestamps, assignment scoping).
+5. Next: F65 (correction feedback).
+6. Model/version: claude-opus-4-8[1m].

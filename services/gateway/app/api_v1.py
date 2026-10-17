@@ -34,6 +34,7 @@ from app.features import f57_catalogue_browser as catalogue_uc
 from app.features import f58_import_routes as import_uc
 from app.features import f59_publish_routes as publish_uc
 from app.features import f60_missing_parts_queue as missing_uc
+from app.features import f63_metrics_dashboard as analytics_uc
 from partsiq_common.contracts import ConfirmExtraction, EnquiryCreate, MessageCreate
 from partsiq_common.errors import PartsIQError, error_envelope, http_status_for
 
@@ -228,6 +229,27 @@ async def append_note(body: notes_uc.F41Request, request: Request, enquiry_id: U
         return _as_response(PartsIQError("MALFORMED_REQUEST", internal_detail="enquiry id mismatch"), request)
     try:
         result = await notes_uc.append_note(actor, body, repo=_require(request, "notes_repo"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
+
+
+@router.get("/staff/analytics")
+async def staff_analytics(
+    request: Request,
+    start: datetime = Query(),
+    end: datetime = Query(),
+    include_demo: bool = Query(default=False),
+):
+    actor = await _actor(request)
+    try:
+        from partsiq_common.contracts import MetricsQuery
+
+        result = await analytics_uc.metrics_dashboard(
+            actor,
+            analytics_uc.F63Request(query=MetricsQuery(start=start, end=end, include_demo=include_demo)),
+            repo=_require(request, "metrics_repo"),
+        )
     except PartsIQError as exc:
         return _as_response(exc, request)
     return result.model_dump(mode="json")

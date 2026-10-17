@@ -65,6 +65,7 @@ export default function LandingPage(): JSX.Element {
           <a href="/staff/inbox">Staff workspace</a>
           <a href="/staff/catalogue">Catalogue (staff)</a>
           <a href="/staff/imports">Imports (staff)</a>
+          <a href="/staff/analytics">Analytics (staff)</a>
           {REPO_URL ? <a href={REPO_URL}>Source code</a> : null}
         </div>
       </ResponsiveShell>

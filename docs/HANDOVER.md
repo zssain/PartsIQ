@@ -313,3 +313,9 @@ Completed through F48 (input isolation):
 - Verification: orchestrator suite 87+1skip incl. tests/features/test_f48.py (14 cases: allow read tool, injected-query-inert, write/role/secret UNKNOWN_TOOL, unknown arg, wrong type, bool-not-int, missing required, non-JSON, non-object, oversized, step-budget, guard raise/pass, labelled result).
 - BLOCKED: none specific.
 - Next: F63 (metrics dashboard).
+
+Completed through F63 (metrics dashboard):
+- services/gateway/app/features/f63_metrics_dashboard.py: metrics_dashboard(actor, F63Request)->F63Result wraps get_metrics (staff-only, demo-excluded by default). Non-admins have the labelled-accuracy evaluation fields withheld (operational counts only); labelled_accuracy returns None on a zero denominator (unavailable, never fabricated). api_v1 GET /v1/staff/analytics. apps/web lib + MetricsDashboard + app/staff/analytics/page.tsx; landing Analytics link.
+- Verification: gateway suite 131 passed incl. tests/features/test_f63.py (7 cases: admin eval, reviewer eval withheld, zero-denominator unavailable, demo excluded by default, demo-on-request, non-staff 403, dependency failure); ruff clean; vitest 44.
+- BLOCKED: live metrics adapter (ai_usage + decision timestamps + assignment scoping).
+- Next: F65 (correction feedback).

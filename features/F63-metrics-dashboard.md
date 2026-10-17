@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/gateway |
 | Implementing prompts | F63; foundations 21, 23 |
 | Affected flows | FLOW.md row F63 |
@@ -28,6 +28,7 @@ eval_runs, eval_results, enquiries. Exact columns,keys,indexes and policies are 
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F63 | metrics_dashboard (admin-gated accuracy, denominators, demo-excluded) + GET /v1/staff/analytics + web MetricsDashboard | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: gateway suite 131 passed incl. services/gateway/tests/features/test_f63.py (7 cases). ruff clean; apps/web vitest 44. Live metrics adapter BLOCKED.
