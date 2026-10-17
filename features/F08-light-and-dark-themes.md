@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | apps/web |
 | Implementing prompts | F08; foundations 18 |
 | Affected flows | FLOW.md row F08 |
@@ -28,6 +28,7 @@ none. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 and s
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F08 | resolve_theme + ThemeToggle + dark tokens/focus/reduced-motion + no-flash layout script | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: apps/web vitest 38 passed (9 files) incl. tests/features/f08.test.tsx (4 cases: saved precedence, system fallback, toggle persists, storage-disabled). vitest is the gate.

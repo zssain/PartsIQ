@@ -25,3 +25,40 @@ body {
 [dir="rtl"] {
   font-family: "Noto Sans Arabic", "Noto Naskh Arabic", system-ui, sans-serif;
 }
+
+/* F08: dark theme via a DOM attribute set before hydration (no React-managed attribute, so no
+   hydration mismatch). Navy background + near-white foreground keep WCAG AA contrast; gold
+   accents and the focus ring remain visible. color-scheme hints native widgets/scrollbars. */
+:root {
+  color-scheme: light;
+  --pq-focus: #c9a227;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --pq-navy: #0b1f3a;
+  --pq-bg: #0b1420;
+  --pq-fg: #e8eef7;
+  --pq-muted: #9aa7b8;
+  --pq-border: #24344d;
+  --pq-gold: #e0b73a;
+  --pq-focus: #e0b73a;
+}
+
+/* Accessible, always-visible keyboard focus (F08 contrast requirement). */
+:focus-visible {
+  outline: 2px solid var(--pq-focus);
+  outline-offset: 2px;
+}
+
+/* Honor the user's reduced-motion setting (F08). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -295,3 +295,9 @@ Completed through F07 (Arabic and English interface):
 - Verification: apps/web vitest 34 passed (8 files, +5 F07 cases: default/arabic direction, en/ar key parity, missing-key throw, bdi isolation + dir, unsent draft preserved across a switch).
 - BLOCKED: none specific; the server-side cookie read runs only in a real request.
 - Next: F08 (light and dark themes).
+
+Completed through F08 (light and dark themes):
+- apps/web: lib/features/f08_light_and_dark_themes.ts (resolve_theme saved>system>light; storage-safe read/persist/apply) + ThemeToggle (accessible, client-only init so no hydration mismatch). styles/tokens.css gains dark tokens (:root[data-theme="dark"], AA contrast), a :focus-visible ring and prefers-reduced-motion. layout.tsx injects a pre-hydration no-flash script that sets a React-unmanaged data-theme attribute; page.tsx shows the toggle.
+- Verification: apps/web vitest 38 passed (9 files, +4 F08 cases: saved precedence, system fallback, toggle persists + applies, storage-disabled still works).
+- BLOCKED: none specific.
+- Next: F06 (responsive layouts).

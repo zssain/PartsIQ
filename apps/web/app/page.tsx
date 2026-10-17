@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type JSX } from "react";
 
 import { BrandLogo } from "@/components/BrandLogo";
+import { ThemeToggle } from "@/components/features/ThemeToggle";
 import { startAnonymousDemo } from "@/lib/auth";
 
 const JOURNEY = [
@@ -38,6 +39,7 @@ export default function LandingPage(): JSX.Element {
     <main>
       <header style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <BrandLogo />
+        <ThemeToggle value={null} loading={false} error={null} onAction={async () => {}} />
       </header>
 
       <p role="note" data-testid="synthetic-notice" style={{ background: "#fff7ed", padding: 8, borderRadius: 6 }}>

@@ -371,3 +371,11 @@
 4. BLOCKED: none specific (pure client i18n); server cookie read exercised only at runtime.
 5. Next: F08 (light and dark themes).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F08 (light and dark themes)
+1. Work: apps/web lib/features/f08_light_and_dark_themes.ts (resolve_theme: saved wins, else system, default light; readSaved/persist/applyTheme all storage-safe; systemPrefersDark guarded) + components/features/ThemeToggle.tsx (accessible aria-pressed toggle, client-only init to avoid hydration mismatch). styles/tokens.css: dark tokens via :root[data-theme="dark"] (AA contrast), :focus-visible ring, prefers-reduced-motion. layout.tsx: pre-hydration no-flash script sets data-theme (React-unmanaged attr). page.tsx: ThemeToggle in the header.
+2. Verification: apps/web vitest 38 passed (9 files; +4 F08 cases: saved precedence, system fallback, toggle persists, storage-disabled still works). vitest is the gate.
+3. Design: no hydration mismatch (DOM attr set by inline script, not React); storage-disabled browsers still toggle via the DOM attribute; reduced motion + color-scheme honored; focus ring + dark palette meet contrast.
+4. BLOCKED: none specific (client-only theming).
+5. Next: F06 (responsive layouts).
+6. Model/version: claude-opus-4-8[1m].
