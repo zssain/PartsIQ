@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/orchestrator |
 | Implementing prompts | 09; foundations 09 |
 | Affected flows | FLOW.md row 09 |
@@ -28,7 +28,8 @@ workflow_events. Exact columns,keys,indexes and policies are in TECH_SPEC.md sec
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 09 | implemented by prompt 09 (prior session); trace flipped to done after re-running its test | committed on prompt/12-deterministic-verification |
 | 2026-10-17 | 09 | Postgres checkpointer graph + DB event inbox; thread key per enquiry+revision; duplicate events obsolete (no repeat publication); stale revision/generation obsolete. test_f50.py + test_09.py. Live Postgres checkpointer BLOCKED. | prompt/09 |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented by prompt 09; its acceptance test services/orchestrator/tests/features/test_f50.py re-verified passing in the owning service suite this session (search 88 / orchestrator 87+1skip / gateway 141 overall). ruff clean. Live infrastructure for the owning service remains BLOCKED and offline-faked per that prompt's notes.

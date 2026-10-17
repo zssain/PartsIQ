@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/gateway |
 | Implementing prompts | 19; foundations 07, 15, 19 |
 | Affected flows | FLOW.md row 19 |
@@ -28,9 +28,10 @@ demo_sessions, jobs. Exact columns,keys,indexes and policies are in TECH_SPEC.md
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 19 | implemented by prompt 19 (prior session); trace flipped to done after re-running its test | committed on prompt/12-deterministic-verification |
 | 2026-10-17 | 19 | gateway reset idempotency test (test_f05) + demo reset UI clearing client cache. Full reset (job cancel/storage cleanup) owned by 15/22. | prompt/19 |
 | 2026-10-17 | 15 | lease fencing enforces that late work from an old session generation cannot commit (F05 invariant). UI/reset test owned by prompt 22. | prompt/15 |
 | 2026-10-17 | 07 | reset idempotent per key returns same generation; generation increment under row lock (repo); rate limit before DB. test_07.py. Live Supabase Auth + DB BLOCKED. | prompt/07 |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented by prompt 19; its acceptance test services/gateway/tests/features/test_f05.py re-verified passing in the owning service suite this session (search 88 / orchestrator 87+1skip / gateway 141 overall). ruff clean. Live infrastructure for the owning service remains BLOCKED and offline-faked per that prompt's notes.

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/search |
 | Implementing prompts | 06; foundations 06 |
 | Affected flows | FLOW.md row 06 |
@@ -28,7 +28,8 @@ model_configurations. Exact columns,keys,indexes and policies are in TECH_SPEC.m
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 06 | implemented by prompt 06 (prior session); trace flipped to done after re-running its test | committed on prompt/12-deterministic-verification |
 | 2026-10-17 | 06 | model+serial compared together; nonnumeric serial safe; retrieval blocked until resolved. test_f21.py. Live DB/BGE-M3 BLOCKED. | prompt/06 |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented by prompt 06; its acceptance test services/search/tests/features/test_f21.py re-verified passing in the owning service suite this session (search 88 / orchestrator 87+1skip / gateway 141 overall). ruff clean. Live infrastructure for the owning service remains BLOCKED and offline-faked per that prompt's notes.

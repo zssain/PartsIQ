@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/orchestrator |
 | Implementing prompts | 09; foundations 03, 09 |
 | Affected flows | FLOW.md row 09 |
@@ -28,8 +28,9 @@ messages, enquiry_revisions. Exact columns,keys,indexes and policies are in TECH
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | 09 | implemented by prompt 09 (prior session); trace flipped to done after re-running its test | committed on prompt/12-deterministic-verification |
 | 2026-10-17 | 09 | typed EnquiryState persisted via checkpointer; resume by enquiry+revision thread; old-revision event obsolete; foreign thread has no state. services/orchestrator/tests/features/test_f12.py. | prompt/09 |
 | 2026-10-17 | 03 | Per-item/per-revision candidate keys and enquiry_items/messages schema migrated; checkpoints schema created via extracted DDL (autocommit) + RLS/grants. Structural assertions in test_03.py. Resume/compaction owned by prompt 09. | prompt/03 |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented by prompt 09; its acceptance test services/orchestrator/tests/features/test_f12.py re-verified passing in the owning service suite this session (search 88 / orchestrator 87+1skip / gateway 141 overall). ruff clean. Live infrastructure for the owning service remains BLOCKED and offline-faked per that prompt's notes.
