@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/gateway |
 | Implementing prompts | F56; foundations 09, 19 |
 | Affected flows | FLOW.md row F56 |
@@ -28,6 +28,7 @@ enquiries, enquiry_items. Exact columns,keys,indexes and policies are in TECH_SP
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F56 | repeat_enquiry use case + POST /v1/enquiries/{id}/repeat + web RepeatEnquiry/lib | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: gateway suite 61 passed incl. services/gateway/tests/features/test_f56.py (5 cases: fresh id/revision + origin audit + pipeline re-run, outcome fields structurally absent, source-ownership 404, idempotent dedup, dependency failure). ruff clean; apps/web vitest 20 passed. Live adapter + enqueue BLOCKED.

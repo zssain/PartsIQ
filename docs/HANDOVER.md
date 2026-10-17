@@ -199,3 +199,10 @@ Completed through F55 (saved machines):
 - Verification: gateway suite 56 passed incl. tests/features/test_f55.py (12 cases); ruff clean; apps/web vitest 20 passed.
 - BLOCKED: live saved_machines adapter + RLS + idempotency store.
 - Next: F56 (repeat enquiry).
+
+Completed through F56 (repeat enquiry):
+- services/gateway/app/features/f56_repeat_enquiry.py: repeat_enquiry(actor, F56Request)->F56Result over an injected RepeatRepository. Copies only text/locale/destination/confirmed hints into a new enquiry (fresh id, revision 1); the RepeatSpec has no approval/allocation/draft/signed-URL field so those outcomes are structurally impossible to carry; origin is linked in audit; the full pipeline re-runs; foreign source -> 404; repeated submission deduped by idempotency key.
+- api_v1.py: POST /v1/enquiries/{id}/repeat. apps/web: lib + RepeatEnquiry component; landing mention.
+- Verification: gateway suite 61 passed incl. tests/features/test_f56.py (5 cases: fresh enquiry + audit + re-run, outcome fields absent from RepeatSpec, ownership 404, dedup, dependency failure); ruff clean; apps/web vitest 20 passed.
+- BLOCKED: live enquiries/audit adapter + workflow-start enqueue.
+- Next: F59 (catalogue versioning).

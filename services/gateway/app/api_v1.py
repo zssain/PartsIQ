@@ -21,6 +21,7 @@ from app import uploads as uploads_uc
 from app.auth import authenticate
 from app.features import f19_enquiry_history as history_uc
 from app.features import f55_saved_machines as machines_uc
+from app.features import f56_repeat_enquiry as repeat_uc
 from partsiq_common.contracts import ConfirmExtraction, EnquiryCreate, MessageCreate
 from partsiq_common.errors import PartsIQError, error_envelope, http_status_for
 
@@ -133,6 +134,20 @@ async def add_message(
     except PartsIQError as exc:
         return _as_response(exc, request)
     return view.model_dump(mode="json")
+
+
+@router.post("/enquiries/{enquiry_id}/repeat", status_code=status.HTTP_202_ACCEPTED)
+async def repeat_enquiry(request: Request, enquiry_id: UUID = Path(), idempotency_key: UUID = Header()):
+    actor = await _actor(request)
+    try:
+        result = await repeat_uc.repeat_enquiry(
+            actor,
+            repeat_uc.F56Request(source_enquiry_id=enquiry_id, idempotency_key=idempotency_key),
+            repo=_require(request, "repeat_repo"),
+        )
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
 
 
 @router.post("/attachments/{attachment_id}/confirm")

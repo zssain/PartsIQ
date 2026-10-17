@@ -250,3 +250,11 @@
 4. BLOCKED: live saved_machines Postgres adapter + RLS + common idempotency store.
 5. Next: F56 (repeat enquiry).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F56 (repeat enquiry)
+1. Work: services/gateway/app/features/f56_repeat_enquiry.py (repeat_enquiry: copies request text/locale/destination/confirmed hints into a fresh enquiry id + revision 1; RepeatSpec has NO approval/allocation/draft/signed-URL field so they cannot be copied; origin linked in audit; pipeline re-run enqueued; source ownership -> 404; idempotent-by-key dedup). api_v1.py POST /v1/enquiries/{id}/repeat. apps/web lib/features/f56_repeat_enquiry.ts + components/features/RepeatEnquiry.tsx; landing mention.
+2. Verification: gateway suite 61 passed incl. tests/features/test_f56.py (5); ruff clean; apps/web vitest 20 passed.
+3. Design: nothing pre-approved on a repeat; outcome fields excluded structurally (not by a filter); re-identify/stock/review from scratch.
+4. BLOCKED: live enquiries/audit Postgres adapter + workflow-start enqueue.
+5. Next: F59 (catalogue versioning).
+6. Model/version: claude-opus-4-8[1m].
