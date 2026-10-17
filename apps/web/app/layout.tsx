@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import type { JSX, ReactNode } from "react";
 
 import "../styles/tokens.css";
+import "../styles/pq.css";
 import { requestLocale } from "@/i18n/request";
 import { Aurora } from "@/components/ui/Aurora";
 import { SiteHeader } from "@/components/layout/SiteHeader";
