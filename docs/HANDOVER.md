@@ -259,3 +259,9 @@ Completed through F38 (correct extracted details):
 - Verification: orchestrator 67+1skip incl. tests/features/test_f38.py (8 cases: apply+increment, empty 422, stale 409, foreign 404, approved-result 409, schema cannot invent facts, dependency failure, reset_derived_state); gateway 87; ruff clean; vitest 29.
 - BLOCKED: live locked revision transaction + gateway->orchestrator forward.
 - Next: F42 (assignments).
+
+Completed through F42 (assignments):
+- services/gateway/app/features/f42_assignments.py: assign_enquiry(actor, F42Request)->F42Result over an injected AssignmentRepository. Admin-only (reviewer -> 403); assignee must be an active reviewer (else 422); unassign allowed; stale revision -> 409; idempotent on key; the atomic swap means access changes immediately and a reassignment moves access off the previous reviewer. api_v1 POST /v1/staff/enquiries/{id}/assignment. apps/web lib + AssignmentControl; staff enquiry page island.
+- Verification: gateway suite 96 passed incl. tests/features/test_f42.py (9 cases: assign, unassign, non-admin 403, non-reviewer 422, stale 409, idempotent, reassignment moves access, missing 404, dependency failure); ruff clean; vitest 29.
+- BLOCKED: live locked assignment transaction + assignment_events + active-reviewer lookup.
+- Next: F41 (internal notes).

@@ -323,3 +323,11 @@
 4. BLOCKED: live locked revision Postgres transaction + gateway->orchestrator correction forward.
 5. Next: F42 (assignments).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F42 (assignments)
+1. Work: services/gateway/app/features/f42_assignments.py (assign_enquiry: admin-only; active-reviewer assignee required else 422; unassign allowed; stale revision 409; idempotent; atomic swap so access changes immediately and the previous reviewer loses it). api_v1 POST /v1/staff/enquiries/{id}/assignment (enquiry-id match guard). apps/web lib + AssignmentControl; staff enquiry page island.
+2. Verification: gateway suite 96 passed incl. tests/features/test_f42.py (9); ruff clean; apps/web vitest 29 passed.
+3. Design: only admin assigns (reviewer denied 403); assignment never bumps the compatibility revision; demo review stays session-scoped (unaffected); assignment_events history is atomic in the adapter.
+4. BLOCKED: live locked assignment transaction + assignment_events + active-reviewer lookup.
+5. Next: F41 (internal notes).
+6. Model/version: claude-opus-4-8[1m].

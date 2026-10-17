@@ -22,6 +22,7 @@ from app.auth import authenticate
 from app.features import f19_enquiry_history as history_uc
 from app.features import f29_evidence_page_viewer as evidence_uc
 from app.features import f38_correction_routes as correction_uc
+from app.features import f42_assignments as assignments_uc
 from app.features import f55_saved_machines as machines_uc
 from app.features import f56_repeat_enquiry as repeat_uc
 from app.features import f57_catalogue_browser as catalogue_uc
@@ -213,6 +214,18 @@ async def correct_enquiry(body: correction_uc.CorrectionBody, request: Request, 
     except PartsIQError as exc:
         return _as_response(exc, request)
     return result
+
+
+@router.post("/staff/enquiries/{enquiry_id}/assignment")
+async def assign_enquiry(body: assignments_uc.F42Request, request: Request, enquiry_id: UUID = Path()):
+    actor = await _actor(request)
+    if body.enquiry_id != enquiry_id:
+        return _as_response(PartsIQError("MALFORMED_REQUEST", internal_detail="enquiry id mismatch"), request)
+    try:
+        result = await assignments_uc.assign_enquiry(actor, body, repo=_require(request, "assignment_repo"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
 
 
 @router.post("/staff/evidence/open")

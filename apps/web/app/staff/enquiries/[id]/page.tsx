@@ -7,7 +7,9 @@ import { StockFreshness } from "@/components/features/StockFreshness";
 import { EvidenceViewer } from "@/components/features/EvidenceViewer";
 import { CandidateComparison } from "@/components/features/CandidateComparison";
 import { CorrectionEditor } from "@/components/features/CorrectionEditor";
+import { AssignmentControl } from "@/components/features/AssignmentControl";
 import { Workspace } from "@/components/review/Workspace";
+import { assignEnquiry, type F42Request, type F42Result } from "@/lib/features/f42_assignments";
 import type { F31Request, F31Result } from "@/lib/features/f31_candidate_comparison";
 import { correctExtraction, type F38Request, type F38Result } from "@/lib/features/f38_correct_extracted_details";
 import type { F35Request, F35Result } from "@/lib/features/f35_stock_freshness";
@@ -63,6 +65,18 @@ export default function StaffEnquiryPage({
     }
   }, []);
 
+  // F42: admin assignment control.
+  const [assignment, setAssignment] = useState<F42Result | null>(null);
+  const [assignmentError, setAssignmentError] = useState<ApiError | null>(null);
+  const assign = useCallback(async (request: F42Request) => {
+    setAssignmentError(null);
+    try {
+      setAssignment(await assignEnquiry(request));
+    } catch (err) {
+      setAssignmentError(err instanceof ApiError ? err : null);
+    }
+  }, []);
+
   return (
     <main>
       <h1>Review enquiry</h1>
@@ -77,6 +91,7 @@ export default function StaffEnquiryPage({
       <EvidenceViewer value={evidence} loading={false} error={evidenceError} onAction={openCited} enquiryId={id} />
       <CandidateComparison value={comparison} loading={false} error={null} onAction={chooseCandidate} />
       <CorrectionEditor value={correction} loading={false} error={correctionError} onAction={applyCorrection} enquiryId={id} />
+      <AssignmentControl value={assignment} loading={false} error={assignmentError} onAction={assign} enquiryId={id} />
       <Workspace enquiryId={id} />
     </main>
   );
