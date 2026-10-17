@@ -16,6 +16,7 @@ from typing import Any, Protocol
 from uuid import UUID
 
 from app.features.f17_multi_part_enquiries import unresolved_ids
+from app.features.f44_conversation_summary import is_stale as _summary_is_stale
 from app.rendering import render_reply
 from app.specialists.reply import draft_reply
 from app.verification import VerificationStore, run_verification
@@ -53,6 +54,11 @@ def reset_derived_state(state: EnquiryState) -> EnquiryState:
     return state.model_copy(
         update={"draft_id": None, "verification_id": None, "pending_question": None, "phase": "intake"}
     )
+
+
+def summary_needs_refresh(state: EnquiryState, summary_revision: int) -> bool:
+    """F44: a stored conversation summary must be regenerated once the revision has moved on."""
+    return _summary_is_stale(summary_revision, state.revision)
 
 
 @dataclass(frozen=True, slots=True)

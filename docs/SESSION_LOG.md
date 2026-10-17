@@ -347,3 +347,11 @@
 4. BLOCKED: live enquiries created_at/urgency/status adapter.
 5. Next: F44 (conversation summary).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F44 (conversation summary)
+1. Work: services/orchestrator/app/features/f44_conversation_summary.py (summarize_enquiry: staff-only auth, budget-gated call_structured, messages are DATA not instructions, source_message_ids set in code from authorized messages, revision-bound, is_stale helper; stale 409; unauthorized 404; budget/provider failure propagates leaving the full conversation available). handlers.summary_needs_refresh. routes.py /internal/enquiries/summary. gateway f44_summary_routes + POST /v1/staff/enquiries/{id}/summary (require review, 202). apps/web lib + ConversationSummary; staff enquiry page island.
+2. Verification: orchestrator suite 73 passed + 1 skip incl. tests/features/test_f44.py (6); gateway 115; ruff clean; apps/web vitest 29 passed.
+3. Design: prompt isolation (NEVER as instructions); model never chooses which messages were summarized; summary never shown to a customer; exhausted budget leaves the full conversation.
+4. BLOCKED: live OpenAI summary call + conversation store + gateway->orchestrator forward.
+5. Next: F36 (staff inbox).
+6. Model/version: claude-opus-4-8[1m].

@@ -17,6 +17,7 @@ from fastapi import APIRouter, Header, Request
 
 from app.features.f17_multi_part_enquiries import F17Request, F17Result, resolve_items
 from app.features.f38_correct_extracted_details import F38Request, F38Result, correct_extraction
+from app.features.f44_conversation_summary import F44Request, F44Result, summarize_enquiry
 from app.handlers import missing_handlers
 from partsiq_common.contracts import ActorContext, Contract, RevisionRequest
 from partsiq_common.errors import PartsIQError
@@ -49,6 +50,13 @@ class CorrectEnquiryBody(Contract):
 
     actor: ActorContext
     change: RevisionRequest
+
+
+class SummaryBody(Contract):
+    """Internal call body: the gateway-verified actor context plus the typed F44 request."""
+
+    actor: ActorContext
+    request: F44Request
 
 
 @workflow_router.get("/readiness")
@@ -98,6 +106,22 @@ async def correct_enquiry_route(
     if repo is None:
         raise PartsIQError("DEPENDENCY_UNAVAILABLE", internal_detail="revision store not configured")
     return await correct_extraction(body.actor, F38Request(change=body.change), repo=repo)
+
+
+@internal_router.post("/enquiries/summary", response_model=None)
+async def summarize_enquiry_route(
+    request: Request,
+    body: SummaryBody,
+    x_internal_token: str | None = Header(default=None),
+) -> F44Result:
+    """Produce a staff-only conversation summary (F44). Store/budget/client injected (BLOCKED here)."""
+    verify_internal_token(x_internal_token)
+    store = getattr(request.app.state, "conversation_store", None)
+    budget = getattr(request.app.state, "summary_budget", None)
+    if store is None or budget is None:
+        raise PartsIQError("DEPENDENCY_UNAVAILABLE", internal_detail="summary store/budget not configured")
+    client = getattr(request.app.state, "ai_client", None)
+    return await summarize_enquiry(body.actor, body.request, store=store, budget=budget, client=client)
 
 
 router.include_router(workflow_router)

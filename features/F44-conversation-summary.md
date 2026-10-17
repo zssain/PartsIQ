@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/orchestrator |
 | Implementing prompts | F44; foundations 09, 13, 20 |
 | Affected flows | FLOW.md row F44 |
@@ -28,6 +28,7 @@ enquiry_summaries. Exact columns,keys,indexes and policies are in TECH_SPEC.md s
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F44 | summarize_enquiry (budget-gated, code-owned ids) + /internal/enquiries/summary + gateway route + web ConversationSummary | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: orchestrator 73+1skip incl. services/orchestrator/tests/features/test_f44.py (6 cases). gateway 115; ruff clean; apps/web vitest 29. Live OpenAI summary + store BLOCKED.

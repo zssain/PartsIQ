@@ -26,6 +26,7 @@ from app.features import f38_correction_routes as correction_uc
 from app.features import f41_internal_notes as notes_uc
 from app.features import f42_assignments as assignments_uc
 from app.features import f43_overdue_indicators as deadline_uc
+from app.features import f44_summary_routes as summary_uc
 from app.features import f55_saved_machines as machines_uc
 from app.features import f56_repeat_enquiry as repeat_uc
 from app.features import f57_catalogue_browser as catalogue_uc
@@ -229,6 +230,18 @@ async def append_note(body: notes_uc.F41Request, request: Request, enquiry_id: U
     except PartsIQError as exc:
         return _as_response(exc, request)
     return result.model_dump(mode="json")
+
+
+@router.post("/staff/enquiries/{enquiry_id}/summary", status_code=status.HTTP_202_ACCEPTED)
+async def request_summary(request: Request, enquiry_id: UUID = Path(), expected_revision: int = Query()):
+    actor = await _actor(request)
+    try:
+        result = await summary_uc.request_summary(
+            actor, enquiry_id, expected_revision, forwarder=_require(request, "summary_forwarder")
+        )
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result
 
 
 @router.get("/staff/enquiries/{enquiry_id}/deadline")

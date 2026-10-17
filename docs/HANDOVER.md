@@ -277,3 +277,9 @@ Completed through F43 (overdue indicators):
 - Verification: gateway suite 115 passed incl. tests/features/test_f43.py (11 cases: normal/urgent windows, approved/rejected never overdue, UTC determinism, age clamp, 404, dependency failure, sort order); ruff clean; vitest 29.
 - BLOCKED: live enquiries created_at/urgency/status adapter.
 - Next: F44 (conversation summary).
+
+Completed through F44 (conversation summary):
+- services/orchestrator/app/features/f44_conversation_summary.py: summarize_enquiry(actor, F44Request)->F44Result via the shared budget-gated call_structured. Staff-only (own-demo/assigned/admin else 404); message text treated as data not instructions (prompt isolation); source_message_ids set in code from the authorized messages (model's ids ignored); revision-bound with an is_stale helper; stale expected revision -> 409; a provider/budget failure raises recoverably and the full conversation stays available. handlers.summary_needs_refresh; routes.py /internal/enquiries/summary; gateway f44_summary_routes + POST /v1/staff/enquiries/{id}/summary (review-access, 202). apps/web lib + ConversationSummary; staff enquiry page island.
+- Verification: orchestrator 73+1skip incl. tests/features/test_f44.py (6 cases: code-owned source ids, stale 409, unauthorized 404, budget-failure recoverable, prompt isolation, is_stale/handler helper); gateway 115; ruff clean; vitest 29.
+- BLOCKED: live OpenAI summary + conversation store + forward.
+- Next: F36 (staff inbox).
