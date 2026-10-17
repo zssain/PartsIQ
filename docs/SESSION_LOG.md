@@ -242,3 +242,11 @@
 4. BLOCKED: live enquiries Postgres adapter + RLS; real demo-generation filter at the DB.
 5. Next: F55 (saved machines).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F55 (saved machines)
+1. Work: services/gateway/app/features/f55_saved_machines.py (save_machine idempotent-by-key, list_machines own-active, rename_machine label-only, archive_machine soft delete; identifiers only -> stale configuration never reused; prefill_from_machine carries no configuration/candidate; serial verbatim; foreign id -> 404; blank label/serial & non-positive model -> 422). api_v1.py POST/GET/PATCH/DELETE /v1/machines. apps/web lib/features/f55_saved_machines.ts + components/features/SavedMachines.tsx; landing journey mention.
+2. Verification: gateway suite 56 passed incl. tests/features/test_f55.py (12); ruff clean; apps/web vitest 20 passed.
+3. Design: duplicate label allowed (identity = UUID); archive sets archived_at, never deletes referenced data; prefill re-identifies against current catalogue.
+4. BLOCKED: live saved_machines Postgres adapter + RLS + common idempotency store.
+5. Next: F56 (repeat enquiry).
+6. Model/version: claude-opus-4-8[1m].

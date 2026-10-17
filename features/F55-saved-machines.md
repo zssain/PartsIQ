@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/gateway |
 | Implementing prompts | F55; foundations 07, 19 |
 | Affected flows | FLOW.md row F55 |
@@ -28,6 +28,7 @@ saved_machines. Exact columns,keys,indexes and policies are in TECH_SPEC.md sect
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F55 | save/list/rename/archive use cases + /v1/machines routes + web SavedMachines/lib | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: gateway suite 56 passed incl. services/gateway/tests/features/test_f55.py (12 cases: verbatim serial, idempotent save, duplicate-label distinct id, blank label/serial & non-positive model 422, dependency failure, list excludes foreign+archived, rename label-only, foreign rename/archive 404, prefill identifiers-only). ruff clean; apps/web vitest 20 passed. Live adapter + RLS BLOCKED.

@@ -192,3 +192,10 @@ Completed through F19 (enquiry history):
 - Verification: gateway suite 44 passed incl. tests/features/test_f19.py (8 cases: newest-first, foreign-owner-ignored, equal-timestamp no dup/skip across pages, status filter, invalid cursor 422, invalid limit 422, cursor roundtrip, dependency failure); ruff clean; apps/web vitest 20 passed.
 - BLOCKED: live enquiries adapter + RLS; DB-level demo-generation filter.
 - Next: F55 (saved machines).
+
+Completed through F55 (saved machines):
+- services/gateway/app/features/f55_saved_machines.py: save_machine/list_machines/rename_machine/archive_machine over an injected SavedMachineRepository. Idempotent save by request key; duplicate label allowed (UUID identity); owner-scoped so a foreign id is NOT_FOUND; archive is a soft delete (archived_at); saved rows store identifiers only and prefill_from_machine carries no configuration -> re-identify against the current catalogue; blank label/serial or non-positive model -> 422; serial stored verbatim.
+- api_v1.py: POST/GET/PATCH(label only)/DELETE /v1/machines. apps/web: lib + SavedMachines component; landing journey mention.
+- Verification: gateway suite 56 passed incl. tests/features/test_f55.py (12 cases); ruff clean; apps/web vitest 20 passed.
+- BLOCKED: live saved_machines adapter + RLS + idempotency store.
+- Next: F56 (repeat enquiry).

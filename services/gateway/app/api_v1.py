@@ -20,6 +20,7 @@ from app import ocr_confirmation as ocr_uc
 from app import uploads as uploads_uc
 from app.auth import authenticate
 from app.features import f19_enquiry_history as history_uc
+from app.features import f55_saved_machines as machines_uc
 from partsiq_common.contracts import ConfirmExtraction, EnquiryCreate, MessageCreate
 from partsiq_common.errors import PartsIQError, error_envelope, http_status_for
 
@@ -65,6 +66,46 @@ async def list_enquiries(
     except PartsIQError as exc:
         return _as_response(exc, request)
     return result.model_dump(mode="json")
+
+
+@router.post("/machines")
+async def save_machine(body: machines_uc.F55Request, request: Request):
+    actor = await _actor(request)
+    try:
+        result = await machines_uc.save_machine(actor, body, repo=_require(request, "machine_repo"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
+
+
+@router.get("/machines")
+async def list_machines(request: Request):
+    actor = await _actor(request)
+    try:
+        results = await machines_uc.list_machines(actor, repo=_require(request, "machine_repo"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return [r.model_dump(mode="json") for r in results]
+
+
+@router.patch("/machines/{machine_id}")
+async def rename_machine(request: Request, machine_id: UUID = Path(), label: str = Query()):
+    actor = await _actor(request)
+    try:
+        result = await machines_uc.rename_machine(actor, machine_id, label, repo=_require(request, "machine_repo"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
+
+
+@router.delete("/machines/{machine_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def archive_machine(request: Request, machine_id: UUID = Path()):
+    actor = await _actor(request)
+    try:
+        await machines_uc.archive_machine(actor, machine_id, repo=_require(request, "machine_repo"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return None
 
 
 @router.post("/enquiries", status_code=status.HTTP_202_ACCEPTED)

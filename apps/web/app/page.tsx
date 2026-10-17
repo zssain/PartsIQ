@@ -11,6 +11,7 @@ const JOURNEY = [
   "PartsIQ identifies the machine and retrieves only catalogue-compatible parts — ask for several parts in one message and each is tracked on its own.",
   "It plans warehouse fulfilment and drafts a bilingual reply.",
   "A human reviewer must approve before anything is published to you.",
+  "Save machines you ask about often to prefill future enquiries — each is re-identified against the current catalogue.",
 ];
 
 // Optional repository link: the action is hidden entirely when the URL is not configured.
