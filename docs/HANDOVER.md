@@ -283,3 +283,9 @@ Completed through F44 (conversation summary):
 - Verification: orchestrator 73+1skip incl. tests/features/test_f44.py (6 cases: code-owned source ids, stale 409, unauthorized 404, budget-failure recoverable, prompt isolation, is_stale/handler helper); gateway 115; ruff clean; vitest 29.
 - BLOCKED: live OpenAI summary + conversation store + forward.
 - Next: F36 (staff inbox).
+
+Completed through F36 (staff inbox):
+- services/gateway/app/features/f36_staff_inbox.py: list_inbox(actor, F36Request)->F36Result over an injected (RLS-backed) InboxRepository. Reviewer sees assigned + own demo; admin sees all; status/priority/overdue/text filters; stable keyset pagination; scoped_total computed in the SAME access scope (never a global count); invalid limit/cursor -> 422. api_v1 GET /v1/staff/enquiries. apps/web lib + InboxFilters; app/staff/inbox/page.tsx rewired to F36. page.tsx already links the staff inbox (staff-nav added earlier) — no further landing change needed.
+- Verification: gateway suite 124 passed incl. tests/features/test_f36.py (9 cases: reviewer-assigned-only, admin-all, unassigned hidden, status/overdue/query filters, stable paging + constant scoped_total, limit 422, cursor 422, dependency failure); ruff clean; vitest 29.
+- BLOCKED: live scope-aware inbox adapter.
+- Next: F07 (Arabic/English interface — web, vitest-gated).

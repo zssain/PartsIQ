@@ -355,3 +355,11 @@
 4. BLOCKED: live OpenAI summary call + conversation store + gateway->orchestrator forward.
 5. Next: F36 (staff inbox).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F36 (staff inbox)
+1. Work: services/gateway/app/features/f36_staff_inbox.py (list_inbox: access-scoped via the repo — reviewer assigned-only + own demo, admin all; status/priority/overdue/text filters; keyset paging; scoped_total within the same scope so counts never leak global; invalid limit/cursor 422). api_v1 GET /v1/staff/enquiries. apps/web lib + InboxFilters; rewired app/staff/inbox/page.tsx to F36. Landing already links the staff inbox (from the staff-nav addition).
+2. Verification: gateway suite 124 passed incl. tests/features/test_f36.py (9); ruff clean; apps/web vitest 29 passed.
+3. Design: scope + filters + count all server-enforced in the same scope; unassigned real enquiries hidden from a reviewer; admin sees all; stable keyset pagination.
+4. BLOCKED: live scope-aware inbox adapter (RLS + assignment + overdue).
+5. Next: F07 (Arabic and English interface, web).
+6. Model/version: claude-opus-4-8[1m].

@@ -22,6 +22,7 @@ from app import uploads as uploads_uc
 from app.auth import authenticate
 from app.features import f19_enquiry_history as history_uc
 from app.features import f29_evidence_page_viewer as evidence_uc
+from app.features import f36_staff_inbox as inbox_uc
 from app.features import f38_correction_routes as correction_uc
 from app.features import f41_internal_notes as notes_uc
 from app.features import f42_assignments as assignments_uc
@@ -227,6 +228,30 @@ async def append_note(body: notes_uc.F41Request, request: Request, enquiry_id: U
         return _as_response(PartsIQError("MALFORMED_REQUEST", internal_detail="enquiry id mismatch"), request)
     try:
         result = await notes_uc.append_note(actor, body, repo=_require(request, "notes_repo"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
+
+
+@router.get("/staff/enquiries")
+async def staff_inbox(
+    request: Request,
+    cursor: str | None = Query(default=None),
+    limit: int = Query(default=20),
+    status_filter: str | None = Query(default=None, alias="status"),
+    priority: str | None = Query(default=None),
+    overdue: bool = Query(default=False),
+    query: str | None = Query(default=None),
+):
+    actor = await _actor(request)
+    try:
+        result = await inbox_uc.list_inbox(
+            actor,
+            inbox_uc.F36Request(
+                cursor=cursor, limit=limit, status=status_filter, priority=priority, overdue=overdue, query=query
+            ),
+            repo=_require(request, "inbox_repo"),
+        )
     except PartsIQError as exc:
         return _as_response(exc, request)
     return result.model_dump(mode="json")
