@@ -1,0 +1,31 @@
+# Single-workflow PartsIQ application package (build-kit edition, foundation 00/01).
+#
+# One Python package `partsiq` is imported by BOTH the FastAPI API (partsiq.main)
+# and the background worker (partsiq.jobs.main). It shares the root uv workspace
+# lock so runtime pins match the rest of the monorepo. Runtime dependencies are
+# inherited from partsiq-common (fastapi, pydantic, pydantic-settings, asyncpg,
+# httpx, openai, …); only the ASGI server is added here.
+[project]
+name = "partsiq-app"
+version = "0.1.0"
+description = "PartsIQ single-workflow Snowflake edition — one FastAPI package + worker."
+requires-python = ">=3.12"
+dependencies = [
+    # partsiq-common supplies fastapi, pydantic, pydantic-settings, asyncpg, httpx,
+    # openai, uvicorn[standard] and telemetry — the single-package app reuses them.
+    "partsiq-common",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["partsiq"]
+
+[tool.uv.sources]
+partsiq-common = { workspace = true }
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

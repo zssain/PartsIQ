@@ -40,6 +40,9 @@ members = [
     "libs/partsiq_common",
     "services/orchestrator",
     "services/worker",
+    # Single-workflow build-kit edition: one `partsiq` package imported by the
+    # FastAPI API and the worker. Consolidates the services/* domain logic.
+    "apps/api",
 ]
 
 # Development toolchain for the whole workspace. Exact pins are owned by prompt 00
@@ -57,6 +60,14 @@ dev = [
 # Legacy domain modules are preserved verbatim; keep linting advisory and scoped.
 target-version = "py312"
 line-length = 100
+
+[tool.ruff.lint.per-file-ignores]
+# contracts.py / api_models.py are copied VERBATIM from spec/ (foundation 01 requires
+# preserving exported type names and the `from .contracts import *` re-export). Treat
+# them as vendored: the star-import re-export (F403/F405) and its unused names are
+# intentional and must not be "cleaned".
+"apps/api/partsiq/core/contracts.py" = ["F403", "F405", "F401", "E501"]
+"apps/api/partsiq/core/api_models.py" = ["F403", "F405", "F401", "E501"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
