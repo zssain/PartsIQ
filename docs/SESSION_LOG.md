@@ -266,3 +266,11 @@
 4. BLOCKED: live catalogue-role Postgres publication (advisory lock + single tx), worker publish command execution, gateway->worker internal enqueue.
 5. Next: F57 (catalogue browser).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F57 (catalogue browser)
+1. Work: services/gateway/app/features/f57_catalogue_browser.py (browse_catalogue + part_detail over the ACTIVE published version only; text/model/category filters; cursor paging on part id; local PartView with supersession/fitment/sources; query is a literal filter -> never SQL; invalid cursor/limit -> 422; no published version -> 404; missing part number -> 404; import-staging rows never surfaced). api_v1 GET /v1/catalogue/parts + /v1/catalogue/parts/{part_number}. apps/web lib + CatalogueBrowser + app/staff/catalogue/page.tsx; landing staff nav link.
+2. Verification: gateway suite 71 passed incl. tests/features/test_f57.py (10); ruff clean; apps/web vitest 20 passed.
+3. Design: published-only scope (unpublished import rows live in a separate table the read store never touches); hostile query treated as a literal substring (parameterized in the live adapter); version_id surfaced with every page.
+4. BLOCKED: live published-version read-replica adapter + search part_detail integration.
+5. Next: F58 (catalogue imports).
+6. Model/version: claude-opus-4-8[1m].

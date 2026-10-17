@@ -22,6 +22,7 @@ from app.auth import authenticate
 from app.features import f19_enquiry_history as history_uc
 from app.features import f55_saved_machines as machines_uc
 from app.features import f56_repeat_enquiry as repeat_uc
+from app.features import f57_catalogue_browser as catalogue_uc
 from app.features import f59_publish_routes as publish_uc
 from partsiq_common.contracts import ConfirmExtraction, EnquiryCreate, MessageCreate
 from partsiq_common.errors import PartsIQError, error_envelope, http_status_for
@@ -135,6 +136,37 @@ async def add_message(
     except PartsIQError as exc:
         return _as_response(exc, request)
     return view.model_dump(mode="json")
+
+
+@router.get("/catalogue/parts")
+async def browse_catalogue(
+    request: Request,
+    query: str | None = Query(default=None),
+    model_id: int | None = Query(default=None),
+    category: str | None = Query(default=None),
+    cursor: str | None = Query(default=None),
+    limit: int = Query(default=20),
+):
+    actor = await _actor(request)
+    try:
+        result = await catalogue_uc.browse_catalogue(
+            actor,
+            catalogue_uc.F57Request(query=query, model_id=model_id, category=category, cursor=cursor, limit=limit),
+            store=_require(request, "catalogue_read"),
+        )
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
+
+
+@router.get("/catalogue/parts/{part_number}")
+async def catalogue_part_detail(request: Request, part_number: str = Path()):
+    actor = await _actor(request)
+    try:
+        detail = await catalogue_uc.part_detail(actor, part_number, store=_require(request, "catalogue_read"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return detail.model_dump(mode="json")
 
 
 @router.post("/staff/catalogue/publish", status_code=status.HTTP_202_ACCEPTED)

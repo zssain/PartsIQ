@@ -213,3 +213,10 @@ Completed through F59 (catalogue versioning):
 - Verification: run_checks --feature F59 -> tests/acceptance/test_f59.py PASS (8 cases: order-independent snapshot, activate, two-publisher CONFLICT leaving one active, failed rollback, immutable prior evidence, idempotent, non-admin 403, unknown 404); worker 33; gateway 61; ruff clean; vitest 20.
 - BLOCKED: live catalogue-role publication (advisory lock 710070 + single tx), worker publish execution, gateway->worker enqueue.
 - Next: F57 (catalogue browser).
+
+Completed through F57 (catalogue browser):
+- services/gateway/app/features/f57_catalogue_browser.py: browse_catalogue(actor, F57Request)->F57Result + part_detail over an injected CatalogueReadStore, ACTIVE published version only. Text/model/category filters, cursor paging on part id; local PartView (supersession/fitment/sources); hostile query is a literal (never SQL); invalid cursor/limit -> 422; no published version -> 404; unknown part -> 404; import-staging rows never surfaced.
+- api_v1: GET /v1/catalogue/parts + /v1/catalogue/parts/{part_number}. apps/web: lib + CatalogueBrowser + app/staff/catalogue/page.tsx; landing staff nav link.
+- Verification: gateway suite 71 passed incl. tests/features/test_f57.py (10 cases); ruff clean; apps/web vitest 20 passed.
+- BLOCKED: live published-version read adapter + search part_detail integration.
+- Next: F58 (catalogue imports).
