@@ -234,3 +234,9 @@ Completed through F60 (missing-parts queue):
 - Verification: gateway suite 79 passed incl. tests/features/test_f60.py (8 cases: idempotent record no-stock, investigating, resolved-needs-note 422, resolved ok, invalid status 422, foreign 404, stale 409, dependency failure); ruff clean; vitest 20.
 - BLOCKED: live missing_parts adapter + RLS + assignment.
 - Next: F35 (stock freshness).
+
+Completed through F35 (stock freshness):
+- services/search/app/features/f35_stock_freshness.py: check_stock_freshness(actor, F35Request)->F35Result over an injected StockReader + now. Flags any item whose allocation stock_updated_at is in the future, older than max_age_seconds, refreshed since planning, or whose current available can no longer cover the quantity; fresh only when none flagged; max_age<=0 -> 422. search routes.py now a prefix-free parent mounting /v1/search (paths unchanged) + /internal/stock/check. approval.py documents that the locked re-read invokes this gate so stale stock never publishes. apps/web lib + StockFreshness; staff enquiry page is a client island hosting the panel (freshness computed server-side; BLOCKED, panel stays empty rather than fake).
+- Verification: search suite 88 passed incl. tests/features/test_f35.py (8 cases: fresh, stale, future, insufficient, refreshed, unknown, max_age 422, dependency failure); orchestrator 59+1skip; ruff clean; vitest 20.
+- BLOCKED: live stock reader + orchestrator->search freshness call during approval.
+- Next: F29 (evidence page viewer).

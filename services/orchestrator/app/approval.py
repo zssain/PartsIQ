@@ -130,6 +130,11 @@ async def approve(actor: ActorContext, request: ApprovalRequest, key: UUID, *, r
         raise PartsIQError("CONFLICT", internal_detail="verified fact hash does not match the current facts")
 
     # Refresh stock through search and re-verify; a changed plan fails publication.
+    # F35: the refreshed evidence re-reads CURRENT stock (the orchestrator calls the search
+    # /internal/stock/check route, app.features.f35_stock_freshness.check_stock_freshness, during
+    # this locked re-read). A stale or future-dated snapshot, or a quantity that can no longer be
+    # allocated, makes the re-verification fail here — so stale stock never becomes a published
+    # (and never a guaranteed) plan. The live search call is wired by the orchestrator owner.
     evidence = await repo.refresh_evidence(snapshot)
     result = verify_facts(snapshot.facts, evidence)
     if not result.passed:

@@ -291,3 +291,11 @@
 4. BLOCKED: live missing_parts Postgres adapter + RLS + assignment.
 5. Next: F35 (stock freshness).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F35 (stock freshness)
+1. Work: services/search/app/features/f35_stock_freshness.py (check_stock_freshness: per-allocation freshness window vs stock_updated_at; future timestamp flagged; stale beyond max_age flagged; re-read current stock -> insufficient/refreshed flags item; fresh only when none flagged; max_age<=0 -> 422). search routes.py restructured to a prefix-free parent (preserves /v1/search/*) + /internal/stock/check. approval.py documents the F35 gate in the locked re-read. apps/web lib + StockFreshness; staff enquiry page converted to a client island hosting the panel.
+2. Verification: search suite 88 passed incl. tests/features/test_f35.py (8); orchestrator suite 59 passed + 1 skip (approval doc-only change); ruff clean; apps/web vitest 20 passed.
+3. Design: stale/future/changed stock -> fresh=False (never a delivery guarantee); current re-read catches an allocation that is no longer possible -> 409 + re-plan during approval; freshness window is configurable (max_age_seconds).
+4. BLOCKED: live stock reader (pgvector/stock adapter) + the orchestrator->search /internal/stock/check call during approval.
+5. Next: F29 (evidence page viewer).
+6. Model/version: claude-opus-4-8[1m].

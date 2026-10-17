@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/search |
 | Implementing prompts | F35; foundations 06, 12, 14, 20 |
 | Affected flows | FLOW.md row F35 |
@@ -28,6 +28,7 @@ stock_levels, fulfilment_plans. Exact columns,keys,indexes and policies are in T
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F35 | check_stock_freshness + /internal/stock/check route + approval re-read note + web StockFreshness | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: search suite 88 passed incl. services/search/tests/features/test_f35.py (8 cases). orchestrator 59+1skip; ruff clean; apps/web vitest 20. Live stock reader + approval->search call BLOCKED.
