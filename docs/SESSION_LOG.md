@@ -226,3 +226,11 @@
 4. BLOCKED: live Storage object fetch + nameplate paid-path invocation of the gate (nameplate.py is prompt 16's file, not modified here); browser createImageBitmap/canvas path exercised only in a real browser.
 5. Next: F17 (multi-part enquiries).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F17 (multi-part enquiries)
+1. Work: services/orchestrator/app/features/f17_multi_part_enquiries.py (resolve_items: per-item status, stock planned ONCE per selected part + distributed in ordinal order so duplicate parts cannot double-count; unresolved_item_ids/can_approve_all readiness gate; zero quantity rejected; <=20 items; NOT_FOUND auth incl. demo own-session; STALE_REVISION). routes.py restructured to a prefix-free parent router mounting /v1/workflow + a token-guarded /internal router with POST /internal/items/resolve (so main.py is untouched). handlers.unresolved_items shares the single readiness rule. apps/web lib/features/f17_multi_part_enquiries.ts + components/features/ItemList.tsx; wired into Chat.tsx + landing journey.
+2. Verification: orchestrator suite 59 passed + 1 skip incl. tests/features/test_f17.py (12); ruff clean; apps/web vitest 20 passed. Commands: (services/orchestrator) python -m pytest -q; (apps/web) pnpm test.
+3. Design: aggregate allocation mirrors verification.check_allocation; earlier ordinal line wins contested stock; VALIDATION_FAILED (422) for non-positive quantity; internal route token-guarded + propagated actor; browser authors no compatibility fact.
+4. BLOCKED: live enquiry_items/fulfilment_plans Postgres adapter + RLS; the gateway public /v1/enquiries/{id}/items/resolve proxy route; HTTP path exercised offline only (function-level tests + fake store).
+5. Next: F19 (enquiry history).
+6. Model/version: claude-opus-4-8[1m].

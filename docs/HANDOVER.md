@@ -177,3 +177,11 @@ Completed through F16 (photo quality feedback):
 - Verification: worker suite 33 passed incl. tests/features/test_f16.py (11 cases); ruff clean; apps/web vitest 20 passed; tsc clean on changed files. Commands: (services/worker) python -m pytest -q; (apps/web) pnpm test.
 - BLOCKED: nameplate.py paid-path invocation of the gate (owned by prompt 16, not modified here); live Storage fetch; browser canvas path (real browser only).
 - Next: F17 (multi-part enquiries).
+
+Completed through F17 (multi-part enquiries):
+- services/orchestrator/app/features/f17_multi_part_enquiries.py: resolve_items(actor, F17Request)->F17Result over an injected ItemPlanningStore. Each item keeps independent quantity/configuration/candidates/selection/status; stock is planned ONCE per selected part and distributed in ordinal order (duplicate parts share one pool -> no double count; later line -> 'unavailable'); unresolved_item_ids returns every non-'ready' item and can_approve_all gates final approval; non-positive quantity -> 422; >20 items -> 400; unauthorized/demo-session-mismatch -> 404; stale expected_revision -> 409.
+- routes.py: now a prefix-free parent router mounting the existing /v1/workflow routes (paths unchanged) + a token-guarded /internal router exposing POST /internal/items/resolve (main.py untouched, still includes one router). handlers.unresolved_items(state) shares the single readiness rule.
+- apps/web: lib/features/f17_multi_part_enquiries.ts (typed client + canApproveAll) + components/features/ItemList.tsx (per-item status, candidate counts, all-items readiness gate); wired into Chat.tsx + landing journey.
+- Verification: orchestrator suite 59 passed + 1 skip incl. tests/features/test_f17.py (12 cases); ruff clean; apps/web vitest 20 passed.
+- BLOCKED: live enquiry_items/fulfilment_plans adapter + RLS; the gateway public proxy route; HTTP exercised offline only.
+- Next: F19 (enquiry history).

@@ -7,6 +7,8 @@ import type { EnquiryView, MessageView } from "@/lib/contracts";
 import { Progress } from "@/components/chat/Progress";
 import { PhotoQualityNotice } from "@/components/features/PhotoQualityNotice";
 import { assessPhoto, type F16Request, type F16Result } from "@/lib/features/f16_photo_quality_feedback";
+import { ItemList } from "@/components/features/ItemList";
+import { resolveItems, type F17Request, type F17Result } from "@/lib/features/f17_multi_part_enquiries";
 
 // Customer chat (F09, F11, F18, F53). Polls the enquiry with an AbortController and bounded
 // exponential backoff, throttling while the tab is hidden; renders customer/clarification/
@@ -26,10 +28,22 @@ export function Chat({ enquiryId }: { enquiryId: string }): JSX.Element {
   const [sendError, setSendError] = useState<string | null>(null);
   // F16: optional local photo-quality pre-check before the customer uploads a nameplate photo.
   const [photoQuality, setPhotoQuality] = useState<F16Result | null>(null);
+  // F17: per-item resolution view for multi-part enquiries (status, candidates, readiness gate).
+  const [items, setItems] = useState<F17Result | null>(null);
+  const [itemsError, setItemsError] = useState<ApiError | null>(null);
   const delayRef = useRef(BASE_DELAY_MS);
 
   const checkPhoto = useCallback(async (request: F16Request) => {
     setPhotoQuality(await assessPhoto(request));
+  }, []);
+
+  const resolveItemsAction = useCallback(async (request: F17Request) => {
+    setItemsError(null);
+    try {
+      setItems(await resolveItems(request));
+    } catch (err) {
+      setItemsError(err instanceof ApiError ? err : null);
+    }
   }, []);
 
   const poll = useCallback(
@@ -113,6 +127,7 @@ export function Chat({ enquiryId }: { enquiryId: string }): JSX.Element {
         ))}
       </ul>
       <PhotoQualityNotice value={photoQuality} loading={false} error={null} onAction={checkPhoto} />
+      <ItemList value={items} loading={false} error={itemsError} onAction={resolveItemsAction} />
       <form onSubmit={send}>
         <textarea
           value={draft}

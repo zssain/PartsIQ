@@ -15,6 +15,7 @@ from dataclasses import dataclass, fields
 from typing import Any, Protocol
 from uuid import UUID
 
+from app.features.f17_multi_part_enquiries import unresolved_ids
 from app.rendering import render_reply
 from app.specialists.reply import draft_reply
 from app.verification import VerificationStore, run_verification
@@ -28,6 +29,17 @@ from partsiq_common.contracts import (
 from partsiq_common.errors import PartsIQError
 
 Handler = Callable[[EnquiryState], Awaitable[EnquiryState]]
+
+
+def unresolved_items(state: EnquiryState) -> list[UUID]:
+    """F17: item ids that are not yet ``ready`` for the current workflow state.
+
+    The graph's plan/review path and the /internal/items/resolve route share this single
+    readiness rule (app.features.f17_multi_part_enquiries.unresolved_ids), so the executable
+    workflow and the API agree on exactly when an all-items recommendation may be approved —
+    one unresolved item blocks the final all-items approval.
+    """
+    return unresolved_ids(state.items)
 
 
 @dataclass(frozen=True, slots=True)
