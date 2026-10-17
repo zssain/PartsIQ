@@ -136,7 +136,13 @@ Completed through 23 (Observability and credit limits):
 - Verification (exit 0): run_checks --prompt 23 -> test_23.py PASS; --feature F64 + F67 PASS; prompt 01 regression + gateway/search/orchestrator/worker suites green; ruff clean.
 - BLOCKED: a live Langfuse sink and the live metrics DB are integration-only; tested with fake exporters/repos.
 
-Next: execute prompt 24 (Production containers and Caddy) per prompts/README.md, on its own branch.
+Completed through 24 (Production containers and Caddy):
+- docker-compose.prod.yml: Caddy edge is the ONLY published container (80/443); gateway/search/orchestrator/orchestrator-consumer/worker/sweeper/redis stay on a private bridge network (expose only). App images are immutable (ghcr.io/partsiq/*:${RELEASE_SHA}); caddy/redis pin an @sha256 digest from infra/images.lock.json. One search process; worker (app.dispatcher), sweeper (app.sweeper) and orchestrator-consumer (app.runner) are separate commands over the two app images. read_only rootfs where possible, tmpfs for PDF (/tmp/pdf) and the search cache, json-file logs capped (10m x3), per-service memory/cpu limits. No Kubernetes, no public Redis; all secrets are ${VAR} references.
+- Caddyfile: auto-TLS for ${API_DOMAIN}, HSTS/nosniff/DENY headers, reverse_proxy to gateway:8000 with a health probe. services/orchestrator/Dockerfile + services/worker/Dockerfile created; services/gateway + services/search Dockerfiles modified to pin the base by @sha256 digest (lineage preserved). infra/verify_images.py: verify_images(compose) static-rejects mutable tags, missing healthchecks, published internal ports and embedded credentials. infra/images.lock.json records the base digests (to re-verify at deploy).
+- Verification (exit 0): run_checks --prompt 24 -> test_24.py PASS (prod compose clean; verifier catches every violation class; all four Dockerfiles digest-pinned; only Caddy publishes 80/443; separate worker/sweeper/consumer commands); ruff clean.
+- BLOCKED: building/pushing/running the images needs Docker + a registry; the recorded base digests are placeholders to re-verify against the live registry manifest at deploy (prompt 26/27).
+
+Next: execute prompt 25 (CI and controlled deployment) per prompts/README.md, on its own branch.
 
 Watch (unchanged): all live infrastructure remains BLOCKED and reported — Supabase Auth/DB/RLS, Redis, pgvector + BGE-M3 (torch not installed), live OpenAI (text + vision), Postgres LangGraph checkpointer, Playwright/Chromium PDF + e2e, Storage. The frontend toolchain (node 25 / pnpm 10.31) is installed and its vitest suite runs; run_checks has no pnpm wiring, so the per-prompt gate is the Python structural test and the vitest suite is run directly (reported, never faked). Use `uv sync --all-packages` (a bare `uv sync` prunes member deps).
 

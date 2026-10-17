@@ -1,0 +1,205 @@
+# Production stack (prompt 24). One EC2 host, Docker Compose, Caddy edge (ADR-002).
+# Only Caddy publishes host ports (80/443); every internal service stays on the private
+# network and is reachable by name only. App images are immutable (${RELEASE_SHA}); base/
+# infra images pin an @sha256 digest from infra/images.lock.json. One search process avoids
+# duplicate BGE-M3 memory; worker, sweeper and the orchestrator event-consumer are separate
+# commands. No Kubernetes, no public Redis. Read-only rootfs where possible, tmpfs for PDF
+# rendering, bounded logs and measured resource limits. Secrets come only from the validated
+# env file (${...}); none are embedded here.
+name: partsiq
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "3" }
+
+networks:
+  internal:
+    driver: bridge
+
+services:
+  caddy:
+    image: caddy:2.10-alpine@sha256:0000000000000000000000000000000000000000000000000000000000000002
+    restart: unless-stopped
+    networks: [internal]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      API_DOMAIN: ${API_DOMAIN}
+    depends_on: [gateway]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "caddy", "version"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 128m, cpus: "0.25" }
+
+  gateway:
+    image: ghcr.io/partsiq/gateway:${RELEASE_SHA}
+    restart: unless-stopped
+    read_only: true
+    networks: [internal]
+    expose: ["8000"]
+    environment:
+      APP_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      SUPABASE_JWT_ISSUER: ${SUPABASE_JWT_ISSUER}
+      SUPABASE_JWKS_URL: ${SUPABASE_JWKS_URL}
+      REDIS_URL: ${REDIS_URL}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    depends_on: [redis, search, orchestrator]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health/live',timeout=2).status==200 else 1)"]
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 384m, cpus: "0.5" }
+
+  search:
+    image: ghcr.io/partsiq/search:${RELEASE_SHA}
+    restart: unless-stopped
+    read_only: true
+    networks: [internal]
+    expose: ["8000"]
+    environment:
+      APP_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+    tmpfs:
+      - /home/appuser/.cache
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health/live',timeout=2).status==200 else 1)"]
+      interval: 10s
+      timeout: 3s
+      start_period: 30s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 2560m, cpus: "1.5" }
+
+  orchestrator:
+    image: ghcr.io/partsiq/orchestrator:${RELEASE_SHA}
+    restart: unless-stopped
+    read_only: true
+    networks: [internal]
+    expose: ["8000"]
+    environment:
+      APP_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on: [redis, search]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/v1/workflow/readiness',timeout=2).status==200 else 1)"]
+      interval: 10s
+      timeout: 3s
+      start_period: 15s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 512m, cpus: "0.5" }
+
+  orchestrator-consumer:
+    image: ghcr.io/partsiq/orchestrator:${RELEASE_SHA}
+    restart: unless-stopped
+    read_only: true
+    networks: [internal]
+    command: ["python", "-m", "app.runner"]
+    environment:
+      APP_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on: [orchestrator]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 512m, cpus: "0.5" }
+
+  worker:
+    image: ghcr.io/partsiq/worker:${RELEASE_SHA}
+    restart: unless-stopped
+    networks: [internal]
+    command: ["python", "-m", "app.dispatcher"]
+    tmpfs:
+      - /tmp/pdf
+    environment:
+      APP_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      SUPABASE_STORAGE_KEY: ${SUPABASE_STORAGE_KEY}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on: [redis]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 1024m, cpus: "1.0" }
+
+  sweeper:
+    image: ghcr.io/partsiq/worker:${RELEASE_SHA}
+    restart: unless-stopped
+    read_only: true
+    networks: [internal]
+    command: ["python", "-m", "app.sweeper"]
+    environment:
+      APP_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+    depends_on: [redis]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 256m, cpus: "0.25" }
+
+  redis:
+    image: redis:7.3-alpine@sha256:0000000000000000000000000000000000000000000000000000000000000003
+    restart: unless-stopped
+    networks: [internal]
+    expose: ["6379"]
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    logging: *logging
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits: { memory: 256m, cpus: "0.25" }
+
+volumes:
+  caddy_data:
+  caddy_config:

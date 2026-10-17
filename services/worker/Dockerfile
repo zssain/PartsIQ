@@ -1,0 +1,32 @@
+# Worker image (prompt 24). Base pinned by digest from infra/images.lock.json (re-verify at
+# deploy). The dispatcher, sweeper and job handlers run from this one image under different
+# commands (see docker-compose.prod.yml). PDF rendering uses a tmpfs mount, not the image
+# rootfs. Chromium/Playwright install is deferred to the deploy image build (prompt 17/26).
+# Build context: repository root.
+FROM python:3.12-slim@sha256:0000000000000000000000000000000000000000000000000000000000000001
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN useradd --create-home --uid 10001 appuser
+
+WORKDIR /app
+
+COPY libs/partsiq_common /tmp/partsiq_common
+RUN pip install /tmp/partsiq_common && rm -rf /tmp/partsiq_common
+
+COPY services/worker/pyproject.toml ./pyproject.toml
+RUN pip install "Jinja2==3.1.6" "pypdf==6.8.0" "playwright==1.58.0"
+
+COPY services/worker/app ./app
+
+USER appuser
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=15s --timeout=3s --start-period=15s --retries=3 \
+    CMD python -c "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health/live', timeout=2).status == 200 else 1)"
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-server-header"]

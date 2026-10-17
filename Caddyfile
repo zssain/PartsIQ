@@ -1,0 +1,26 @@
+# Caddy edge (prompt 24). The ONLY publicly published container (80/443). Terminates TLS
+# automatically for the operator-supplied domain and reverse-proxies to the internal gateway
+# by Docker-network name; search, orchestrator, worker, sweeper and Redis are never exposed.
+{
+	admin off
+	email ops@{$API_DOMAIN}
+}
+
+{$API_DOMAIN} {
+	encode gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	reverse_proxy gateway:8000 {
+		health_uri /health/live
+		health_interval 10s
+	}
+}
+
+# Plain HTTP is redirected to HTTPS by Caddy automatically.

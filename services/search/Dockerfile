@@ -1,5 +1,7 @@
 # Build context: repository root. Set INSTALL_EMBEDDINGS=true to enable semantic search.
-FROM python:3.12-slim
+# Base pinned by digest (prompt 24, infra/images.lock.json); re-verify against the registry
+# at deploy. Lineage preserved; only the digest pin is added.
+FROM python:3.12-slim@sha256:0000000000000000000000000000000000000000000000000000000000000001
 
 ARG INSTALL_EMBEDDINGS=false
 

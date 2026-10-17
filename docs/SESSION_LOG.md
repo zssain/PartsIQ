@@ -186,3 +186,11 @@
 4. BLOCKED: live Langfuse sink + live metrics DB (fakes used).
 5. Next: prompt 24 (production containers and caddy).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 24 (production containers and caddy)
+1. Work: docker-compose.prod.yml (Caddy-only public 80/443; private network; immutable ${RELEASE_SHA} app images; digest-pinned caddy/redis; separate worker/sweeper/consumer; read-only rootfs + tmpfs + log caps + resource limits), Caddyfile (auto-TLS + security headers + reverse_proxy), orchestrator/worker Dockerfiles, infra/verify_images.py + infra/images.lock.json. Modified gateway/search Dockerfiles to pin the base @sha256 digest.
+2. Verification (exit 0): run_checks --prompt 24 -> test_24.py PASS (compose clean; verifier catches mutable tag / missing healthcheck / published internal port / embedded credential; Dockerfiles digest-pinned; only Caddy publishes); ruff clean.
+3. Design: immutable images, no public internal ports, no embedded secrets, no k8s/public Redis; one search process to avoid duplicate model memory.
+4. BLOCKED: image build/push/run (Docker + registry); recorded base digests re-verified at deploy.
+5. Next: prompt 25 (ci and controlled deployment).
+6. Model/version: claude-opus-4-8[1m].
