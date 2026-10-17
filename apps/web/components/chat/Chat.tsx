@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 import { api, ApiError } from "@/lib/api";
 import type { EnquiryView, MessageView } from "@/lib/contracts";
 import { Progress } from "@/components/chat/Progress";
+import { PhotoQualityNotice } from "@/components/features/PhotoQualityNotice";
+import { assessPhoto, type F16Request, type F16Result } from "@/lib/features/f16_photo_quality_feedback";
 
 // Customer chat (F09, F11, F18, F53). Polls the enquiry with an AbortController and bounded
 // exponential backoff, throttling while the tab is hidden; renders customer/clarification/
@@ -22,7 +24,13 @@ export function Chat({ enquiryId }: { enquiryId: string }): JSX.Element {
   const [pollFailed, setPollFailed] = useState(false);
   const [draft, setDraft] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
+  // F16: optional local photo-quality pre-check before the customer uploads a nameplate photo.
+  const [photoQuality, setPhotoQuality] = useState<F16Result | null>(null);
   const delayRef = useRef(BASE_DELAY_MS);
+
+  const checkPhoto = useCallback(async (request: F16Request) => {
+    setPhotoQuality(await assessPhoto(request));
+  }, []);
 
   const poll = useCallback(
     async (signal: AbortSignal) => {
@@ -104,6 +112,7 @@ export function Chat({ enquiryId }: { enquiryId: string }): JSX.Element {
           </li>
         ))}
       </ul>
+      <PhotoQualityNotice value={photoQuality} loading={false} error={null} onAction={checkPhoto} />
       <form onSubmit={send}>
         <textarea
           value={draft}

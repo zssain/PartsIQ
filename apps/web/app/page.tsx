@@ -7,7 +7,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { startAnonymousDemo } from "@/lib/auth";
 
 const JOURNEY = [
-  "Send your parts enquiry in English or Arabic — type it or attach a nameplate photo.",
+  "Send your parts enquiry in English or Arabic — type it or attach a nameplate photo (we check the photo is readable before sending).",
   "PartsIQ identifies the machine and retrieves only catalogue-compatible parts.",
   "It plans warehouse fulfilment and drafts a bilingual reply.",
   "A human reviewer must approve before anything is published to you.",

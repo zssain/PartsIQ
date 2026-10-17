@@ -167,3 +167,13 @@ Watch (unchanged): all live infrastructure remains BLOCKED and reported — Supa
 Watch: AWS Free Plan eligibility and actual BGE/Chromium sizing; owner-confirmed OpenAI credit; assigned-only permissions; no fake production-readiness claims. Live OpenAI and live-DB behaviour for AI/audit/actor-context remain integration work (tested here only with in-process fakes).
 
 Evidence: docs/SESSION_LOG.md records this session and the coding model. Runtime, Supabase, and hosted acceptance remain implementation work.
+
+=== F-COVERAGE PROMPTS (post 00-27) ===
+Executing the remaining F-prompts whose implementation owner is the F-prompt itself (26 total), in prompts/README.md execution order. Gate per feature: owning service's pytest suite (service-located tests), apps/web vitest (UI features), or run_checks --feature (repo-root acceptance tests). File-ownership.json + FLOW.md already pre-register these files/modifiers (kit-authored), so no manifest edits are needed unless a touched file is unregistered. ESLint cannot run in this env (missing @eslint/eslintrc devDep) — vitest is the working web gate.
+
+Completed through F16 (photo quality feedback):
+- services/worker/app/features/f16_photo_quality_feedback.py: assess_photo(F16Request)->F16Result — local pre-check BEFORE the paid vision call. Unsupported media type / undecodable bytes / format mismatch / >40 MP bomb -> readable False with a retake code; a decodable, supported image stays readable with advisory guidance codes (low_resolution/too_dark/possible_blur). Blur/dark/low-res never block (advisory). No OCR confidence percentage is produced. dispatcher.photo_quality_gate exposes it through the worker's existing owner (lazy Pillow import).
+- apps/web: lib/features/f16_photo_quality_feedback.ts (browser mirror via createImageBitmap+canvas, advisory), components/features/PhotoQualityNotice.tsx (loading/empty/error/success states, maps codes->actionable retake text, submits only typed bytes+media-type). Wired into Chat.tsx (optional pre-upload check) and the landing journey.
+- Verification: worker suite 33 passed incl. tests/features/test_f16.py (11 cases); ruff clean; apps/web vitest 20 passed; tsc clean on changed files. Commands: (services/worker) python -m pytest -q; (apps/web) pnpm test.
+- BLOCKED: nameplate.py paid-path invocation of the gate (owned by prompt 16, not modified here); live Storage fetch; browser canvas path (real browser only).
+- Next: F17 (multi-part enquiries).

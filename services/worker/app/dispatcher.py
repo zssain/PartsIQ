@@ -32,6 +32,19 @@ def get_handler(kind: str) -> JobHandler | None:
     return JOB_HANDLERS.get(kind)
 
 
+def photo_quality_gate(image: bytes, media_type: str) -> Any:
+    """Cheap, local photo-quality pre-check run BEFORE a paid vision call (F16).
+
+    The nameplate path calls this on the fetched image bytes before invoking the paid OCR:
+    an unreadable image (unsupported/undecodable/oversized) is turned back with retake guidance
+    so no credit is spent, while a merely dark/low-res/blurry image is allowed through with
+    advisory guidance. Imported lazily so the dispatcher keeps no Pillow import at module load.
+    """
+    from app.features.f16_photo_quality_feedback import F16Request, assess_photo
+
+    return assess_photo(F16Request(image_bytes=image, media_type=media_type))
+
+
 class JobQueue(Protocol):
     async def push(self, job_id: UUID) -> None: ...
 

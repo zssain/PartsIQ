@@ -218,3 +218,11 @@
 4. BLOCKED: live Vercel/EC2/Supabase hosted run + Playwright hosted spec.
 5. Next: numeric build 00-27 complete; the F-coverage prompts (prompts/README.md) remain.
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F16 (photo quality feedback)
+1. Work: services/worker/app/features/f16_photo_quality_feedback.py (assess_photo: decodability/media-type/dimensions + dark/blur heuristic before the paid call; unsupported/undecodable/oversized -> readable False; low-res/dark/blur -> advisory guidance, still readable; no fabricated confidence %), dispatcher.photo_quality_gate passthrough, apps/web lib/features/f16_photo_quality_feedback.ts (browser mirror) + components/features/PhotoQualityNotice.tsx; wired into Chat.tsx and landing journey.
+2. Verification: worker suite 33 passed incl. tests/features/test_f16.py (11); ruff clean; apps/web vitest 20 passed (Chat/page changes non-breaking); tsc clean on changed files (pre-existing f53.test.tsx errors unrelated). ESLint BLOCKED in this env (missing @eslint/eslintrc devDep).
+3. Design: advisory heuristic (blur never blocks a readable image); only format/decode/bomb reject; no OCR confidence percentage; browser pre-check is advisory UX, server worker check authoritative.
+4. BLOCKED: live Storage object fetch + nameplate paid-path invocation of the gate (nameplate.py is prompt 16's file, not modified here); browser createImageBitmap/canvas path exercised only in a real browser.
+5. Next: F17 (multi-part enquiries).
+6. Model/version: claude-opus-4-8[1m].

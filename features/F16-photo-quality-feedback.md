@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/worker |
 | Implementing prompts | F16; foundations 16, 19 |
 | Affected flows | FLOW.md row F16 |
@@ -28,6 +28,7 @@ extractions. Exact columns,keys,indexes and policies are in TECH_SPEC.md section
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F16 | assess_photo pre-check + dispatcher gate + web PhotoQualityNotice/lib; wired into Chat + landing | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Build-kit coverage verified by tools/kit/verify_kit.py. Application now implemented: worker suite 33 passed incl. services/worker/tests/features/test_f16.py (11 cases: good image readable+no issues, unsupported/undecodable/format-mismatch rejected, low-res/dark guidance, blur advisory, no confidence %, bomb rejected, dispatcher gate). ruff clean; apps/web vitest 20 passed. ESLint blocked in this env (missing @eslint/eslintrc). Live Storage fetch and the nameplate paid-path invocation remain BLOCKED.
