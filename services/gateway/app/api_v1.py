@@ -12,13 +12,14 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Header, HTTPException, Path, Request, status
+from fastapi import APIRouter, Header, HTTPException, Path, Query, Request, status
 from fastapi.responses import JSONResponse
 
 from app import enquiries as enquiries_uc
 from app import ocr_confirmation as ocr_uc
 from app import uploads as uploads_uc
 from app.auth import authenticate
+from app.features import f19_enquiry_history as history_uc
 from partsiq_common.contracts import ConfirmExtraction, EnquiryCreate, MessageCreate
 from partsiq_common.errors import PartsIQError, error_envelope, http_status_for
 
@@ -45,6 +46,25 @@ def _as_response(error: PartsIQError, request: Request) -> JSONResponse:
         status_code=http_status_for(error.code),
         content=error_envelope(error.code, request_id, error.message),
     )
+
+
+@router.get("/enquiries")
+async def list_enquiries(
+    request: Request,
+    cursor: str | None = Query(default=None),
+    limit: int = Query(default=20),
+    status_filter: str | None = Query(default=None, alias="status"),
+):
+    actor = await _actor(request)
+    try:
+        result = await history_uc.list_history(
+            actor,
+            history_uc.F19Request(cursor=cursor, limit=limit, status=status_filter),
+            repo=_require(request, "history_repo"),
+        )
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
 
 
 @router.post("/enquiries", status_code=status.HTTP_202_ACCEPTED)

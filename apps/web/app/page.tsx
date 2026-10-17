@@ -56,6 +56,7 @@ export default function LandingPage(): JSX.Element {
           {busy ? "Starting…" : "Start demo"}
         </button>
         <a href="/architecture">How it works (architecture)</a>
+        <a href="/history">Your enquiries</a>
         {REPO_URL ? <a href={REPO_URL}>Source code</a> : null}
       </div>
 

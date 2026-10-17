@@ -234,3 +234,11 @@
 4. BLOCKED: live enquiry_items/fulfilment_plans Postgres adapter + RLS; the gateway public /v1/enquiries/{id}/items/resolve proxy route; HTTP path exercised offline only (function-level tests + fake store).
 5. Next: F19 (enquiry history).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F19 (enquiry history)
+1. Work: services/gateway/app/features/f19_enquiry_history.py (list_history: owned-only from ActorContext so a foreign owner id is structurally ignored; demo active-generation scoping via the repo; keyset cursor over (created_at,id) -> equal timestamps never dup/skip; opaque base64 cursor, invalid -> 422; limit 1..100 -> 422; over-fetch+1 for next_cursor). api_v1.py GET /v1/enquiries. apps/web lib/features/f19_enquiry_history.ts + components/features/HistoryList.tsx + app/history/page.tsx; landing nav link.
+2. Verification: gateway suite 44 passed incl. tests/features/test_f19.py (8); ruff clean; apps/web vitest 20 passed. Commands: (services/gateway) python -m pytest -q; (apps/web) pnpm test.
+3. Design: ownership never from client input; cursor is opaque; created_at drives ordering (EnquiryView exposes updated_at per the fixed schema, so the list shows updated_at); scoped 404 on foreign/expired conversation links.
+4. BLOCKED: live enquiries Postgres adapter + RLS; real demo-generation filter at the DB.
+5. Next: F55 (saved machines).
+6. Model/version: claude-opus-4-8[1m].

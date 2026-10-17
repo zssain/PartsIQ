@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/gateway |
 | Implementing prompts | F19; foundations 07, 08, 19 |
 | Affected flows | FLOW.md row F19 |
@@ -28,6 +28,7 @@ enquiries. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F19 | list_history keyset pagination + GET /v1/enquiries + web HistoryList/history page | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: gateway suite 44 passed incl. services/gateway/tests/features/test_f19.py (8 cases: newest-first, foreign-owner-ignored, equal-timestamp no dup/skip, status filter, invalid cursor 422, invalid limit 422, cursor roundtrip, dependency failure). ruff clean; apps/web vitest 20 passed. Live enquiries adapter + RLS BLOCKED.

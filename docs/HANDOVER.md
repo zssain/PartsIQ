@@ -185,3 +185,10 @@ Completed through F17 (multi-part enquiries):
 - Verification: orchestrator suite 59 passed + 1 skip incl. tests/features/test_f17.py (12 cases); ruff clean; apps/web vitest 20 passed.
 - BLOCKED: live enquiry_items/fulfilment_plans adapter + RLS; the gateway public proxy route; HTTP exercised offline only.
 - Next: F19 (enquiry history).
+
+Completed through F19 (enquiry history):
+- services/gateway/app/features/f19_enquiry_history.py: list_history(actor, F19Request)->F19Result over an injected HistoryRepository. Owned-only (ownership derived from ActorContext; no owner field on the request to spoof); demo sees only the active generation; keyset pagination on the stable (created_at,id) pair so equal timestamps never duplicate or skip; opaque base64 cursor (invalid -> 422); limit bounded 1..100 (-> 422); over-fetch-by-one yields next_cursor.
+- api_v1.py: GET /v1/enquiries wired to the use case. apps/web: lib + HistoryList + app/history/page.tsx (first page on mount, cursor "Load more"); landing nav link to /history.
+- Verification: gateway suite 44 passed incl. tests/features/test_f19.py (8 cases: newest-first, foreign-owner-ignored, equal-timestamp no dup/skip across pages, status filter, invalid cursor 422, invalid limit 422, cursor roundtrip, dependency failure); ruff clean; apps/web vitest 20 passed.
+- BLOCKED: live enquiries adapter + RLS; DB-level demo-generation filter.
+- Next: F55 (saved machines).
