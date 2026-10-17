@@ -1,85 +1,215 @@
 @import "tailwindcss";
 
-/* PartsIQ brand tokens (brand/tokens.css): navy + gold. Light values here; dark theme is
-   layered by F08. Kept as CSS custom properties so components reference tokens, not hexes. */
+/* =============================================================================
+   PartsIQ design system — navy + gold brand, oil-slick aurora, glass surfaces.
+   Components reference semantic tokens (never raw hexes). Dark theme is applied
+   via a pre-hydration data-theme attribute (F08); light/dark both supported.
+   ========================================================================== */
 :root {
+  color-scheme: light;
+
+  /* Brand */
   --pq-navy: #0b1f3a;
   --pq-navy-600: #13315c;
   --pq-gold: #c9a227;
-  --pq-bg: #f8fafc;
+  --pq-gold-bright: #e3b341;
+
+  /* Iridescent accents for the oil/aurora effect */
+  --pq-cyan: #22d3ee;
+  --pq-violet: #a855f7;
+  --pq-teal: #2dd4bf;
+  --pq-pink: #f472b6;
+
+  /* Semantic surfaces (light) */
+  --pq-bg: #f6f8fc;
+  --pq-bg-2: #eef2f9;
   --pq-fg: #0b1f3a;
-  --pq-muted: #6b7280;
-  --pq-border: #e5e7eb;
-}
-
-html {
-  color: var(--pq-fg);
-  background: var(--pq-bg);
-}
-
-body {
-  margin: 0;
-  font-family: "Noto Sans", system-ui, -apple-system, sans-serif;
-}
-
-[dir="rtl"] {
-  font-family: "Noto Sans Arabic", "Noto Naskh Arabic", system-ui, sans-serif;
-}
-
-/* F08: dark theme via a DOM attribute set before hydration (no React-managed attribute, so no
-   hydration mismatch). Navy background + near-white foreground keep WCAG AA contrast; gold
-   accents and the focus ring remain visible. color-scheme hints native widgets/scrollbars. */
-:root {
-  color-scheme: light;
+  --pq-muted: #5b6b85;
+  --pq-border: #e2e8f3;
+  --pq-card: #ffffff;
+  --pq-card-2: #f8fafd;
   --pq-focus: #c9a227;
+
+  --pq-glass: rgba(255, 255, 255, 0.62);
+  --pq-glass-border: rgba(11, 31, 58, 0.1);
+  --pq-glass-hi: rgba(255, 255, 255, 0.9);
+
+  --pq-shadow-sm: 0 1px 2px rgba(11, 31, 58, 0.06), 0 1px 3px rgba(11, 31, 58, 0.08);
+  --pq-shadow-md: 0 8px 24px rgba(11, 31, 58, 0.1), 0 2px 6px rgba(11, 31, 58, 0.06);
+  --pq-shadow-lg: 0 24px 60px rgba(11, 31, 58, 0.16), 0 8px 20px rgba(11, 31, 58, 0.1);
+  --pq-glow: 0 0 0 1px rgba(201, 162, 39, 0.3), 0 12px 40px rgba(201, 162, 39, 0.18);
+
+  --pq-radius: 16px;
+  --pq-radius-lg: 24px;
+  --pq-radius-xl: 32px;
+
+  --pq-grad-brand: linear-gradient(135deg, var(--pq-gold-bright), var(--pq-gold) 40%, #b8860b);
+  --pq-grad-iris: linear-gradient(120deg, var(--pq-cyan), var(--pq-violet) 45%, var(--pq-pink) 75%, var(--pq-gold-bright));
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --pq-navy: #0b1f3a;
-  --pq-bg: #0b1420;
+  --pq-bg: #070d18;
+  --pq-bg-2: #0a1222;
   --pq-fg: #e8eef7;
-  --pq-muted: #9aa7b8;
-  --pq-border: #24344d;
+  --pq-muted: #9fb0c8;
+  --pq-border: #1c2a44;
+  --pq-card: rgba(18, 28, 48, 0.72);
+  --pq-card-2: rgba(13, 21, 38, 0.72);
   --pq-gold: #e0b73a;
-  --pq-focus: #e0b73a;
+  --pq-gold-bright: #ffcf4d;
+  --pq-focus: #ffcf4d;
+
+  --pq-glass: rgba(20, 30, 52, 0.55);
+  --pq-glass-border: rgba(255, 255, 255, 0.08);
+  --pq-glass-hi: rgba(255, 255, 255, 0.14);
+
+  --pq-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --pq-shadow-md: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --pq-shadow-lg: 0 30px 70px rgba(0, 0, 0, 0.6);
+  --pq-glow: 0 0 0 1px rgba(255, 207, 77, 0.25), 0 14px 50px rgba(255, 207, 77, 0.18);
 }
 
-/* Accessible, always-visible keyboard focus (F08 contrast requirement). */
-:focus-visible {
-  outline: 2px solid var(--pq-focus);
-  outline-offset: 2px;
-}
+* { box-sizing: border-box; }
 
-/* Honor the user's reduced-motion setting (F08). */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* F06 responsive: no page-wide horizontal overflow; wide content scrolls within its own region;
-   primary review actions stay reachable without covering content (sticky, with safe-area pad). */
 html {
+  color: var(--pq-fg);
+  background: var(--pq-bg);
   max-width: 100%;
   overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-.pq-scroll-x {
-  overflow-x: auto;
-  max-width: 100%;
-  -webkit-overflow-scrolling: touch;
+body {
+  margin: 0;
+  font-family: "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, color-mix(in srgb, var(--pq-cyan) 10%, transparent), transparent 60%),
+    radial-gradient(1000px 700px at 110% 10%, color-mix(in srgb, var(--pq-violet) 10%, transparent), transparent 60%),
+    var(--pq-bg);
+  background-attachment: fixed;
 }
 
-.pq-sticky-actions {
-  position: sticky;
-  bottom: 0;
-  background: var(--pq-bg);
-  padding: 8px 0;
-  border-top: 1px solid var(--pq-border);
+[dir="rtl"] { font-family: "Noto Sans Arabic", "Noto Naskh Arabic", system-ui, sans-serif; }
+
+a { color: inherit; text-decoration: none; }
+h1, h2, h3 { line-height: 1.1; letter-spacing: -0.02em; margin: 0; }
+
+:focus-visible { outline: 2px solid var(--pq-focus); outline-offset: 3px; border-radius: 6px; }
+
+/* ---------- Oil-slick aurora background ---------- */
+.pq-aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.pq-aurora::before,
+.pq-aurora::after {
+  content: "";
+  position: absolute;
+  width: 55vw;
+  height: 55vw;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  background: conic-gradient(from 0deg, var(--pq-cyan), var(--pq-violet), var(--pq-pink), var(--pq-gold-bright), var(--pq-teal), var(--pq-cyan));
+  animation: pq-aurora-spin 26s linear infinite;
+}
+.pq-aurora::before { top: -12vw; left: -8vw; }
+.pq-aurora::after { bottom: -16vw; right: -10vw; animation-duration: 34s; animation-direction: reverse; opacity: 0.4; }
+:root[data-theme="dark"] .pq-aurora::before,
+:root[data-theme="dark"] .pq-aurora::after { opacity: 0.35; }
+
+@keyframes pq-aurora-spin { to { transform: rotate(360deg); } }
+
+/* ---------- Glass + cards ---------- */
+.pq-glass {
+  background: var(--pq-glass);
+  border: 1px solid var(--pq-glass-border);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+.pq-card {
+  position: relative;
+  background: var(--pq-card);
+  border: 1px solid var(--pq-glass-border);
+  border-radius: var(--pq-radius-lg);
+  box-shadow: var(--pq-shadow-md);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.pq-card:hover { box-shadow: var(--pq-shadow-lg); border-color: color-mix(in srgb, var(--pq-gold) 35%, var(--pq-glass-border)); }
+/* oil sheen that follows the pointer (set via --mx/--my on the element) */
+.pq-tilt { transform-style: preserve-3d; will-change: transform; }
+.pq-tilt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(500px circle at var(--mx, 50%) var(--my, 0%),
+    color-mix(in srgb, var(--pq-gold-bright) 30%, transparent), transparent 40%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.pq-tilt:hover::after { opacity: 0.5; }
+
+/* ---------- Buttons ---------- */
+.pq-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.2rem; border-radius: 999px; font-weight: 600; font-size: 0.95rem;
+  border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+  transition: transform 0.15s ease, box-shadow 0.25s ease, background 0.25s ease, color 0.2s ease;
+}
+.pq-btn:active { transform: translateY(1px) scale(0.99); }
+.pq-btn-primary { background: var(--pq-grad-brand); color: #1a1405; box-shadow: var(--pq-glow); }
+.pq-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 18px 50px rgba(227, 179, 65, 0.4); }
+.pq-btn-ghost { background: var(--pq-glass); border-color: var(--pq-glass-border); color: var(--pq-fg); }
+.pq-btn-ghost:hover { border-color: color-mix(in srgb, var(--pq-gold) 50%, transparent); transform: translateY(-2px); }
+.pq-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ---------- Text + misc ---------- */
+.pq-gradient-text {
+  background: var(--pq-grad-iris);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  animation: pq-text-pan 8s ease infinite;
+}
+@keyframes pq-text-pan { 0%,100% { background-position: 0% center; } 50% { background-position: 100% center; } }
+
+.pq-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.3rem 0.7rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+  background: var(--pq-glass); border: 1px solid var(--pq-glass-border); color: var(--pq-muted);
+}
+.pq-chip { padding: 0.25rem 0.6rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--pq-glass-border); }
+.pq-muted { color: var(--pq-muted); }
+
+/* ---------- Scroll reveal ---------- */
+.pq-reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.pq-reveal.pq-in { opacity: 1; transform: none; }
+
+@keyframes pq-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes pq-pulse { 0% { box-shadow: 0 0 0 0 rgba(201,162,39,0.5);} 70%{ box-shadow: 0 0 0 12px rgba(201,162,39,0);} 100%{ box-shadow:0 0 0 0 rgba(201,162,39,0);} }
+@keyframes pq-flow-dash { to { stroke-dashoffset: -24; } }
+@keyframes pq-spin { to { transform: rotate(360deg); } }
+.pq-float { animation: pq-float 6s ease-in-out infinite; }
+
+/* ---------- Layout helpers ---------- */
+.pq-container { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+.pq-scroll-x { overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch; }
+.pq-sticky-actions { position: sticky; bottom: 0; background: var(--pq-glass); backdrop-filter: blur(12px); padding: 10px 0; border-top: 1px solid var(--pq-glass-border); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+  }
+  .pq-reveal { opacity: 1; transform: none; }
 }

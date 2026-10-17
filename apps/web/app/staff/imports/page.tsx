@@ -27,9 +27,16 @@ export default function StaffImportsPage(): JSX.Element {
   }, []);
 
   return (
-    <main>
-      <h1>Catalogue imports</h1>
-      <ImportWizard value={value} loading={loading} error={error} onAction={run} />
-    </main>
+    <div className="pq-container" style={{ paddingTop: 40, paddingBottom: 40 }}>
+      <span className="pq-badge" style={{ marginBottom: 12 }}>Staff · imports · admin</span>
+      <h1 style={{ fontSize: "clamp(1.7rem, 4vw, 2.6rem)", fontWeight: 800 }}>Catalogue imports</h1>
+      <p className="pq-muted" style={{ marginTop: 10, marginBottom: 20, maxWidth: 620 }}>
+        Dry-run validation reads CSV/XLSX without evaluating formulas, rejects macros, and checks schema, references,
+        serial overlap, supersession cycles and source evidence — before anything is published.
+      </p>
+      <div className="pq-card" style={{ padding: 20 }}>
+        <ImportWizard value={value} loading={loading} error={error} onAction={run} />
+      </div>
+    </div>
   );
 }

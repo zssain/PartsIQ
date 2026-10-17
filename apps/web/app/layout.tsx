@@ -3,19 +3,21 @@ import type { JSX, ReactNode } from "react";
 
 import "../styles/tokens.css";
 import { requestLocale } from "@/i18n/request";
+import { Aurora } from "@/components/ui/Aurora";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 
 export const metadata = {
-  title: "PartsIQ — synthetic demo",
-  description: "AI-assisted spare-parts identification. Independent synthetic demonstration project.",
+  title: "PartsIQ — AI spare-parts identification (synthetic demo)",
+  description:
+    "AI-assisted spare-parts identification for equipment distributors. Independent synthetic demonstration.",
 };
 
-// Root shell. F07: lang/dir come from the `locale` preference cookie (default English LTR).
-// Theme (F08) and the responsive shell (F06) are layered below.
+// Root shell. F07 lang/dir from the locale cookie; F08 no-flash theme script; the oil-slick aurora,
+// sticky glass header and footer frame every page.
 export default async function RootLayout({ children }: { children: ReactNode }): Promise<JSX.Element> {
   const store = await cookies();
   const { locale, direction } = requestLocale(store.get("locale")?.value ?? null);
-  // F08: set data-theme before paint from saved preference then system setting. This touches a
-  // DOM attribute React does not manage, so there is no hydration mismatch and no flash.
   const themeInit =
     "try{var t=localStorage.getItem('pq-theme');" +
     "if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}" +
@@ -26,9 +28,10 @@ export default async function RootLayout({ children }: { children: ReactNode }):
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
-        <div style={{ maxWidth: 960, margin: "0 auto", padding: "16px", width: "100%", overflowX: "hidden" }}>
-          {children}
-        </div>
+        <Aurora />
+        <SiteHeader locale={locale} />
+        <main style={{ minHeight: "70vh" }}>{children}</main>
+        <SiteFooter />
       </body>
     </html>
   );

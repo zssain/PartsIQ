@@ -1,0 +1,120 @@
+{
+  "model": {
+    "brand": "Corvane Air",
+    "model_code": "CA-110",
+    "display_name": "CA-110 Rotary Screw Compressor",
+    "rated_output": "110 kW",
+    "configurations": [
+      {
+        "config_code": "A",
+        "description": "Water-cooled, 8 bar",
+        "serial_start": 800000,
+        "serial_end": 839999
+      },
+      {
+        "config_code": "B",
+        "description": "Air-cooled, 8 bar",
+        "serial_start": 840000,
+        "serial_end": 879999
+      }
+    ]
+  },
+  "air_filter": {
+    "part_number": "CA-AF-8973",
+    "name_en": "Air filter element",
+    "name_ar": "فلتر هواء",
+    "category": "filters",
+    "description_en": "Air filter element for Corvane Air frame M. 199 mm element, cellulose media."
+  },
+  "incompatible": {
+    "part_number": "CA-AF-1828",
+    "name_en": "Air filter element",
+    "name_ar": "فلتر هواء",
+    "category": "filters",
+    "description_en": "Air filter element for Corvane Air frame S. 453 mm element, microglass media."
+  },
+  "stock": [
+    {
+      "warehouse": "JED",
+      "on_hand": 46,
+      "reserved": 5
+    },
+    {
+      "warehouse": "RUH",
+      "on_hand": 0,
+      "reserved": 0
+    },
+    {
+      "warehouse": "DMM",
+      "on_hand": 0,
+      "reserved": 0
+    }
+  ],
+  "compatibility": [
+    {
+      "part_number": "CA-AF-8973",
+      "brand": "Corvane Air",
+      "model_code": "CA-110",
+      "config_code": "A",
+      "qty_per_unit": 1.0,
+      "source_reference": "SYNTH-CA-PB-CA-110 rev 1, section FILTERS"
+    },
+    {
+      "part_number": "CA-AF-8973",
+      "brand": "Corvane Air",
+      "model_code": "CA-110",
+      "config_code": "B",
+      "qty_per_unit": 1.0,
+      "source_reference": "SYNTH-CA-PB-CA-110 rev 1, section FILTERS"
+    }
+  ],
+  "warehouses": [
+    {
+      "code": "JED",
+      "name": "Western Regional Warehouse (Jeddah)",
+      "region": "Western"
+    },
+    {
+      "code": "RUH",
+      "name": "Central Regional Warehouse (Riyadh)",
+      "region": "Central"
+    },
+    {
+      "code": "DMM",
+      "name": "Eastern Regional Warehouse (Dammam)",
+      "region": "Eastern"
+    }
+  ],
+  "transfer_routes": [
+    {
+      "from_code": "JED",
+      "to_code": "RUH",
+      "transfer_days": 2
+    },
+    {
+      "from_code": "JED",
+      "to_code": "DMM",
+      "transfer_days": 3
+    },
+    {
+      "from_code": "RUH",
+      "to_code": "JED",
+      "transfer_days": 2
+    },
+    {
+      "from_code": "RUH",
+      "to_code": "DMM",
+      "transfer_days": 1
+    },
+    {
+      "from_code": "DMM",
+      "to_code": "JED",
+      "transfer_days": 3
+    },
+    {
+      "from_code": "DMM",
+      "to_code": "RUH",
+      "transfer_days": 1
+    }
+  ]
+}
