@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | docs |
 | Implementing prompts | F69; foundations 27 |
 | Affected flows | FLOW.md row F69 |
@@ -28,6 +28,7 @@ none. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 and s
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F69 | docs/DEMO_SCRIPT.md (3+8 min scripts, 5 scenarios, captions) + docs/RECORDING_CHECKLIST.md | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: run_checks --feature F69 -> tests/acceptance/test_f69.py PASS (7 cases incl. no-false-video-claim). ruff clean.

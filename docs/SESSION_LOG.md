@@ -419,3 +419,11 @@
 4. PACKAGE DEVIATION: python-docx==1.2.0 was authorized but NOT installed — the deliverable is markdown (RECRUITER_GUIDE.md) and its test validates markdown, so the package has no consumer; installing it would add an unused dependency and re-lock risk. Documented here as a deliberate reduce-scope decision (does not exceed approval).
 5. Next: F69 (demo walkthrough).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F69 (demo walkthrough)
+1. Work: docs/DEMO_SCRIPT.md (3-minute + 8-minute scripts covering happy path, missing serial, incompatibility, stock split, human review; caption tracks) + docs/RECORDING_CHECKLIST.md (before/during/after: synthetic-data check, reset, failure handling, verify every link; do not claim a video until recorded).
+2. Verification: run_checks --feature F69 -> tests/acceptance/test_f69.py PASS (7: both scripts, all five scenarios, captions, synthetic+failure+reset, no false video claim, checklist link/failure/reset, checklist no-video-claim); ruff clean.
+3. Design: no video claimed until recorded (forbidden-claim test on both docs); synthetic data; failure handling + demo reset shown; verify links before sending to recruiters.
+4. BLOCKED: the actual recording (requires the hosted demo live run, itself BLOCKED).
+5. === F-COVERAGE COMPLETE: all 26 F-prompts (F16,F17,F19,F55,F56,F59,F57,F58,F60,F35,F29,F31,F38,F42,F41,F43,F44,F36,F07,F08,F06,F48,F63,F65,F68,F69) implemented + committed independently. ===
+6. Model/version: claude-opus-4-8[1m].

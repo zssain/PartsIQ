@@ -331,3 +331,11 @@ Completed through F68 (recruiter documentation):
 - Verification: run_checks --feature F68 -> tests/acceptance/test_f68.py PASS (6 cases incl. a forbidden-claims scan: no invented accuracy/uptime/clients/production adoption); ruff clean.
 - PACKAGE DEVIATION: python-docx==1.2.0 authorized but not installed — no consumer (deliverable is markdown; test validates markdown). Deliberate reduce-scope to avoid an unused dependency + re-lock risk.
 - Next: F69 (demo walkthrough).
+
+Completed through F69 (demo walkthrough):
+- docs/DEMO_SCRIPT.md (3-min + 8-min scripts across happy path / missing serial / incompatibility / stock split / human review, with caption tracks) + docs/RECORDING_CHECKLIST.md (synthetic-data check, reset, failure handling, verify-every-link; no video claimed until recorded).
+- Verification: run_checks --feature F69 -> tests/acceptance/test_f69.py PASS (7 cases incl. forbidden-video-claim scans on both docs); ruff clean.
+- BLOCKED: the actual recording (needs the live hosted demo).
+
+=== F-COVERAGE COMPLETE ===
+All 26 remaining F-prompts implemented this session (F16,F17,F19,F55,F56,F59,F57,F58,F60,F35,F29,F31,F38,F42,F41,F43,F44,F36,F07,F08,F06,F48,F63,F65,F68,F69), each a separate commit with a pre-fNN tag. The numeric build 00-27 plus all F-coverage prompts are now done. Live infrastructure remains BLOCKED throughout (Supabase/Redis/pgvector+BGE-M3/OpenAI/Chromium/AWS/Vercel/hosted acceptance) and is tested offline with injected fakes, never faked as passing.
