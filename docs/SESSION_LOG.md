@@ -299,3 +299,11 @@
 4. BLOCKED: live stock reader (pgvector/stock adapter) + the orchestrator->search /internal/stock/check call during approval.
 5. Next: F29 (evidence page viewer).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F29 (evidence page viewer)
+1. Work: services/gateway/app/features/f29_evidence_page_viewer.py (open_evidence: assigned-reviewer or own-demo authorization else 404; typed evidence_id resolved to document+page within the revision, unknown/arbitrary -> 404; worker-signed short-lived PDF URL; synthetic=True always; stale revision 409; re-call renews the link). api_v1 POST /v1/staff/evidence/open. apps/web lib + EvidenceViewer; staff enquiry page hosts it.
+2. Verification: gateway suite 87 passed incl. tests/features/test_f29.py (8); ruff clean; apps/web vitest 20 passed.
+3. Design: customer gets reference only (non-assigned -> 404); never accepts a raw Storage key (typed evidence id only); every document labelled synthetic; expired link renewed by re-authorizing.
+4. BLOCKED: worker Storage signer + live access/evidence adapter.
+5. Next: F31 (candidate comparison).
+6. Model/version: claude-opus-4-8[1m].

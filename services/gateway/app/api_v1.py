@@ -20,6 +20,7 @@ from app import ocr_confirmation as ocr_uc
 from app import uploads as uploads_uc
 from app.auth import authenticate
 from app.features import f19_enquiry_history as history_uc
+from app.features import f29_evidence_page_viewer as evidence_uc
 from app.features import f55_saved_machines as machines_uc
 from app.features import f56_repeat_enquiry as repeat_uc
 from app.features import f57_catalogue_browser as catalogue_uc
@@ -199,6 +200,16 @@ async def validate_import(request: Request, batch_id: UUID = Path()):
     except PartsIQError as exc:
         return _as_response(exc, request)
     return result
+
+
+@router.post("/staff/evidence/open")
+async def open_evidence(body: evidence_uc.F29Request, request: Request):
+    actor = await _actor(request)
+    try:
+        result = await evidence_uc.open_evidence(actor, body, store=_require(request, "evidence_store"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
 
 
 @router.patch("/staff/missing-parts/{item_id}")

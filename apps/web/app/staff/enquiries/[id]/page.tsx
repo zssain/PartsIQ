@@ -4,8 +4,10 @@ import { use, useCallback, useState, type JSX } from "react";
 
 import { ApiError } from "@/lib/api";
 import { StockFreshness } from "@/components/features/StockFreshness";
+import { EvidenceViewer } from "@/components/features/EvidenceViewer";
 import { Workspace } from "@/components/review/Workspace";
 import type { F35Request, F35Result } from "@/lib/features/f35_stock_freshness";
+import { openEvidence, type F29Request, type F29Result } from "@/lib/features/f29_evidence_page_viewer";
 
 // F35: the reviewer can re-check stock freshness for the enquiry under review. The freshness
 // verdict is computed server-side (gateway attaches the verified facts and calls the search
@@ -26,6 +28,18 @@ export default function StaffEnquiryPage({
     setFreshness(null);
   }, []);
 
+  // F29: open a cited (synthetic) evidence document behind a short-lived signed URL.
+  const [evidence, setEvidence] = useState<F29Result | null>(null);
+  const [evidenceError, setEvidenceError] = useState<ApiError | null>(null);
+  const openCited = useCallback(async (request: F29Request) => {
+    setEvidenceError(null);
+    try {
+      setEvidence(await openEvidence(request));
+    } catch (err) {
+      setEvidenceError(err instanceof ApiError ? err : null);
+    }
+  }, []);
+
   return (
     <main>
       <h1>Review enquiry</h1>
@@ -37,6 +51,7 @@ export default function StaffEnquiryPage({
         enquiryId={id}
         expectedRevision={1}
       />
+      <EvidenceViewer value={evidence} loading={false} error={evidenceError} onAction={openCited} enquiryId={id} />
       <Workspace enquiryId={id} />
     </main>
   );

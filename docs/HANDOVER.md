@@ -240,3 +240,10 @@ Completed through F35 (stock freshness):
 - Verification: search suite 88 passed incl. tests/features/test_f35.py (8 cases: fresh, stale, future, insufficient, refreshed, unknown, max_age 422, dependency failure); orchestrator 59+1skip; ruff clean; vitest 20.
 - BLOCKED: live stock reader + orchestrator->search freshness call during approval.
 - Next: F29 (evidence page viewer).
+
+Completed through F29 (evidence page viewer):
+- services/gateway/app/features/f29_evidence_page_viewer.py: open_evidence(actor, F29Request)->F29Result over an injected EvidenceStore. Assigned reviewer / own demo reviewer only (customer -> 404, reference only); typed evidence_id resolved to doc+page within the revision (unknown/arbitrary -> 404, never a raw Storage key); worker-signed short-lived PDF URL; synthetic=True; stale revision 409; re-call renews an expired link.
+- api_v1: POST /v1/staff/evidence/open. apps/web: lib + EvidenceViewer; staff enquiry page (client island) hosts it (signing BLOCKED).
+- Verification: gateway suite 87 passed incl. tests/features/test_f29.py (8 cases: assigned open, own-demo open, customer 404, demo-mismatch 404, arbitrary id 404, stale 409, link renewal, dependency failure); ruff clean; vitest 20.
+- BLOCKED: worker Storage signer + live access/evidence adapter.
+- Next: F31 (candidate comparison, web/vitest).
