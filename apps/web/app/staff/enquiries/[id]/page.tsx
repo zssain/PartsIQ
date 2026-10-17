@@ -6,8 +6,10 @@ import { ApiError } from "@/lib/api";
 import { StockFreshness } from "@/components/features/StockFreshness";
 import { EvidenceViewer } from "@/components/features/EvidenceViewer";
 import { CandidateComparison } from "@/components/features/CandidateComparison";
+import { CorrectionEditor } from "@/components/features/CorrectionEditor";
 import { Workspace } from "@/components/review/Workspace";
 import type { F31Request, F31Result } from "@/lib/features/f31_candidate_comparison";
+import { correctExtraction, type F38Request, type F38Result } from "@/lib/features/f38_correct_extracted_details";
 import type { F35Request, F35Result } from "@/lib/features/f35_stock_freshness";
 import { openEvidence, type F29Request, type F29Result } from "@/lib/features/f29_evidence_page_viewer";
 
@@ -49,6 +51,18 @@ export default function StaffEnquiryPage({
     // Selecting sends the candidate id only; server re-derives facts (BLOCKED here).
   }, []);
 
+  // F38: correct typed extracted details; the server locks + increments + re-runs the pipeline.
+  const [correction, setCorrection] = useState<F38Result | null>(null);
+  const [correctionError, setCorrectionError] = useState<ApiError | null>(null);
+  const applyCorrection = useCallback(async (request: F38Request) => {
+    setCorrectionError(null);
+    try {
+      setCorrection(await correctExtraction(request));
+    } catch (err) {
+      setCorrectionError(err instanceof ApiError ? err : null);
+    }
+  }, []);
+
   return (
     <main>
       <h1>Review enquiry</h1>
@@ -62,6 +76,7 @@ export default function StaffEnquiryPage({
       />
       <EvidenceViewer value={evidence} loading={false} error={evidenceError} onAction={openCited} enquiryId={id} />
       <CandidateComparison value={comparison} loading={false} error={null} onAction={chooseCandidate} />
+      <CorrectionEditor value={correction} loading={false} error={correctionError} onAction={applyCorrection} enquiryId={id} />
       <Workspace enquiryId={id} />
     </main>
   );

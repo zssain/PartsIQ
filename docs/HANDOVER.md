@@ -253,3 +253,9 @@ Completed through F31 (candidate comparison):
 - Verification: apps/web vitest 29 passed (7 files, +9 F31 cases: 2/3-way compare, missing attr null, foreign id, stale revision, count bounds, select sends id + keyboard focus, empty/loading). vitest is the gate (no Python owner).
 - BLOCKED: live review candidate load + selection POST (page island uses a no-op onAction).
 - Next: F38 (correct extracted details, orchestrator).
+
+Completed through F38 (correct extracted details):
+- services/orchestrator/app/features/f38_correct_extracted_details.py: correct_extraction(actor, F38Request)->F38Result wraps app.revisions.revise (lock + authorize + stale check + apply) with correction guards: typed ItemCorrection fields only, an empty correction -> 422, a result claiming approved -> 409. ItemCorrection has no status/part/candidate field, so a correction cannot approve or invent facts. handlers.reset_derived_state clears draft/verification/pending and re-enters intake (the recomputation reset). routes.py exposes /internal/enquiries/correct via the internal_router; gateway f38_correction_routes forwards POST /v1/staff/enquiries/{id}/corrections after a review-access check. apps/web: lib + CorrectionEditor; staff enquiry page island.
+- Verification: orchestrator 67+1skip incl. tests/features/test_f38.py (8 cases: apply+increment, empty 422, stale 409, foreign 404, approved-result 409, schema cannot invent facts, dependency failure, reset_derived_state); gateway 87; ruff clean; vitest 29.
+- BLOCKED: live locked revision transaction + gateway->orchestrator forward.
+- Next: F42 (assignments).

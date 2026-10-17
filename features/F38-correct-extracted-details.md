@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/orchestrator |
 | Implementing prompts | F38; foundations 09, 14, 20 |
 | Affected flows | FLOW.md row F38 |
@@ -28,6 +28,7 @@ enquiry_revisions, correction_records. Exact columns,keys,indexes and policies a
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F38 | correct_extraction over revise + reset_derived_state + /internal/enquiries/correct + gateway route + web CorrectionEditor | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: orchestrator 67+1skip incl. services/orchestrator/tests/features/test_f38.py (8 cases). gateway 87; ruff clean; apps/web vitest 29. Live locked revision tx + forward BLOCKED.

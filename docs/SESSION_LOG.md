@@ -315,3 +315,11 @@
 4. BLOCKED: live review candidate load + selection POST (BLOCKED; the page island uses a no-op onAction).
 5. Next: F38 (correct extracted details).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F38 (correct extracted details)
+1. Work: services/orchestrator/app/features/f38_correct_extracted_details.py (correct_extraction wraps revisions.revise: typed ItemCorrection fields only, empty correction -> 422, stale -> 409, foreign -> 404; refuses a result claiming approved -> 409; schema structurally has no status/part fields). handlers.reset_derived_state (clears draft/verification/pending + re-enters intake). routes.py /internal/enquiries/correct (reuses internal_router). gateway f38_correction_routes + POST /v1/staff/enquiries/{id}/corrections (require review). apps/web lib + CorrectionEditor; staff enquiry page island.
+2. Verification: orchestrator suite 67 passed + 1 skip incl. tests/features/test_f38.py (8); gateway 87; ruff clean; apps/web vitest 29 passed.
+3. Design: correction reuses the locked revision machinery (increment + immutable snapshot + invalidate derived + enqueue recompute + before/after); never approves; ItemCorrection cannot carry a part/candidate/status field.
+4. BLOCKED: live locked revision Postgres transaction + gateway->orchestrator correction forward.
+5. Next: F42 (assignments).
+6. Model/version: claude-opus-4-8[1m].

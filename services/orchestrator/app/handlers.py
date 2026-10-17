@@ -42,6 +42,19 @@ def unresolved_items(state: EnquiryState) -> list[UUID]:
     return unresolved_ids(state.items)
 
 
+def reset_derived_state(state: EnquiryState) -> EnquiryState:
+    """F38: after a correction, clear everything DERIVED from the old facts and re-enter the graph.
+
+    A correction invalidates the draft, the verification and any pending question (and, upstream,
+    the candidate selections), so recomputation starts again from intake. Publication/approval is
+    never carried across a correction. This is the single reset the correction-recomputation event
+    applies when it re-enters the workflow.
+    """
+    return state.model_copy(
+        update={"draft_id": None, "verification_id": None, "pending_question": None, "phase": "intake"}
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class WorkflowHandlers:
     intake: Handler

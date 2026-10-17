@@ -16,8 +16,9 @@ from uuid import UUID
 from fastapi import APIRouter, Header, Request
 
 from app.features.f17_multi_part_enquiries import F17Request, F17Result, resolve_items
+from app.features.f38_correct_extracted_details import F38Request, F38Result, correct_extraction
 from app.handlers import missing_handlers
-from partsiq_common.contracts import ActorContext, Contract
+from partsiq_common.contracts import ActorContext, Contract, RevisionRequest
 from partsiq_common.errors import PartsIQError
 
 router = APIRouter()  # prefix-free parent imported by main.py
@@ -41,6 +42,13 @@ class ResolveItemsBody(Contract):
 
     actor: ActorContext
     request: F17Request
+
+
+class CorrectEnquiryBody(Contract):
+    """Internal call body: the gateway-verified actor context plus the typed correction (F38)."""
+
+    actor: ActorContext
+    change: RevisionRequest
 
 
 @workflow_router.get("/readiness")
@@ -76,6 +84,20 @@ async def resolve_items_route(
     if store is None:
         raise PartsIQError("DEPENDENCY_UNAVAILABLE", internal_detail="item planning store not configured")
     return await resolve_items(body.actor, body.request, store=store)
+
+
+@internal_router.post("/enquiries/correct", response_model=None)
+async def correct_enquiry_route(
+    request: Request,
+    body: CorrectEnquiryBody,
+    x_internal_token: str | None = Header(default=None),
+) -> F38Result:
+    """Apply typed extracted-detail corrections (F38). The revision store is injected (BLOCKED here)."""
+    verify_internal_token(x_internal_token)
+    repo = getattr(request.app.state, "revision_repo", None)
+    if repo is None:
+        raise PartsIQError("DEPENDENCY_UNAVAILABLE", internal_detail="revision store not configured")
+    return await correct_extraction(body.actor, F38Request(change=body.change), repo=repo)
 
 
 router.include_router(workflow_router)

@@ -21,6 +21,7 @@ from app import uploads as uploads_uc
 from app.auth import authenticate
 from app.features import f19_enquiry_history as history_uc
 from app.features import f29_evidence_page_viewer as evidence_uc
+from app.features import f38_correction_routes as correction_uc
 from app.features import f55_saved_machines as machines_uc
 from app.features import f56_repeat_enquiry as repeat_uc
 from app.features import f57_catalogue_browser as catalogue_uc
@@ -197,6 +198,18 @@ async def validate_import(request: Request, batch_id: UUID = Path()):
     actor = await _actor(request)
     try:
         result = await import_uc.request_validate(actor, batch_id, control=_require(request, "import_control"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result
+
+
+@router.post("/staff/enquiries/{enquiry_id}/corrections", status_code=status.HTTP_202_ACCEPTED)
+async def correct_enquiry(body: correction_uc.CorrectionBody, request: Request, enquiry_id: UUID = Path()):
+    actor = await _actor(request)
+    try:
+        result = await correction_uc.request_correction(
+            actor, enquiry_id, body, forwarder=_require(request, "correction_forwarder")
+        )
     except PartsIQError as exc:
         return _as_response(exc, request)
     return result
