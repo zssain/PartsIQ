@@ -10,6 +10,7 @@ fails closed with 503 rather than guessing.
 """
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Header, HTTPException, Path, Query, Request, status
@@ -24,6 +25,7 @@ from app.features import f29_evidence_page_viewer as evidence_uc
 from app.features import f38_correction_routes as correction_uc
 from app.features import f41_internal_notes as notes_uc
 from app.features import f42_assignments as assignments_uc
+from app.features import f43_overdue_indicators as deadline_uc
 from app.features import f55_saved_machines as machines_uc
 from app.features import f56_repeat_enquiry as repeat_uc
 from app.features import f57_catalogue_browser as catalogue_uc
@@ -224,6 +226,20 @@ async def append_note(body: notes_uc.F41Request, request: Request, enquiry_id: U
         return _as_response(PartsIQError("MALFORMED_REQUEST", internal_detail="enquiry id mismatch"), request)
     try:
         result = await notes_uc.append_note(actor, body, repo=_require(request, "notes_repo"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
+
+
+@router.get("/staff/enquiries/{enquiry_id}/deadline")
+async def enquiry_deadline(request: Request, enquiry_id: UUID = Path()):
+    actor = await _actor(request)
+    try:
+        result = await deadline_uc.classify_deadline(
+            actor,
+            deadline_uc.F43Request(enquiry_id=enquiry_id, now=datetime.now(UTC)),  # server UTC time
+            store=_require(request, "deadline_store"),
+        )
     except PartsIQError as exc:
         return _as_response(exc, request)
     return result.model_dump(mode="json")

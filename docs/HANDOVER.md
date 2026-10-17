@@ -271,3 +271,9 @@ Completed through F41 (internal notes):
 - Verification: gateway suite 105 passed incl. tests/features/test_f41.py (9 cases: append author/body, empty 422, over-limit 422, unassigned 404, idempotent, customer-view-has-no-notes, dependency failure, list order, list unassigned 404); ruff clean; vitest 29.
 - BLOCKED: live append-only notes adapter + idempotency_records.
 - Next: F43 (overdue indicators).
+
+Completed through F43 (overdue indicators):
+- services/gateway/app/features/f43_overdue_indicators.py: classify_deadline(actor, F43Request)->F43Result over an injected DeadlineStore. due_at = created_at + configurable urgent(4h)/normal(24h) threshold (UTC); overdue only for unresolved states (approved/rejected/failed never overdue); age_seconds clamped >=0; sort_overdue_first helper. api_v1 GET /v1/staff/enquiries/{id}/deadline (server UTC now). apps/web lib + OverdueBadge (labelled a triage aid, not an SLA); staff enquiry page island.
+- Verification: gateway suite 115 passed incl. tests/features/test_f43.py (11 cases: normal/urgent windows, approved/rejected never overdue, UTC determinism, age clamp, 404, dependency failure, sort order); ruff clean; vitest 29.
+- BLOCKED: live enquiries created_at/urgency/status adapter.
+- Next: F44 (conversation summary).

@@ -9,7 +9,9 @@ import { CandidateComparison } from "@/components/features/CandidateComparison";
 import { CorrectionEditor } from "@/components/features/CorrectionEditor";
 import { AssignmentControl } from "@/components/features/AssignmentControl";
 import { InternalNotes } from "@/components/features/InternalNotes";
+import { OverdueBadge } from "@/components/features/OverdueBadge";
 import { Workspace } from "@/components/review/Workspace";
+import { classifyDeadline, type F43Request, type F43Result } from "@/lib/features/f43_overdue_indicators";
 import { assignEnquiry, type F42Request, type F42Result } from "@/lib/features/f42_assignments";
 import { appendNote, type F41Request, type F41Result } from "@/lib/features/f41_internal_notes";
 import type { F31Request, F31Result } from "@/lib/features/f31_candidate_comparison";
@@ -91,6 +93,18 @@ export default function StaffEnquiryPage({
     }
   }, []);
 
+  // F43: review deadline / overdue badge.
+  const [deadline, setDeadline] = useState<F43Result | null>(null);
+  const [deadlineError, setDeadlineError] = useState<ApiError | null>(null);
+  const checkDeadline = useCallback(async (request: F43Request) => {
+    setDeadlineError(null);
+    try {
+      setDeadline(await classifyDeadline(request));
+    } catch (err) {
+      setDeadlineError(err instanceof ApiError ? err : null);
+    }
+  }, []);
+
   return (
     <main>
       <h1>Review enquiry</h1>
@@ -107,6 +121,7 @@ export default function StaffEnquiryPage({
       <CorrectionEditor value={correction} loading={false} error={correctionError} onAction={applyCorrection} enquiryId={id} />
       <AssignmentControl value={assignment} loading={false} error={assignmentError} onAction={assign} enquiryId={id} />
       <InternalNotes value={note} loading={false} error={noteError} onAction={addNote} enquiryId={id} />
+      <OverdueBadge value={deadline} loading={false} error={deadlineError} onAction={checkDeadline} enquiryId={id} />
       <Workspace enquiryId={id} />
     </main>
   );

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/gateway |
 | Implementing prompts | F43; foundations 20 |
 | Affected flows | FLOW.md row F43 |
@@ -28,6 +28,7 @@ enquiries. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F43 | classify_deadline + sort_overdue_first + GET /v1/staff/enquiries/{id}/deadline + web OverdueBadge/lib | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: gateway suite 115 passed incl. services/gateway/tests/features/test_f43.py (11 cases). ruff clean; apps/web vitest 29. Live enquiries adapter BLOCKED.

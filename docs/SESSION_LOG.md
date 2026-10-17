@@ -339,3 +339,11 @@
 4. BLOCKED: live append-only notes Postgres adapter + idempotency_records.
 5. Next: F43 (overdue indicators).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F43 (overdue indicators)
+1. Work: services/gateway/app/features/f43_overdue_indicators.py (classify_deadline: due_at = created_at + configurable urgent/normal threshold in UTC; overdue only for unresolved states; approved/rejected/failed never overdue; age_seconds clamped >=0; sort_overdue_first helper). api_v1 GET /v1/staff/enquiries/{id}/deadline (server UTC now). apps/web lib + OverdueBadge ("triage aid, not an SLA"); staff enquiry page island.
+2. Verification: gateway suite 115 passed incl. tests/features/test_f43.py (11); ruff clean; apps/web vitest 29 passed.
+3. Design: all instants tz-aware UTC so DST display cannot move the deadline; thresholds env-configurable and explicitly not a contractual SLA; overdue sorts first then earliest-due.
+4. BLOCKED: live enquiries created_at/urgency/status adapter.
+5. Next: F44 (conversation summary).
+6. Model/version: claude-opus-4-8[1m].
