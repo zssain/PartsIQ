@@ -46,7 +46,7 @@ export function Workspace({ enquiryId }: { enquiryId: string }): JSX.Element {
   const { review, candidates, notes } = data;
 
   return (
-    <div>
+    <div className="pq-review-workspace">
       <ApprovalControls review={review} onChanged={load} />
 
       <Timeline enquiry={review.enquiry} lastUpdated={review.enquiry.updated_at} pollFailed={false} onRetry={load} />

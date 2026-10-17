@@ -24,3 +24,6 @@ All entries below reflect the owner's approval in the planning conversation on 2
 | ADR-018 | Supersession integrity correction | Terminal current part needs explicit fitment; calculate confidence margin before truncation |
 | ADR-019 | Supabase SSR0.8.0 | Replaces proposed0.12.7 because it required supabase-js2.114.0; matched pair resolves with client2.99.1 |
 | ADR-020 | Brand source preserved | Navy/gold tokens; supplied PNG artwork; licensed Noto fonts; no fabricated SVG |
+
+## 2026-10-17 — Owner-requested UI revamp
+Owner asked to revamp the entire interface using the supplied PartsIQ workspace, Visentix and Teclusion references, including foil parallax and branding. Implement within the existing Next.js/Vercel application, not a new hosted Site or service. Preserve supplied logo, package pins, domain APIs and human approval gates. Use CSS material effects and existing lucide-react icons; no animation dependency or remote assets. PartsIQ reference CSS and Visentix public CSS were inspected; Teclusion timed out. Existing frontend implementation sequence is complete according to HANDOVER; this is one additional presentation task. Rollback: revert this task commit; pre-task tag `pre-ui-revamp`.

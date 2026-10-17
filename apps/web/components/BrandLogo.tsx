@@ -7,8 +7,9 @@ export function BrandLogo({ compact = false }: { compact?: boolean }): JSX.Eleme
   const height = compact ? 28 : 44;
   return (
     <img
-      src="/brand/logo-original.png"
+      src="/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-640.png"
       alt="PartsIQ — independent synthetic demonstration"
+      className="pq-brand-logo"
       height={height}
       style={{ height, width: "auto", objectFit: "contain", display: "block" }}
     />

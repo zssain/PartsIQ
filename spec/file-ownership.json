@@ -523,7 +523,10 @@
   },
   "apps/web/tests/features/f53.test.tsx": {
     "creator": "22",
-    "kind": "test"
+    "kind": "test",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
   },
   "services/gateway/tests/features/test_f54.py": {
     "creator": "22",
@@ -1044,7 +1047,8 @@
     "modifiers": [
       "F06",
       "F07",
-      "F08"
+      "F08",
+      "18-ui-revamp"
     ]
   },
   "apps/web/app/page.tsx": {
@@ -1065,12 +1069,16 @@
       "F59",
       "F60",
       "F63",
-      "F65"
+      "F65",
+      "18-ui-revamp"
     ]
   },
   "apps/web/app/login/page.tsx": {
     "creator": "18",
-    "kind": "source"
+    "kind": "source",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
   },
   "apps/web/styles/tokens.css": {
     "creator": "18",
@@ -1090,7 +1098,10 @@
   },
   "apps/web/components/BrandLogo.tsx": {
     "creator": "18",
-    "kind": "source"
+    "kind": "source",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
   },
   "apps/web/lib/contracts.ts": {
     "creator": "18",
@@ -1118,7 +1129,10 @@
   },
   "apps/web/app/demo/page.tsx": {
     "creator": "19",
-    "kind": "source"
+    "kind": "source",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
   },
   "apps/web/components/chat/Chat.tsx": {
     "creator": "19",
@@ -1148,7 +1162,8 @@
     "creator": "20",
     "kind": "source",
     "modifiers": [
-      "F36"
+      "F36",
+      "18-ui-revamp"
     ]
   },
   "apps/web/app/staff/enquiries/[id]/page.tsx": {
@@ -1167,7 +1182,10 @@
   },
   "apps/web/components/review/Workspace.tsx": {
     "creator": "20",
-    "kind": "source"
+    "kind": "source",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
   },
   "apps/web/components/review/ApprovalControls.tsx": {
     "creator": "20",
@@ -1970,11 +1988,17 @@
   },
   "apps/web/app/staff/catalogue/page.tsx": {
     "creator": "F57",
-    "kind": "source"
+    "kind": "source",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
   },
   "apps/web/app/staff/analytics/page.tsx": {
     "creator": "F63",
-    "kind": "source"
+    "kind": "source",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
   },
   "tools/apply_catalogue_schema.py": {
     "creator": "02",
@@ -1987,5 +2011,53 @@
   "services/worker/app/jobs/catalog_publish.py": {
     "creator": "F59",
     "kind": "source"
+  },
+  "apps/web/app/architecture/page.tsx": {
+    "creator": "ui-revamp-initial",
+    "kind": "source",
+    "creator_commit": "a826113",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
+  },
+  "apps/web/components/layout/SiteFooter.tsx": {
+    "creator": "ui-revamp-initial",
+    "kind": "source",
+    "creator_commit": "a826113",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
+  },
+  "apps/web/components/layout/SiteHeader.tsx": {
+    "creator": "ui-revamp-initial",
+    "kind": "source",
+    "creator_commit": "a826113",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
+  },
+  "apps/web/components/ui/ThemeControl.tsx": {
+    "creator": "ui-revamp-initial",
+    "kind": "source",
+    "creator_commit": "a826113",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
+  },
+  "apps/web/components/ui/TiltCard.tsx": {
+    "creator": "ui-revamp-initial",
+    "kind": "source",
+    "creator_commit": "a826113",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
+  },
+  "apps/web/styles/pq.css": {
+    "creator": "ui-revamp-initial",
+    "kind": "source",
+    "creator_commit": "abbf30e",
+    "modifiers": [
+      "18-ui-revamp"
+    ]
   }
 }

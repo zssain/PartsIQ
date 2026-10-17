@@ -24,7 +24,7 @@ export default function InboxPage(): JSX.Element {
   const scoped = SCENARIOS.length;
   return (
     <div className="pq-container" style={{ paddingTop: 40, paddingBottom: 40 }}>
-      <Reveal>
+      <Reveal className="pq-page-top">
         <span className="pq-badge" style={{ marginBottom: 12 }}>Staff · offline synthetic</span>
         <h1 style={{ fontSize: "clamp(1.7rem, 4vw, 2.6rem)", fontWeight: 800 }}>Review inbox</h1>
         <p className="pq-muted" style={{ marginTop: 10 }}>

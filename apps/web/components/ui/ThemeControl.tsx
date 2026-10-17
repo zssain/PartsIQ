@@ -1,5 +1,6 @@
 "use client";
 
+import { Sun, Moon } from "lucide-react";
 import { useEffect, useState, type JSX } from "react";
 
 import {
@@ -38,7 +39,7 @@ export function ThemeControl(): JSX.Element {
       onClick={toggle}
       style={{ padding: "0.5rem 0.7rem" }}
     >
-      <span aria-hidden="true">{theme === "dark" ? "☀️" : "🌙"}</span>
+      <span aria-hidden="true">{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}</span>
     </button>
   );
 }

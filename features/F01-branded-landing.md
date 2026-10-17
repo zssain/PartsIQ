@@ -32,3 +32,6 @@ none. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 and s
 
 ## Verification evidence
 apps/web/tests/features/f01.test.tsx PASS (4, vitest) and tests/foundations/test_18.py PASS (run_checks --prompt 18). Live Supabase Auth BLOCKED.
+
+### 2026-10-17 owner-requested visual revision
+Editorial landing, supplied transparent bilingual logo, linked synthetic workspace preview, foil card, responsive navigation and shared design system. Existing four F01 assertions remain passing as part of the 44-test frontend suite. No real-data or affiliation claim added. Implementation branch: `prompt/18-ui-revamp`; commit recorded in SESSION_LOG.

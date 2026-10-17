@@ -27,7 +27,7 @@ const CHECKS = ["current_revision", "catalogue_version", "candidate_membership",
 export default function ArchitecturePage(): JSX.Element {
   return (
     <div className="pq-container" style={{ paddingTop: 40, paddingBottom: 48 }}>
-      <Reveal>
+      <Reveal className="pq-page-top">
         <span className="pq-badge" style={{ marginBottom: 14 }}>System design</span>
         <h1 style={{ fontSize: "clamp(1.9rem, 4.5vw, 3rem)", fontWeight: 800 }}>
           How <span className="pq-gradient-text">PartsIQ</span> works

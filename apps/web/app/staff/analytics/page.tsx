@@ -26,7 +26,7 @@ export default function AnalyticsPage(): JSX.Element {
 
   return (
     <div className="pq-container" style={{ paddingTop: 40, paddingBottom: 40 }}>
-      <Reveal>
+      <Reveal className="pq-page-top">
         <span className="pq-badge" style={{ marginBottom: 12 }}>Staff · analytics · offline</span>
         <h1 style={{ fontSize: "clamp(1.7rem, 4vw, 2.6rem)", fontWeight: 800 }}>Operational metrics</h1>
         <p className="pq-muted" style={{ marginTop: 10 }}>Demo traffic is separated; every ratio carries its denominator.</p>

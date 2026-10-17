@@ -67,3 +67,6 @@ Intake transaction commits before dispatch. OCR completion transaction fences le
 
 ## Status transitions
 received -> processing; processing -> needs_information or awaiting_review or failed; needs_information -> processing after validated reply; awaiting_review -> approved or rejected; relevant correction -> processing with incremented revision. A failed dependency can return to processing through an authorized idempotent retry. Approved historical messages remain historical; a changed enquiry needs new review before another recommendation.
+
+## UI presentation follow-up (18-ui-revamp)
+Existing Web entries (18/19/20) retain their API and authorization contracts. Shared SiteHeader/SiteFooter and pq.css frame all routes; landing preview links to existing synthetic demo routes. TiltCard handles pointer-only tilt and foil position with touch/reduced-motion safeguards. No workflow or service boundary changes.

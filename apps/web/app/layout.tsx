@@ -4,7 +4,6 @@ import type { JSX, ReactNode } from "react";
 import "../styles/tokens.css";
 import "../styles/pq.css";
 import { requestLocale } from "@/i18n/request";
-import { Aurora } from "@/components/ui/Aurora";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 
@@ -32,9 +31,8 @@ export default async function RootLayout({ children }: { children: ReactNode }):
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
-        <Aurora />
         <SiteHeader locale={locale} />
-        <main style={{ minHeight: "70vh" }}>{children}</main>
+        <main id="main-content" style={{ minHeight: "70vh" }}>{children}</main>
         <SiteFooter />
       </body>
     </html>

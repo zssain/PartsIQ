@@ -13,7 +13,7 @@ export default function StaffCataloguePage(): JSX.Element {
   ];
   return (
     <div className="pq-container" style={{ paddingTop: 40, paddingBottom: 40 }}>
-      <Reveal>
+      <Reveal className="pq-page-top">
         <span className="pq-badge" style={{ marginBottom: 12 }}>Staff · catalogue · offline</span>
         <h1 style={{ fontSize: "clamp(1.7rem, 4vw, 2.6rem)", fontWeight: 800 }}>Published catalogue</h1>
         <p className="pq-muted" style={{ marginTop: 10 }}>Only published-version rows are shown — never unpublished import-staging rows.</p>

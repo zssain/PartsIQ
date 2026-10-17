@@ -29,6 +29,7 @@ describe("api graceful failures (F53)", () => {
     mockFetch(422, { error: { code: "VALIDATION_FAILED", message: "One or more fields are invalid." } });
     const err = await api("/v1/enquiries").catch((e) => e);
     expect(err).toBeInstanceOf(ApiError);
+    if (!(err instanceof ApiError)) throw new Error("Expected a typed API failure");
     expect(err.code).toBe("VALIDATION_FAILED");
     expect(err.message).not.toMatch(/traceback|stack|at /i); // no raw stack trace leaked
   });
@@ -43,6 +44,7 @@ describe("api graceful failures (F53)", () => {
     }) as unknown as typeof fetch;
     const err = await api("/v1/x").catch((e) => e);
     expect(err).toBeInstanceOf(ApiError);
+    if (!(err instanceof ApiError)) throw new Error("Expected a typed API failure");
     expect(err.code).toBe("DEPENDENCY_UNAVAILABLE"); // safe default, no leak
   });
 });

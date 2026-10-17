@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type JSX } from "react";
 
+import { BrandLogo } from "@/components/BrandLogo";
 import { signInStaff } from "@/lib/auth";
 
 // Invited-staff sign-in only. There is deliberately NO real-client self-signup here
@@ -26,7 +27,8 @@ export default function LoginPage(): JSX.Element {
   }
 
   return (
-    <main>
+    <section className="pq-login">
+      <BrandLogo />
       <h1>Staff sign in</h1>
       <p>Invited staff only. Customers use “Start demo” on the home page — there is no public signup.</p>
       <form onSubmit={onSubmit}>
@@ -38,9 +40,9 @@ export default function LoginPage(): JSX.Element {
           Password
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </label>
-        <button type="submit">Sign in</button>
+        <button className="pq-btn pq-btn-primary" type="submit">Sign in</button>
       </form>
       {error ? <p role="alert">{error}</p> : null}
-    </main>
+    </section>
   );
 }
