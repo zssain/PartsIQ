@@ -301,3 +301,9 @@ Completed through F08 (light and dark themes):
 - Verification: apps/web vitest 38 passed (9 files, +4 F08 cases: saved precedence, system fallback, toggle persists + applies, storage-disabled still works).
 - BLOCKED: none specific.
 - Next: F06 (responsive layouts).
+
+Completed through F06 (responsive layouts):
+- apps/web: lib/features/f06_responsive_layouts.ts (get_layout 360->1/768->2/1280->3 columns, compact on mobile, reducedMotion carried) + ResponsiveShell (grid, resize re-measure, controlled override). styles/tokens.css gains html overflow-x:hidden, .pq-scroll-x and .pq-sticky-actions. layout.tsx container width/overflow guard; page.tsx wraps journey+actions in ResponsiveShell.
+- Verification: apps/web vitest 44 passed (10 files, +6 F06 cases); f01 still green.
+- BLOCKED: none specific (200% zoom / device-width are manual checks).
+- Next: F48 (input isolation, orchestrator).

@@ -379,3 +379,11 @@
 4. BLOCKED: none specific (client-only theming).
 5. Next: F06 (responsive layouts).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F06 (responsive layouts)
+1. Work: apps/web lib/features/f06_responsive_layouts.ts (get_layout: 360->1 col compact, 768->2, 1280->3; reducedMotion carried) + components/features/ResponsiveShell.tsx (grid shell, re-measures on resize, controlled value override). styles/tokens.css: html overflow-x hidden (no page-wide overflow), .pq-scroll-x region, .pq-sticky-actions. layout.tsx container width/overflow guard; page.tsx wraps the journey+actions in ResponsiveShell.
+2. Verification: apps/web vitest 44 passed (10 files; +6 F06 cases: 360/768/1280 columns, reducedMotion, controlled shell renders children, uncontrolled measures+reports). f01 still passes with the shell wrapper.
+3. Design: panels stack on mobile; wide comparison tables scroll within .pq-scroll-x (not the page); sticky actions via .pq-sticky-actions; the page never scrolls horizontally.
+4. BLOCKED: none specific (client layout); real 200% zoom / device widths are manual checks.
+5. Next: F48 (input isolation).
+6. Model/version: claude-opus-4-8[1m].

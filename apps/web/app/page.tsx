@@ -5,6 +5,7 @@ import { useState, type JSX } from "react";
 
 import { BrandLogo } from "@/components/BrandLogo";
 import { ThemeToggle } from "@/components/features/ThemeToggle";
+import { ResponsiveShell } from "@/components/features/ResponsiveShell";
 import { startAnonymousDemo } from "@/lib/auth";
 
 const JOURNEY = [
@@ -48,23 +49,25 @@ export default function LandingPage(): JSX.Element {
       </p>
 
       <h1>From enquiry to approved parts reply</h1>
-      <ol>
-        {JOURNEY.map((step) => (
-          <li key={step}>{step}</li>
-        ))}
-      </ol>
+      <ResponsiveShell value={null} loading={false} error={null} onAction={async () => {}}>
+        <ol>
+          {JOURNEY.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
 
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <button type="button" onClick={onStartDemo} disabled={busy}>
-          {busy ? "Starting…" : "Start demo"}
-        </button>
-        <a href="/architecture">How it works (architecture)</a>
-        <a href="/history">Your enquiries</a>
-        <a href="/staff/inbox">Staff workspace</a>
-        <a href="/staff/catalogue">Catalogue (staff)</a>
-        <a href="/staff/imports">Imports (staff)</a>
-        {REPO_URL ? <a href={REPO_URL}>Source code</a> : null}
-      </div>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <button type="button" onClick={onStartDemo} disabled={busy}>
+            {busy ? "Starting…" : "Start demo"}
+          </button>
+          <a href="/architecture">How it works (architecture)</a>
+          <a href="/history">Your enquiries</a>
+          <a href="/staff/inbox">Staff workspace</a>
+          <a href="/staff/catalogue">Catalogue (staff)</a>
+          <a href="/staff/imports">Imports (staff)</a>
+          {REPO_URL ? <a href={REPO_URL}>Source code</a> : null}
+        </div>
+      </ResponsiveShell>
 
       {error ? <p role="alert">{error}</p> : null}
     </main>

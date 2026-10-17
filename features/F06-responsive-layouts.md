@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | apps/web |
 | Implementing prompts | F06; foundations 18, 19, 20 |
 | Affected flows | FLOW.md row F06 |
@@ -28,6 +28,7 @@ none. Exact columns,keys,indexes and policies are in TECH_SPEC.md section4 and s
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F06 | get_layout breakpoints + ResponsiveShell + tokens overflow/scroll/sticky + layout/page wrap | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: apps/web vitest 44 passed (10 files) incl. tests/features/f06.test.tsx (6 cases: 360/768/1280 columns, reducedMotion, controlled+uncontrolled shell). vitest is the gate.

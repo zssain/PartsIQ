@@ -26,7 +26,9 @@ export default async function RootLayout({ children }: { children: ReactNode }):
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
-        <div style={{ maxWidth: 960, margin: "0 auto", padding: "16px" }}>{children}</div>
+        <div style={{ maxWidth: 960, margin: "0 auto", padding: "16px", width: "100%", overflowX: "hidden" }}>
+          {children}
+        </div>
       </body>
     </html>
   );

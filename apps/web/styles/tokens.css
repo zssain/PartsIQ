@@ -62,3 +62,24 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* F06 responsive: no page-wide horizontal overflow; wide content scrolls within its own region;
+   primary review actions stay reachable without covering content (sticky, with safe-area pad). */
+html {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.pq-scroll-x {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pq-sticky-actions {
+  position: sticky;
+  bottom: 0;
+  background: var(--pq-bg);
+  padding: 8px 0;
+  border-top: 1px solid var(--pq-border);
+}
