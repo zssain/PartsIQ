@@ -247,3 +247,9 @@ Completed through F29 (evidence page viewer):
 - Verification: gateway suite 87 passed incl. tests/features/test_f29.py (8 cases: assigned open, own-demo open, customer 404, demo-mismatch 404, arbitrary id 404, stale 409, link renewal, dependency failure); ruff clean; vitest 20.
 - BLOCKED: worker Storage signer + live access/evidence adapter.
 - Next: F31 (candidate comparison, web/vitest).
+
+Completed through F31 (candidate comparison):
+- apps/web/lib/features/f31_candidate_comparison.ts: compare_candidates(F31Request)->F31Result — compares 2-3 candidates from the SAME item/revision (foreign candidate or mixed revision throws), building rows for part number / names / evidence / availability with a missing attribute as null. components/features/CandidateComparison.tsx renders the table (null -> "unavailable") and a native keyboard-operable Select button per candidate that submits only the id (no browser-authored facts). Wired into the staff enquiry page island.
+- Verification: apps/web vitest 29 passed (7 files, +9 F31 cases: 2/3-way compare, missing attr null, foreign id, stale revision, count bounds, select sends id + keyboard focus, empty/loading). vitest is the gate (no Python owner).
+- BLOCKED: live review candidate load + selection POST (page island uses a no-op onAction).
+- Next: F38 (correct extracted details, orchestrator).

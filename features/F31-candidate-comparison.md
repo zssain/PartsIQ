@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | apps/web |
 | Implementing prompts | F31; foundations 06, 20 |
 | Affected flows | FLOW.md row F31 |
@@ -28,6 +28,7 @@ enquiry_candidates. Exact columns,keys,indexes and policies are in TECH_SPEC.md 
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F31 | compare_candidates lib + CandidateComparison component + staff page island | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: apps/web vitest 29 passed (7 files) incl. tests/features/f31.test.tsx (9 cases: 2/3-way compare, missing-attr unavailable, foreign candidate, stale revision, count bounds, select-sends-id + keyboard, empty/loading). vitest is the gate; no Python owner. Live selection POST BLOCKED.

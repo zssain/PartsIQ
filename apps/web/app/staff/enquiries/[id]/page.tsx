@@ -5,7 +5,9 @@ import { use, useCallback, useState, type JSX } from "react";
 import { ApiError } from "@/lib/api";
 import { StockFreshness } from "@/components/features/StockFreshness";
 import { EvidenceViewer } from "@/components/features/EvidenceViewer";
+import { CandidateComparison } from "@/components/features/CandidateComparison";
 import { Workspace } from "@/components/review/Workspace";
+import type { F31Request, F31Result } from "@/lib/features/f31_candidate_comparison";
 import type { F35Request, F35Result } from "@/lib/features/f35_stock_freshness";
 import { openEvidence, type F29Request, type F29Result } from "@/lib/features/f29_evidence_page_viewer";
 
@@ -40,6 +42,13 @@ export default function StaffEnquiryPage({
     }
   }, []);
 
+  // F31: candidate comparison island. Candidates are loaded by the Workspace from the review;
+  // choosing a candidate here would POST its id to the gateway (wired by the review owner).
+  const [comparison] = useState<F31Result | null>(null);
+  const chooseCandidate = useCallback(async (_request: F31Request) => {
+    // Selecting sends the candidate id only; server re-derives facts (BLOCKED here).
+  }, []);
+
   return (
     <main>
       <h1>Review enquiry</h1>
@@ -52,6 +61,7 @@ export default function StaffEnquiryPage({
         expectedRevision={1}
       />
       <EvidenceViewer value={evidence} loading={false} error={evidenceError} onAction={openCited} enquiryId={id} />
+      <CandidateComparison value={comparison} loading={false} error={null} onAction={chooseCandidate} />
       <Workspace enquiryId={id} />
     </main>
   );

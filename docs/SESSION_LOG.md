@@ -307,3 +307,11 @@
 4. BLOCKED: worker Storage signer + live access/evidence adapter.
 5. Next: F31 (candidate comparison).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F31 (candidate comparison)
+1. Work: apps/web/lib/features/f31_candidate_comparison.ts (compare_candidates: 2-3 candidates, same item+revision enforced, rows for number/names/evidence/availability, missing attribute -> null; foreign candidate or mixed revision throws) + components/features/CandidateComparison.tsx (table with unavailable cells, native keyboard-operable Select buttons that send only the candidate id). Wired into the staff enquiry page island.
+2. Verification: apps/web vitest 29 passed (7 files; +9 F31 cases). No Python owner — vitest is the gate (pnpm test). ruff n/a.
+3. Design: browser authors no facts (select sends id only); missing attribute shown unavailable, never invented; keyboard navigation via native buttons; same-item/revision enforced.
+4. BLOCKED: live review candidate load + selection POST (BLOCKED; the page island uses a no-op onAction).
+5. Next: F38 (correct extracted details).
+6. Model/version: claude-opus-4-8[1m].
