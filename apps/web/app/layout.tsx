@@ -23,7 +23,10 @@ export default async function RootLayout({ children }: { children: ReactNode }):
     "if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}" +
     "document.documentElement.setAttribute('data-theme',t);}catch(e){}";
   return (
-    <html lang={locale} dir={direction}>
+    // suppressHydrationWarning: the no-flash script below sets data-theme on <html> before React
+    // hydrates, so the server (no attribute) and client (data-theme) differ by design — scope the
+    // suppression to this element only.
+    <html lang={locale} dir={direction} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
