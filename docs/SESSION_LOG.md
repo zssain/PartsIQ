@@ -403,3 +403,11 @@
 4. BLOCKED: live metrics adapter (ai_usage durations + decision timestamps, assignment scoping).
 5. Next: F65 (correction feedback).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F65 (correction feedback)
+1. Work: services/gateway/app/features/f65_correction_feedback.py (curate_correction: admin-only; reviewed correction only -> unreviewed CONFLICT; duplicate source/case id CONFLICT; EvalCaseExport carries only the label + provenance, never private_text; list_corrections). api_v1 POST /v1/staff/corrections/{id}/eval-case. apps/web lib + CorrectionFeedback wired into the analytics page (landing already links analytics).
+2. Verification: gateway suite 141 passed incl. tests/features/test_f65.py (10); ruff clean; apps/web vitest 44 passed.
+3. Design: never auto-train on unreviewed edits (reviewed gate); private text excluded structurally (EvalCaseExport has no text field); duplicate source/case id detected; curating reviewer + source revision recorded.
+4. BLOCKED: live corrections/eval-case adapter.
+5. Next: F68 (recruiter documentation).
+6. Model/version: claude-opus-4-8[1m].

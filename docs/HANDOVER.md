@@ -319,3 +319,9 @@ Completed through F63 (metrics dashboard):
 - Verification: gateway suite 131 passed incl. tests/features/test_f63.py (7 cases: admin eval, reviewer eval withheld, zero-denominator unavailable, demo excluded by default, demo-on-request, non-staff 403, dependency failure); ruff clean; vitest 44.
 - BLOCKED: live metrics adapter (ai_usage + decision timestamps + assignment scoping).
 - Next: F65 (correction feedback).
+
+Completed through F65 (correction feedback):
+- services/gateway/app/features/f65_correction_feedback.py: curate_correction(actor, F65Request)->F65Result + list_corrections over an injected repo. Admin-only; only a REVIEWED correction can become ground truth (unreviewed -> 409); duplicate source or case id -> 409; empty label -> 422; the EvalCaseExport written carries only case_id/approved_expected/source_revision/approved_by — never private_text (structural). api_v1 POST /v1/staff/corrections/{id}/eval-case. apps/web lib + CorrectionFeedback wired into the analytics page.
+- Verification: gateway suite 141 passed incl. tests/features/test_f65.py (10 cases: curate, exclude-private-text, non-admin 403, unreviewed 409, dup source 409, dup case 409, empty label 422, missing 404, dependency failure, list before/after); ruff clean; vitest 44.
+- BLOCKED: live corrections/eval-case adapter.
+- Next: F68 (recruiter documentation — acceptance).

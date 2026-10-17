@@ -35,6 +35,7 @@ from app.features import f58_import_routes as import_uc
 from app.features import f59_publish_routes as publish_uc
 from app.features import f60_missing_parts_queue as missing_uc
 from app.features import f63_metrics_dashboard as analytics_uc
+from app.features import f65_correction_feedback as feedback_uc
 from partsiq_common.contracts import ConfirmExtraction, EnquiryCreate, MessageCreate
 from partsiq_common.errors import PartsIQError, error_envelope, http_status_for
 
@@ -229,6 +230,18 @@ async def append_note(body: notes_uc.F41Request, request: Request, enquiry_id: U
         return _as_response(PartsIQError("MALFORMED_REQUEST", internal_detail="enquiry id mismatch"), request)
     try:
         result = await notes_uc.append_note(actor, body, repo=_require(request, "notes_repo"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result.model_dump(mode="json")
+
+
+@router.post("/staff/corrections/{correction_id}/eval-case", status_code=status.HTTP_201_CREATED)
+async def curate_correction(body: feedback_uc.F65Request, request: Request, correction_id: UUID = Path()):
+    actor = await _actor(request)
+    if body.correction_id != correction_id:
+        return _as_response(PartsIQError("MALFORMED_REQUEST", internal_detail="correction id mismatch"), request)
+    try:
+        result = await feedback_uc.curate_correction(actor, body, repo=_require(request, "feedback_repo"))
     except PartsIQError as exc:
         return _as_response(exc, request)
     return result.model_dump(mode="json")

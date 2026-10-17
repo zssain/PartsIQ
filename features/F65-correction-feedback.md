@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | services/gateway |
 | Implementing prompts | F65; foundations 14, 21, 23 |
 | Affected flows | FLOW.md row F65 |
@@ -28,6 +28,7 @@ correction_records, eval_cases. Exact columns,keys,indexes and policies are in T
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F65 | curate_correction + list_corrections + POST /v1/staff/corrections/{id}/eval-case + web CorrectionFeedback | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: gateway suite 141 passed incl. services/gateway/tests/features/test_f65.py (10 cases). ruff clean; apps/web vitest 44. Live corrections/eval-case adapter BLOCKED.
