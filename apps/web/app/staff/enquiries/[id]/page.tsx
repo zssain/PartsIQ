@@ -8,8 +8,10 @@ import { EvidenceViewer } from "@/components/features/EvidenceViewer";
 import { CandidateComparison } from "@/components/features/CandidateComparison";
 import { CorrectionEditor } from "@/components/features/CorrectionEditor";
 import { AssignmentControl } from "@/components/features/AssignmentControl";
+import { InternalNotes } from "@/components/features/InternalNotes";
 import { Workspace } from "@/components/review/Workspace";
 import { assignEnquiry, type F42Request, type F42Result } from "@/lib/features/f42_assignments";
+import { appendNote, type F41Request, type F41Result } from "@/lib/features/f41_internal_notes";
 import type { F31Request, F31Result } from "@/lib/features/f31_candidate_comparison";
 import { correctExtraction, type F38Request, type F38Result } from "@/lib/features/f38_correct_extracted_details";
 import type { F35Request, F35Result } from "@/lib/features/f35_stock_freshness";
@@ -77,6 +79,18 @@ export default function StaffEnquiryPage({
     }
   }, []);
 
+  // F41: append a staff-only internal note.
+  const [note, setNote] = useState<F41Result | null>(null);
+  const [noteError, setNoteError] = useState<ApiError | null>(null);
+  const addNote = useCallback(async (request: F41Request) => {
+    setNoteError(null);
+    try {
+      setNote(await appendNote(request));
+    } catch (err) {
+      setNoteError(err instanceof ApiError ? err : null);
+    }
+  }, []);
+
   return (
     <main>
       <h1>Review enquiry</h1>
@@ -92,6 +106,7 @@ export default function StaffEnquiryPage({
       <CandidateComparison value={comparison} loading={false} error={null} onAction={chooseCandidate} />
       <CorrectionEditor value={correction} loading={false} error={correctionError} onAction={applyCorrection} enquiryId={id} />
       <AssignmentControl value={assignment} loading={false} error={assignmentError} onAction={assign} enquiryId={id} />
+      <InternalNotes value={note} loading={false} error={noteError} onAction={addNote} enquiryId={id} />
       <Workspace enquiryId={id} />
     </main>
   );

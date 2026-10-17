@@ -331,3 +331,11 @@
 4. BLOCKED: live locked assignment transaction + assignment_events + active-reviewer lookup.
 5. Next: F41 (internal notes).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F41 (internal notes)
+1. Work: services/gateway/app/features/f41_internal_notes.py (append_note + list_notes: append-only, author+timestamp, assigned-only else 404, empty/over-4000 -> 422, idempotent, created_at/id order). api_v1 POST+GET /v1/staff/enquiries/{id}/notes. apps/web lib + InternalNotes (React escapes body, staff-only); staff enquiry page island.
+2. Verification: gateway suite 105 passed incl. tests/features/test_f41.py (9); ruff clean; apps/web vitest 29 passed.
+3. Design: notes never in a customer response or PDF (EnquiryView has no notes field — asserted); assigned-only read+write; append-only; rendered content escaped.
+4. BLOCKED: live append-only notes Postgres adapter + idempotency_records.
+5. Next: F43 (overdue indicators).
+6. Model/version: claude-opus-4-8[1m].

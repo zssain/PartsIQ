@@ -265,3 +265,9 @@ Completed through F42 (assignments):
 - Verification: gateway suite 96 passed incl. tests/features/test_f42.py (9 cases: assign, unassign, non-admin 403, non-reviewer 422, stale 409, idempotent, reassignment moves access, missing 404, dependency failure); ruff clean; vitest 29.
 - BLOCKED: live locked assignment transaction + assignment_events + active-reviewer lookup.
 - Next: F41 (internal notes).
+
+Completed through F41 (internal notes):
+- services/gateway/app/features/f41_internal_notes.py: append_note + list_notes over an injected NotesRepository. Append-only with author+timestamp; assigned-only (else 404); empty or >4000 chars -> 422; idempotent; created_at/id order. Notes never surface to a customer or in the PDF (EnquiryView has no notes field — asserted). api_v1 POST+GET /v1/staff/enquiries/{id}/notes. apps/web lib + InternalNotes (React-escaped); staff enquiry page island.
+- Verification: gateway suite 105 passed incl. tests/features/test_f41.py (9 cases: append author/body, empty 422, over-limit 422, unassigned 404, idempotent, customer-view-has-no-notes, dependency failure, list order, list unassigned 404); ruff clean; vitest 29.
+- BLOCKED: live append-only notes adapter + idempotency_records.
+- Next: F43 (overdue indicators).
