@@ -1,0 +1,77 @@
+<!doctype html>
+{# Trusted, code-owned export template (prompt 17 — F61), ported from the legacy worker
+   template services/worker/app/templates/enquiry_summary.html.
+
+   Rendered with Jinja2 autoescape ON (render.py). EVERY interpolated value is HTML-escaped
+   by Jinja; the ONLY |safe value is `reply`, which the code-owned reply renderer
+   (partsiq.enquiries.renderer, prompt 13) already produced as HTML-escaped markup. No
+   model-authored string is ever evaluated as a template and no price/quotation wording or
+   staff note/secret is ever passed in.
+
+   Chromium (Playwright page.pdf, A4, print backgrounds) renders this with external requests,
+   JavaScript and arbitrary file access disabled; only the bundled local brand assets under
+   `asset_dir` are read. The live browser is BLOCKED here — the HTML→PDF step is an injected
+   port (service.py) — so this template is validated by fake renderers offline. #}
+<html lang="{{ locale }}" dir="{{ 'rtl' if locale == 'ar' else 'ltr' }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ 'ملخص الطلب' if locale == 'ar' else 'Enquiry summary' }}</title>
+<style>
+  @page { size: A4; margin: 18mm; }
+  @font-face { font-family: "NotoSans"; src: url("file://{{ asset_dir }}/fonts/NotoSans.ttf"); }
+  @font-face { font-family: "NotoSansArabic"; src: url("file://{{ asset_dir }}/fonts/NotoSansArabic.ttf"); }
+  @font-face { font-family: "NotoNaskhArabic"; src: url("file://{{ asset_dir }}/fonts/NotoNaskhArabic.ttf"); }
+  html { font-family: {{ 'NotoSansArabic, NotoNaskhArabic' if locale == 'ar' else 'NotoSans' }}, sans-serif; }
+  body { margin: 0; color: #0b1f3a; line-height: 1.5; }
+  /* The synthetic-demo watermark sits behind the content on every printed page. */
+  .watermark { position: fixed; top: 42%; inset-inline: 0; text-align: center;
+    font-size: 64px; font-weight: 700; color: rgba(11,31,58,0.08);
+    transform: rotate(-24deg); z-index: 0; pointer-events: none; }
+  header { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px;
+    border-bottom: 2px solid #c9a227; padding-bottom: 12px; }
+  header img { height: 48px; width: auto; }
+  header h1 { margin: 0; font-size: 20px; }
+  section, footer, p.estimate { position: relative; z-index: 1; }
+  section { margin-top: 20px; }
+  h2 { font-size: 15px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+  /* Identifiers render LTR even inside RTL prose; the renderer already wraps them in <bdi>. */
+  .identifier { font-family: NotoSans, monospace; }
+  /* Long mixed Arabic/English names and long reference strings wrap instead of clipping. */
+  .reply, .references li { overflow-wrap: anywhere; word-break: break-word; }
+  .references { list-style: none; padding: 0; }
+  .references li { margin: 6px 0; }
+  .estimate { color: #6b7280; font-size: 0.9em; margin-top: 20px; }
+  footer { margin-top: 24px; border-top: 1px solid #e5e7eb; padding-top: 8px;
+    font-size: 0.8em; color: #6b7280; }
+</style>
+</head>
+<body>
+  {% if synthetic %}<div class="watermark">{{ 'بيانات توضيحية اصطناعية' if locale == 'ar' else 'SYNTHETIC DEMO' }}</div>{% endif %}
+
+  <header>
+    <img src="file://{{ asset_dir }}/logo-original.png" alt="PartsIQ">
+    <h1>{{ 'ملخص الطلب' if locale == 'ar' else 'Enquiry summary' }}</h1>
+  </header>
+
+  {# The reply was produced and escaped by the code-owned renderer; it is the ONLY |safe value. #}
+  <section class="reply">{{ reply | safe }}</section>
+
+  <section class="references">
+    <h2>{{ 'المراجع والمصادر' if locale == 'ar' else 'References and sources' }}</h2>
+    <ul class="references">
+      {% for item in facts.items %}
+      <li>
+        <bdi dir="ltr" class="identifier">{{ item.part_number }}</bdi>
+        — {{ item.name_ar if locale == 'ar' else item.name_en }}
+        — {{ item.source_reference }}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <p class="estimate">{{ 'مدد النقل تقديرية فقط وغير مضمونة.' if locale == 'ar' else 'Transfer times are estimates only and are not guaranteed.' }}</p>
+
+  <footer>{{ 'بيانات توضيحية اصطناعية — للاطلاع فقط وليست عرضًا تجاريًا.' if locale == 'ar' else 'Synthetic demonstration data — reference only, not a commercial offer.' }}</footer>
+</body>
+</html>
