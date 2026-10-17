@@ -75,6 +75,11 @@ def main(argv: list[str] | None = None) -> int:
 
     commands.add_parser("embed", help="Compute embeddings for all active parts")
 
+    snapshot = commands.add_parser(
+        "snapshot", help="Print the canonical publication hash + record count for a dataset file (F59)"
+    )
+    snapshot.add_argument("path", type=Path)
+
     args = parser.parse_args(argv)
     configure_logging("catalog-tools", os.environ.get("LOG_LEVEL", "INFO"))
 
@@ -88,6 +93,18 @@ def main(argv: list[str] | None = None) -> int:
             return status
         if args.command == "validate":
             return _report(CatalogDataset.read(args.path))
+        if args.command == "snapshot":
+            # F59: the same canonical snapshot/hash a publication would compute, offline over a
+            # dataset file. The authoritative DB publication runs via the worker command.
+            import json as _json
+
+            from catalog.versioning import canonical_snapshot
+
+            records = _json.loads(args.path.read_text(encoding="utf-8")).get("parts", [])
+            snap = canonical_snapshot(records)
+            logger.info("snapshot", extra={"sha256": snap.sha256, "record_count": snap.record_count})
+            print(f"{snap.sha256}  records={snap.record_count}")
+            return 0
         if args.command in {"load", "seed"}:
             dataset = CatalogDataset.read(args.path) if args.command == "load" else generate_catalog(args.seed)
             summary = asyncio.run(_with_connection(lambda c: load_catalog(c, dataset, force=args.force)))

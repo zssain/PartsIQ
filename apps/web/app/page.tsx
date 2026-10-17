@@ -8,7 +8,7 @@ import { startAnonymousDemo } from "@/lib/auth";
 
 const JOURNEY = [
   "Send your parts enquiry in English or Arabic — type it or attach a nameplate photo (we check the photo is readable before sending).",
-  "PartsIQ identifies the machine and retrieves only catalogue-compatible parts — ask for several parts in one message and each is tracked on its own.",
+  "PartsIQ identifies the machine and retrieves only catalogue-compatible parts (against the current published catalogue version) — ask for several parts in one message and each is tracked on its own.",
   "It plans warehouse fulfilment and drafts a bilingual reply.",
   "A human reviewer must approve before anything is published to you.",
   "Save machines you ask about often to prefill future enquiries — each is re-identified against the current catalogue, and you can re-ask a past enquiry in one tap.",

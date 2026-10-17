@@ -14,6 +14,8 @@ from typing import Any, Protocol
 from uuid import UUID
 
 # Initial bounded concurrency per job kind (ADR-009: small, predictable worker).
+# catalog_publish/catalog_import are not listed here on purpose: they fall back to
+# DEFAULT_LIMIT (1), and prompt 15's test pins this dict to the original two kinds.
 CONCURRENCY_LIMITS: dict[str, int] = {"nameplate": 1, "export_pdf": 1}
 DEFAULT_LIMIT = 1
 
@@ -30,6 +32,17 @@ def register_handler(kind: str, handler: JobHandler) -> None:
 
 def get_handler(kind: str) -> JobHandler | None:
     return JOB_HANDLERS.get(kind)
+
+
+def register_catalog_publish() -> None:
+    """Register the F59 catalogue publication handler (owner wiring; called at worker startup).
+
+    Kept as an explicit call rather than an import side effect so the dispatcher module stays
+    free of job imports; the catalogue-role store the job needs is injected separately.
+    """
+    from app.jobs.catalog_publish import publish_catalogue_job
+
+    register_handler("catalog_publish", publish_catalogue_job)
 
 
 def photo_quality_gate(image: bytes, media_type: str) -> Any:

@@ -206,3 +206,10 @@ Completed through F56 (repeat enquiry):
 - Verification: gateway suite 61 passed incl. tests/features/test_f56.py (5 cases: fresh enquiry + audit + re-run, outcome fields absent from RepeatSpec, ownership 404, dedup, dependency failure); ruff clean; apps/web vitest 20 passed.
 - BLOCKED: live enquiries/audit adapter + workflow-start enqueue.
 - Next: F59 (catalogue versioning).
+
+Completed through F59 (catalogue versioning):
+- tools/catalog/catalog/versioning.py: publish_version(actor, F59Request)->F59Result over an injected PublicationStore + canonical_snapshot (order-independent SHA-256, numeric ids preserved). Optimistic compare-and-set on expected_active_version_id (two publishers cannot leave two active versions -> CONFLICT); catalogue_admin/admin only (else FORBIDDEN); failed publish leaves active unchanged; prior approvals keep their immutable evidence; unknown candidate -> 404.
+- worker/app/jobs/catalog_publish.py (re-checks admin from the signed payload, publishes under the store lock, fenced JobResult; store injected, BLOCKED) + dispatcher.register_catalog_publish(); gateway f59_publish_routes.request_publish (validate admin + queue, never inline) + POST /v1/staff/catalogue/publish; catalog `snapshot` CLI subcommand (offline canonical hash); apps/web lib + CatalogueVersions.
+- Verification: run_checks --feature F59 -> tests/acceptance/test_f59.py PASS (8 cases: order-independent snapshot, activate, two-publisher CONFLICT leaving one active, failed rollback, immutable prior evidence, idempotent, non-admin 403, unknown 404); worker 33; gateway 61; ruff clean; vitest 20.
+- BLOCKED: live catalogue-role publication (advisory lock 710070 + single tx), worker publish execution, gateway->worker enqueue.
+- Next: F57 (catalogue browser).

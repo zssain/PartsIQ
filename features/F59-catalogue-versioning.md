@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | planned |
+| Status | done |
 | Owner module(s) | tools/catalog |
 | Implementing prompts | F59; foundations 02, 05, 06 |
 | Affected flows | FLOW.md row F59 |
@@ -28,6 +28,7 @@ catalogue_versions, catalogue_records. Exact columns,keys,indexes and policies a
 | Date | Prompt | What changed | Commit |
 |---|---|---|---|
 | 2026-10-11 | Build kit | Scope,owner and required tests specified | Specification artifact; application implementation not executed |
+| 2026-10-17 | F59 | publish_version + canonical_snapshot + worker publish job + gateway queue route + CLI snapshot + web | committed on prompt/12-deterministic-verification |
 
 ## Verification evidence
-Build-kit coverage verified by tools/kit/verify_kit.py. Application tests have not run because this deliverable is an implementation kit. Do not report this feature as implemented until its owning prompt executes.
+Application implemented: run_checks --feature F59 -> tests/acceptance/test_f59.py PASS (8 cases). worker 33; gateway 61; ruff clean; apps/web vitest 20. Live catalogue-role DB publication (advisory lock + single tx) and worker execution BLOCKED.

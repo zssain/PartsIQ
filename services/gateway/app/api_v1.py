@@ -22,6 +22,7 @@ from app.auth import authenticate
 from app.features import f19_enquiry_history as history_uc
 from app.features import f55_saved_machines as machines_uc
 from app.features import f56_repeat_enquiry as repeat_uc
+from app.features import f59_publish_routes as publish_uc
 from partsiq_common.contracts import ConfirmExtraction, EnquiryCreate, MessageCreate
 from partsiq_common.errors import PartsIQError, error_envelope, http_status_for
 
@@ -134,6 +135,16 @@ async def add_message(
     except PartsIQError as exc:
         return _as_response(exc, request)
     return view.model_dump(mode="json")
+
+
+@router.post("/staff/catalogue/publish", status_code=status.HTTP_202_ACCEPTED)
+async def publish_catalogue(body: publish_uc.PublishBody, request: Request):
+    actor = await _actor(request)
+    try:
+        result = await publish_uc.request_publish(actor, body, queue=_require(request, "publish_queue"))
+    except PartsIQError as exc:
+        return _as_response(exc, request)
+    return result
 
 
 @router.post("/enquiries/{enquiry_id}/repeat", status_code=status.HTTP_202_ACCEPTED)

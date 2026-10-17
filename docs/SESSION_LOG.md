@@ -258,3 +258,11 @@
 4. BLOCKED: live enquiries/audit Postgres adapter + workflow-start enqueue.
 5. Next: F59 (catalogue versioning).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - F59 (catalogue versioning)
+1. Work: tools/catalog/catalog/versioning.py (publish_version + canonical_snapshot: canonical order-independent SHA-256, numeric ids preserved; compare-and-set on expected_active_version_id so two publishers cannot leave two active versions; catalogue_admin/admin only; failed publish leaves active unchanged; prior approvals untouched). worker/app/jobs/catalog_publish.py (re-checks admin from signed payload, invokes publish_version under the store's lock, fenced JobResult; BLOCKED without the catalogue-role store). dispatcher.register_catalog_publish(). gateway/app/features/f59_publish_routes.py (validate admin + queue to worker, never inline) + api_v1 POST /v1/staff/catalogue/publish. catalog __main__ `snapshot` subcommand (offline canonical hash). apps/web lib + CatalogueVersions component; landing mention.
+2. Verification: run_checks --feature F59 -> tests/acceptance/test_f59.py PASS (8); worker suite 33 passed; gateway suite 61 passed; ruff clean; apps/web vitest 20 passed.
+3. Design: single active version via optimistic CAS + DB advisory lock 710070 (store); pending enquiries invalidated lazily (verification STALE_CATALOGUE); publication adds a version + flips active, never rewrites history; catalogue DB credential held only by worker.
+4. BLOCKED: live catalogue-role Postgres publication (advisory lock + single tx), worker publish command execution, gateway->worker internal enqueue.
+5. Next: F57 (catalogue browser).
+6. Model/version: claude-opus-4-8[1m].
