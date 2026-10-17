@@ -202,3 +202,11 @@
 4. BLOCKED: live CI run, GHCR build/push, AWS OIDC assume; action SHAs to re-verify at setup.
 5. Next: prompt 26 (aws free-plan deployment).
 6. Model/version: claude-opus-4-8[1m].
+
+## 2026-10-17 - Prompt 26 (aws free-plan deployment)
+1. Work: infra/ec2/preflight.py (preflight + CLI gate: free plan, unexpired credit, instance fits measured peak + headroom), bootstrap.sh (validated env path + 0600 secrets), deploy.sh (one hex SHA, lock, healthcheck), rollback.sh (previous immutable SHA, no DB reset). Wired a preflight step into deploy-backend.yml.
+2. Verification (exit 0): run_checks --prompt 26 -> test_26.py PASS; prompt 25 + F66 still green; ci config clean; ruff clean.
+3. Design: no automatic paid upgrade; free micro not assumed adequate (measured sizing gates instance choice); SSM not public SSH; immutable-SHA deploy with rollback; never reset the DB.
+4. BLOCKED: real EC2 provisioning/activation/SSM (AWS account required); region/sizing are operator receipts.
+5. Next: prompt 27 (vercel and hosted acceptance).
+6. Model/version: claude-opus-4-8[1m].

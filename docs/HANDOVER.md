@@ -147,7 +147,12 @@ Completed through 25 (CI and controlled deployment):
 - Verification (exit 0): run_checks --prompt 25 -> test_25.py PASS (committed workflows clean; the checker catches unpinned actions / missing permissions / pull_request deploy / no environment); run_checks --feature F66 -> tests/acceptance/test_f66.py PASS; ruff clean.
 - BLOCKED: running CI / building+pushing GHCR images / assuming the AWS OIDC role require GitHub + AWS; the recorded action SHAs must be re-verified against each action's release at setup.
 
-Next: execute prompt 26 (AWS free-plan deployment) per prompts/README.md, on its own branch.
+Completed through 26 (AWS free-plan deployment):
+- infra/ec2/preflight.py: preflight(account, sizing) -> DeploymentDecision — allows deploy only for a free plan with unexpired credit on an instance whose memory fits the MEASURED peak (BGE-M3 + Chromium) with 20% headroom; free micro is not assumed adequate; ap-south-1 is a proposal the operator verifies. A CLI gate (_main) exits non-zero when blocked. infra/ec2/bootstrap.sh validates the env-file path + refuses a non-0600/0400 secrets file; deploy.sh accepts exactly one hex release SHA (lock + healthcheck + previous-image retention); rollback.sh re-activates the previous immutable SHA and never resets the DB. deploy-backend.yml gains a preflight step before activation (owner wiring; CI config still clean).
+- Verification (exit 0): run_checks --prompt 26 -> test_26.py PASS (preflight allow/block cases incl. no-credit/expired/peak>instance/headroom; scripts reject bad SHA / unprotected env file; accept good inputs); prompt 25 + F66 still green; ruff clean.
+- BLOCKED: real EC2 provisioning (SSM, encrypted volume, IAM), image pull/activation and SSM access require the AWS account; recorded region/sizing are operator-verified receipts, not provisioned here.
+
+Next: execute prompt 27 (Vercel and hosted acceptance) per prompts/README.md, on its own branch.
 
 Watch (unchanged): all live infrastructure remains BLOCKED and reported — Supabase Auth/DB/RLS, Redis, pgvector + BGE-M3 (torch not installed), live OpenAI (text + vision), Postgres LangGraph checkpointer, Playwright/Chromium PDF + e2e, Storage. The frontend toolchain (node 25 / pnpm 10.31) is installed and its vitest suite runs; run_checks has no pnpm wiring, so the per-prompt gate is the Python structural test and the vitest suite is run directly (reported, never faked). Use `uv sync --all-packages` (a bare `uv sync` prunes member deps).
 

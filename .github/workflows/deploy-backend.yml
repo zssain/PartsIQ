@@ -63,6 +63,12 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
+      # Free-plan preflight (prompt 26): block activation unless the operator receipts show a
+      # free plan with unexpired credit and an instance that fits the measured peak.
+      - run: python infra/ec2/preflight.py --account "${ACCOUNT_RECEIPT}" --sizing "${SIZING_RECEIPT}"
+        env:
+          ACCOUNT_RECEIPT: ${{ vars.ACCOUNT_RECEIPT }}
+          SIZING_RECEIPT: ${{ vars.SIZING_RECEIPT }}
       - run: ./infra/ec2/deploy.sh ${{ inputs.release_sha }}
         env:
           EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
