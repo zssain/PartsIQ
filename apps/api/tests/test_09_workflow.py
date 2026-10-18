@@ -1,18 +1,19 @@
-"""Foundation 09 acceptance: the plain Python durable workflow (NO LangGraph).
+"""Foundation 09 acceptance: the durable workflow transition table + step primitive.
 
-Fully offline and deterministic. The transition table is a pure function of the typed state,
-so an LLM is NEVER consulted to pick the next step (asserted explicitly). The runner loop is
-exercised with injected test-double handlers and the in-memory fenced repository. Live
-PostgreSQL persistence (workflow_runs / workflow_step_results) is BLOCKED and reported — no
-live-DB test is faked.
+Fully offline and deterministic. The transition table is a pure function of the typed state, so
+an LLM is NEVER consulted to pick the next step (asserted explicitly). The step primitive
+(``run_next``) is exercised with injected test-double handlers and the in-memory fenced
+repository. Live PostgreSQL persistence (workflow_runs / workflow_step_results) is BLOCKED and
+reported — no live-DB test is faked.
 
-Ported behaviour from the earlier build's services/orchestrator controller/state + test_09,
-test_f12 and test_f50; the LangGraph graph/runner wrapper is discarded in favour of the plain
-loop in partsiq.workflow.runner. ``langgraph`` is not imported anywhere.
+Architecture note: the AUTHORITATIVE workflow engine is LangGraph (``partsiq.workflow.graph`` +
+a Postgres/InMemory checkpointer; see ``test_workflow_langgraph.py``). The deterministic router
+(``transitions.next_step``) and ``state`` stay pure and langgraph-free so routing is code, never a
+model; the graph reuses that router verbatim. ``run_next`` remains the fenced, de-duplicated
+step-outcome primitive the staff timeline and the no-replay guarantee read from.
 """
 from __future__ import annotations
 
-import sys
 import unittest
 from uuid import uuid4
 
@@ -223,14 +224,27 @@ class TransitionTable(unittest.TestCase):
 class DeterminismNoLLM(unittest.TestCase):
     """The transition is a pure, deterministic function of state — no model is consulted."""
 
-    def test_no_llm_or_network_module_is_imported_by_the_workflow_package(self):
-        import partsiq.workflow.runner  # noqa: F401
-        import partsiq.workflow.state  # noqa: F401
-        import partsiq.workflow.transitions  # noqa: F401
+    def test_pure_router_and_state_import_no_llm_or_langgraph(self):
+        # The AUTHORITATIVE engine is LangGraph (partsiq.workflow.graph), but the deterministic
+        # ROUTER and STATE must stay pure: their source imports no langgraph, no LLM and no
+        # network client, so routing can never be steered by a model or a provider call. A static
+        # AST check (not a runtime sys.modules reload, which would corrupt other tests).
+        import ast
+        import inspect
 
-        # The single most important architectural invariant of this edition.
-        self.assertNotIn("langgraph", sys.modules)
-        self.assertNotIn("langchain", sys.modules)
+        import partsiq.workflow.state as state_mod
+        import partsiq.workflow.transitions as transitions_mod
+
+        for mod in (transitions_mod, state_mod):
+            tree = ast.parse(inspect.getsource(mod))
+            imported: set[str] = set()
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    imported.update(alias.name.split(".")[0] for alias in node.names)
+                elif isinstance(node, ast.ImportFrom) and node.module:
+                    imported.add(node.module.split(".")[0])
+            for forbidden in ("langgraph", "langchain", "openai", "httpx", "requests", "asyncpg"):
+                self.assertNotIn(forbidden, imported, f"{mod.__name__} must not import {forbidden}")
 
     def test_next_step_is_pure_and_repeatable(self):
         st = state([item(config=1, candidates=[1, 2])])

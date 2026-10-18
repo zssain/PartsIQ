@@ -79,6 +79,10 @@ class AppContainer:
     journey: "FixtureJourneyStore | None" = None
     #: In-memory intake adapters (rate limiter + idempotency) wired in fixture mode.
     fixture_adapters: "FixtureAdapters | None" = None
+    #: Compiled LangGraph workflow (fixture handlers + InMemorySaver) that drives the demo
+    #: journey deterministically to the human-review pause. ``None`` in DB mode (the worker
+    #: drives the Postgres-checkpointed graph there).
+    workflow_graph: object | None = None
 
     @property
     def is_fixture(self) -> bool:
@@ -206,6 +210,16 @@ def _now() -> datetime:
 
 
 @dataclass
+class _ProgressEvent:
+    """One recorded workflow step for the customer progress / staff specialist timeline."""
+
+    step: str
+    label: str
+    at: datetime
+    status: str = "done"  # done | waiting | failed
+
+
+@dataclass
 class _JourneyEnquiry:
     """One in-memory enquiry plus the derived state a fixture read returns."""
 
@@ -219,6 +233,12 @@ class _JourneyEnquiry:
     wait_reason: str | None
     messages: list[MessageView] = field(default_factory=list)
     attachments: list[AttachmentView] = field(default_factory=list)
+    #: Ordered progress events produced by the real LangGraph run (drives customer progress +
+    #: the staff specialist timeline — Phase 4 visibility, backed by actual processing state).
+    events: list["_ProgressEvent"] = field(default_factory=list)
+    draft_id: UUID | None = None
+    verification_id: UUID | None = None
+    approved: bool = False
 
 
 class FixtureJourneyStore:
@@ -237,8 +257,23 @@ class FixtureJourneyStore:
     would show before the background worker runs.
     """
 
-    def __init__(self) -> None:
+    #: Customer-facing labels for each executable workflow step (bilingual-ready keys).
+    _STEP_LABELS = {
+        "intake": "Reading your request",
+        "identify": "Identifying the machine",
+        "search": "Finding compatible parts",
+        "choose": "Selecting the best match",
+        "plan": "Planning stock and transfers",
+        "draft": "Drafting the reply",
+        "verify": "Checking selections and evidence",
+    }
+
+    def __init__(
+        self, *, workflow_graph: object | None = None, catalogue_version_id: UUID | None = None
+    ) -> None:
         self._by_id: dict[UUID, _JourneyEnquiry] = {}
+        self._graph = workflow_graph
+        self._catalogue_version_id = catalogue_version_id
 
     # --- helpers --------------------------------------------------------
 
@@ -303,7 +338,7 @@ class FixtureJourneyStore:
                 )
             ],
         )
-        self._by_id[enquiry_id] = _JourneyEnquiry(
+        record = _JourneyEnquiry(
             view=view,
             owner_id=actor.user_id,
             session_id=command.session_id or actor.session_id,
@@ -314,7 +349,60 @@ class FixtureJourneyStore:
             wait_reason="awaiting background identification",
             messages=[message],
         )
+        self._by_id[enquiry_id] = record
+        # Drive the REAL LangGraph engine (deterministic fixture handlers) to the human-review
+        # pause and record the actual step sequence as progress events. This is honest fixture
+        # behaviour: compatibility selection, stock planning and a verification result all run
+        # before the enquiry waits for a human — no step is faked (ADR 0001, Phase 5).
+        if self._graph is not None:
+            await self._drive_workflow(record)
         return view
+
+    async def _drive_workflow(self, record: _JourneyEnquiry) -> None:
+        from partsiq.workflow.runner import run_workflow
+        from partsiq.workflow.state import new_state, thread_id
+
+        enquiry_id = record.view.id
+        state = new_state(
+            enquiry_id,
+            record.view.revision,
+            session_generation=record.session_generation,
+            catalogue_version_id=self._catalogue_version_id,
+        )
+        seen: set[str] = set()
+        result = None
+        # stream_mode="updates" yields each executed node; record one ordered event per node.
+        config = {"configurable": {"thread_id": thread_id(enquiry_id, record.view.revision)}}
+        async for update in self._graph.astream(state, config, stream_mode="updates"):
+            for node_name in update:
+                if node_name in self._STEP_LABELS and node_name not in seen:
+                    seen.add(node_name)
+                    record.events.append(
+                        _ProgressEvent(
+                            step=node_name,
+                            label=self._STEP_LABELS[node_name],
+                            at=_now(),
+                            status="done",
+                        )
+                    )
+        # Read the paused state back to set the current step + outcome ids.
+        result = await run_workflow(
+            self._graph, state, thread_id=thread_id(enquiry_id, record.view.revision)
+        )
+        final = result.state
+        record.draft_id = final.draft_id
+        record.verification_id = final.verification_id
+        record.step = result.step
+        if result.step == WorkflowStep.REVIEW:
+            record.wait_reason = "waiting for staff review"
+            record.view = record.view.model_copy(
+                update={"status": "awaiting_review", "catalogue_version_id": self._catalogue_version_id}
+            )
+            record.events.append(
+                _ProgressEvent(step="review", label="Waiting for staff review", at=_now(), status="waiting")
+            )
+        else:
+            record.wait_reason = result.reason
 
     async def lock_current_revision(
         self, actor: ActorContext, enquiry_id: UUID
@@ -395,6 +483,50 @@ class FixtureJourneyStore:
             wait_reason=record.wait_reason,
             updated_at=record.view.updated_at,
         )
+
+    async def timeline(self, actor: ActorContext, enquiry_id: UUID) -> list[dict]:
+        """Ordered progress events from the real workflow run (customer progress + staff timeline).
+
+        Each event names a step, a human label, when it ran and its status — the concise
+        explanation + evidence the UI animates through, never hidden model chain-of-thought.
+        """
+        record = self._owned(actor, enquiry_id)
+        return [
+            {"step": e.step, "label": e.label, "at": e.at.isoformat(), "status": e.status}
+            for e in record.events
+        ]
+
+    async def approve_fixture(self, actor: ActorContext, enquiry_id: UUID) -> EnquiryView:
+        """Record a human approval and publish the single recommendation reply (fixture mode).
+
+        Idempotent: a second approval does not publish a duplicate reply. Only an enquiry paused
+        at human review can be approved; the published reply is a code-owned message.
+        """
+        record = self._owned(actor, enquiry_id)
+        if record.approved:
+            return record.view  # no duplicate publication on replay/double-click
+        if record.step != WorkflowStep.REVIEW:
+            raise PartsIQError("CONFLICT", internal_detail="enquiry is not awaiting review")
+        now = _now()
+        reply = MessageView(
+            id=uuid4(),
+            enquiry_id=enquiry_id,
+            revision=record.view.revision,
+            kind="recommendation",
+            body="Thank you — a staff member has reviewed and approved your enquiry.",
+            created_at=now,
+        )
+        record.messages.append(reply)
+        record.approved = True
+        record.step = WorkflowStep.COMPLETE
+        record.wait_reason = None
+        record.events.append(
+            _ProgressEvent(step="complete", label="Approved and sent", at=now, status="done")
+        )
+        record.view = record.view.model_copy(
+            update={"status": "approved", "messages": list(record.messages), "updated_at": now}
+        )
+        return record.view
 
     async def list_owned(
         self,
@@ -498,12 +630,21 @@ def build_container(settings: Settings) -> AppContainer:
         from partsiq.catalogue.fixtures import build_catalogue
         from partsiq.catalogue.fixture_repository import FixtureCatalogueRepository
 
+        from partsiq.workflow.graph import build_graph, memory_checkpointer
+        from partsiq.workflow.handlers import build_fixture_handlers
+
         snapshot = build_catalogue()
         container.catalogue = FixtureCatalogueRepository.from_versions(
             {snapshot.version_id: list(snapshot.records)}
         )
         container.demo_store = InMemoryDemoStore(settings)
-        container.journey = FixtureJourneyStore()
+        # The authoritative LangGraph engine with deterministic fixture handlers; the journey
+        # store drives it to the human-review pause so fixture progress is REAL execution state.
+        container.workflow_graph = build_graph(build_fixture_handlers(), memory_checkpointer())
+        container.journey = FixtureJourneyStore(
+            workflow_graph=container.workflow_graph,
+            catalogue_version_id=snapshot.version_id,
+        )
         container.fixture_adapters = FixtureAdapters(
             rate_limiter=_AllowAllRateLimiter(),
             idempotency=_InMemoryIdempotencyStore(),

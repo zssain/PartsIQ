@@ -1,23 +1,19 @@
-"""The plain durable workflow runner — an ordinary Python loop, NO LangGraph.
+"""The durable workflow runner.
 
-``run_next(state, handlers, repo)`` drives the journey by:
+The AUTHORITATIVE engine is LangGraph (``graph.build_graph`` + the Postgres/InMemory
+checkpointer); :func:`run_workflow` drives a compiled graph to the next durable pause and records
+one :class:`StepOutcome` per executed node to the :class:`WorkflowRepository` so the staff
+specialist timeline can show each step's inputs/outputs/failures. Routing is always the
+deterministic :func:`partsiq.workflow.transitions.next_step` — no LLM ever picks the step.
 
-1. computing :func:`partsiq.workflow.transitions.next_step` from the typed state (pure Python,
-   no LLM ever picks the step);
-2. if the step waits (await_ocr/confirm/clarify/review) or is terminal (complete/needs_staff),
-   SUSPENDING — it returns the state and the reason without busy-waiting; a slow external step
-   resumes later from a committed job + wait state;
-3. otherwise dispatching to the matching INJECTED handler, hashing the canonical step input,
-   persisting exactly one :class:`StepOutcome`, and advancing the state.
-
-It is DURABLE: a step whose result is already committed for this (enquiry, revision) is replayed
-as a no-op (the handler is not re-invoked). It is FENCED: a commit is rejected — the result
-discarded — if the enquiry revision or the demo session generation changed since the step began
-(F50). Handlers are injected (filled by prompts 10-13 via the :class:`StepHandlers` registry);
-this module imports no unfinished feature module. ``langgraph`` is NOT imported.
-
-Replaces the discarded LangGraph ``graph.py``/``runner.py``/event-consumer wrapper from the
-earlier build with a single explicit loop.
+:func:`run_next` is the lower-level deterministic STEP PRIMITIVE retained alongside the graph: it
+computes the next step, dispatches to an injected handler, hashes the canonical input, persists
+exactly one :class:`StepOutcome`, and advances the state — with the same DURABLE replay (a step
+already committed for this (enquiry, revision) is a no-op) and FENCED commit (discarded if the
+revision or demo generation moved, or the lease expired, F50). The graph owns resume/checkpoint
+state; this primitive owns the fenced, de-duplicated step-outcome log that the timeline and the
+no-replay guarantee read from. Both share the one transition table, so they can never disagree
+about which step is next.
 """
 from __future__ import annotations
 
@@ -188,3 +184,57 @@ def _updates_from_outcome(data: dict[str, object]) -> dict[str, object]:
     """Only the EnquiryState fields present in a stored outcome envelope are re-applied."""
     allowed = set(EnquiryState.model_fields)
     return {k: v for k, v in data.items() if k in allowed}
+
+
+async def run_workflow(
+    graph,
+    state: EnquiryState,
+    *,
+    thread_id: str,
+    repo: WorkflowRepository | None = None,
+    fence: "WorkflowFence | None" = None,
+) -> RunResult:
+    """Drive a compiled LangGraph to the next durable pause/terminal and return the result.
+
+    LangGraph executes the deterministic nodes and persists the paused state at its checkpoint
+    (keyed by ``thread_id`` = ``enquiry:{id}:rev:{revision}``) so a blocking step (await_ocr /
+    confirm / clarify / review) or a terminal step resumes out-of-band. When ``repo`` is given,
+    each executed node is recorded as one :class:`StepOutcome` for the staff timeline; recording
+    is fenced by ``fence`` (a result for a superseded revision/generation is not recorded).
+
+    Routing is :func:`next_step`; no model picks the step. Returns the final state plus a status
+    describing whether the run advanced, is WAITING on an external/human event, or is TERMINAL.
+    """
+    from ..core.api_models import StepOutcome
+
+    config = {"configurable": {"thread_id": thread_id}}
+    final = state
+    # stream_mode="updates" yields {node_name: state_delta} after each node, giving us the exact
+    # ordered node sequence for the timeline; the checkpointer records the paused state for resume.
+    async for update in graph.astream(state, config, stream_mode="updates"):
+        for node_name, delta in update.items():
+            if isinstance(delta, EnquiryState):
+                final = delta
+            elif isinstance(delta, dict):
+                final = final.model_copy(update=delta)
+            # Record one fenced StepOutcome per executed node for the staff timeline. Recording
+            # needs the fence context (revision/generation/lease) so a superseded run's nodes are
+            # not written; without a fence we skip recording and let the graph run.
+            if repo is not None and fence is not None:
+                try:
+                    step = WorkflowStep(node_name)
+                except ValueError:
+                    continue
+                outcome = StepOutcome(
+                    step=step,
+                    reason_code=final.phase or None,
+                    data={"phase": final.phase, "step_count": final.step_count},
+                )
+                await repo.commit_step(fence, step, canonical_input_hash(final, step), outcome)
+
+    step = next_step(final)
+    if is_waiting(step):
+        return RunResult(status=RunStatus.WAITING, step=step, state=final, reason=step.value)
+    if is_terminal(step):
+        return RunResult(status=RunStatus.TERMINAL, step=step, state=final, reason=step.value)
+    return RunResult(status=RunStatus.ADVANCED, step=step, state=final, reason=final.phase or None)
