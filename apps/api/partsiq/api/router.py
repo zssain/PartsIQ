@@ -45,6 +45,14 @@ _COMPLETED_FEATURE_MODULES: tuple[str, ...] = (
     "partsiq.api.f24_semantic_retrieval",
     "partsiq.api.f25_ranked_candidates",
     "partsiq.api.f30_old_part_numbers",
+    "partsiq.api.f36_staff_inbox",
+    "partsiq.api.f37_review_workspace",
+    "partsiq.api.f39_review_actions",
+    "partsiq.api.f41_internal_notes",
+    "partsiq.api.f42_assignments",
+    "partsiq.api.f43_overdue_indicators",
+    "partsiq.api.f47_human_publication_gate",
+    "partsiq.api.f49_audit_trail",
     "partsiq.api.f57_catalogue_browser",
 )
 
