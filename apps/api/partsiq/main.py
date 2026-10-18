@@ -18,9 +18,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .api.router import v1_router
+from .api.router import include_completed_features, v1_router
 from .core.db import Database
-from .core.dependencies import AppContainer
+from .core.dependencies import build_container, build_fixture_verifier
 from .core.errors import PartsIQError, build_problem
 from .core.settings import Settings, load_settings
 
@@ -48,12 +48,20 @@ def _problem_response(code: str, request: Request, detail: str | None = None) ->
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
     settings: Settings = getattr(app.state, "settings_override", None) or load_settings()
-    container = AppContainer(settings=settings)
+    # Assemble the injected adapters. In fixture mode this wires the fixture catalogue, the
+    # in-memory demo store and the in-memory enquiry/workflow journey so the app serves REAL
+    # seed-42 responses with no database.
+    container = build_container(settings)
     # Open pools only when a runtime DSN is configured; fixture/offline mode has none.
     if settings.database_url_api:
         container.database = await Database.connect(settings, roles=("api",))
     app.state.container = container
     app.state.settings = settings
+    # Wire the actor verifier so ``require_actor`` can resolve a trusted actor. Fixture mode
+    # resolves an anonymous demo actor from an ``X-Demo-Token`` header; DB mode wires the real
+    # Supabase JWT verifier (owner work; left unset here so protected routes refuse cleanly).
+    if settings.data_source == "fixture" and getattr(app.state, "actor_verifier", None) is None:
+        app.state.actor_verifier = build_fixture_verifier()
     try:
         yield
     finally:
@@ -124,5 +132,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def livez() -> dict[str, str]:
         return {"status": "live"}
 
+    # Import and mount every completed feature router additively onto ``/v1`` (idempotent).
+    include_completed_features()
     app.include_router(v1_router)
     return app
