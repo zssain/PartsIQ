@@ -87,6 +87,8 @@ _COMPLETED_FEATURE_MODULES: tuple[str, ...] = (
     "partsiq.api.f64_latency_and_ai_cost",
     "partsiq.api.f65_correction_feedback",
     "partsiq.api.f67_traces",
+    # Demo-journey loop closers (timeline + in-demo review approval) over the fixture journey.
+    "partsiq.api.demo_journey",
 )
 
 _FEATURES_INCLUDED = False
