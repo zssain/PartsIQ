@@ -38,6 +38,14 @@ _COMPLETED_FEATURE_MODULES: tuple[str, ...] = (
     "partsiq.api.f13_private_uploads",
     "partsiq.api.f18_progress_timeline",
     "partsiq.api.f19_enquiry_history",
+    "partsiq.api.f20_machine_identification",
+    "partsiq.api.f21_machine_mismatch_detection",
+    "partsiq.api.f22_compatibility_gate",
+    "partsiq.api.f23_aliases_and_typo_matching",
+    "partsiq.api.f24_semantic_retrieval",
+    "partsiq.api.f25_ranked_candidates",
+    "partsiq.api.f30_old_part_numbers",
+    "partsiq.api.f57_catalogue_browser",
 )
 
 _FEATURES_INCLUDED = False
