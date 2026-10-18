@@ -66,6 +66,27 @@ _COMPLETED_FEATURE_MODULES: tuple[str, ...] = (
     "partsiq.api.f47_human_publication_gate",
     "partsiq.api.f49_audit_trail",
     "partsiq.api.f57_catalogue_browser",
+    # Review/workflow extras, catalogue-ops, analytics/eval/observability.
+    "partsiq.api.f38_correct_extracted_details",
+    "partsiq.api.f40_approval_invalidation",
+    "partsiq.api.f44_conversation_summary",
+    "partsiq.api.f45_reply_drafting",
+    "partsiq.api.f46_verification_gate",
+    "partsiq.api.f50_durable_workflows",
+    "partsiq.api.f51_background_jobs",
+    "partsiq.api.f52_retry_and_dedup",
+    "partsiq.api.f54_access_and_permissions",
+    "partsiq.api.f55_saved_machines",
+    "partsiq.api.f56_repeat_enquiry",
+    "partsiq.api.f58_catalogue_imports",
+    "partsiq.api.f59_catalogue_versioning",
+    "partsiq.api.f60_missing_parts_queue",
+    "partsiq.api.f61_enquiry_pdf",
+    "partsiq.api.f62_labelled_evaluations",
+    "partsiq.api.f63_metrics_dashboard",
+    "partsiq.api.f64_latency_and_ai_cost",
+    "partsiq.api.f65_correction_feedback",
+    "partsiq.api.f67_traces",
 )
 
 _FEATURES_INCLUDED = False
