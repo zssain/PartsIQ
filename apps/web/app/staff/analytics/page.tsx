@@ -2,6 +2,7 @@ import { type JSX } from "react";
 
 import { TiltCard } from "@/components/ui/TiltCard";
 import { Reveal } from "@/components/ui/Reveal";
+import { OpsPanel } from "@/components/visibility/OpsPanel";
 import { SCENARIOS } from "@/lib/demo/engine";
 
 // Offline analytics (F63 shell). Metrics are computed from the synthetic scenarios + the labelled
@@ -49,6 +50,12 @@ export default function AnalyticsPage(): JSX.Element {
           Evaluation accuracy is admin-only and reflects the labelled synthetic fixture — not a production guarantee.
           Live, assignment-scoped metrics are served by the gateway from ai_usage durations and decision timestamps.
         </p>
+      </Reveal>
+
+      <Reveal>
+        <div style={{ marginTop: 24 }}>
+          <OpsPanel />
+        </div>
       </Reveal>
     </div>
   );

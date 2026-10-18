@@ -3,6 +3,7 @@ import { type JSX } from "react";
 
 import { TiltCard } from "@/components/ui/TiltCard";
 import { Reveal } from "@/components/ui/Reveal";
+import { FixtureBanner } from "@/components/visibility/FixtureBanner";
 import { SCENARIOS } from "@/lib/demo/engine";
 
 // Demo hub: pick one of the four seed-42 synthetic scenarios. Runs entirely offline — no backend
@@ -19,6 +20,9 @@ export default function DemoPage(): JSX.Element {
           Each scenario steps through identification, compatibility, fulfilment, deterministic verification and the
           human approval gate — using fabricated data only. Pick one to begin.
         </p>
+        <div style={{ marginTop: 14 }}>
+          <FixtureBanner />
+        </div>
       </Reveal>
 
       <div style={{ display: "grid", gap: 18, gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 420px), 1fr))", marginTop: 28 }}>

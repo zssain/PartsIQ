@@ -12,6 +12,8 @@ import { InternalNotes } from "@/components/features/InternalNotes";
 import { OverdueBadge } from "@/components/features/OverdueBadge";
 import { ConversationSummary } from "@/components/features/ConversationSummary";
 import { Workspace } from "@/components/review/Workspace";
+import { SpecialistTimeline } from "@/components/visibility/SpecialistTimeline";
+import { ReviewSeparation } from "@/components/visibility/ReviewSeparation";
 import { classifyDeadline, type F43Request, type F43Result } from "@/lib/features/f43_overdue_indicators";
 import { requestSummary, type F44Request } from "@/lib/features/f44_conversation_summary";
 import { assignEnquiry, type F42Request, type F42Result } from "@/lib/features/f42_assignments";
@@ -121,6 +123,8 @@ export default function StaffEnquiryPage({
   return (
     <main>
       <h1>Review enquiry</h1>
+      <SpecialistTimeline enquiryId={id} />
+      <ReviewSeparation enquiryId={id} />
       <StockFreshness
         value={freshness}
         loading={false}
