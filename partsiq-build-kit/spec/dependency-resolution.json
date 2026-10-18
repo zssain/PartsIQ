@@ -1,0 +1,14 @@
+{
+  "python": {
+    "result": "resolved",
+    "command": "uv pip compile spec/python-requirements.in --python-version 3.12 --exclude-newer 2026-10-02",
+    "target": "Linux x86_64 CPython3.12 CPU torch",
+    "runtime_tests": "not run"
+  },
+  "javascript": {
+    "result": "retained original frozen reference lock",
+    "target": "Node22.22.0",
+    "limitation": "Target-runtime application build not run"
+  },
+  "security_audit": "Not claimed;run application security gate before exposure"
+}

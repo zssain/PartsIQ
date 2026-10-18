@@ -1,0 +1,94 @@
+# local,dev or prod;tests reject prod
+APP_ENV=local
+# fixture or snowflake;never automatic fallback
+DATA_SOURCE=fixture
+# fixture or live;fixture banner mandatory
+AI_MODE=fixture
+# Remain false until client retention is agreed
+REAL_ONBOARDING_ENABLED=false
+# Least-privilege LOGIN with partsiq_api
+DATABASE_URL_API=
+# LOGIN with partsiq_workflow
+DATABASE_URL_WORKFLOW=
+# LOGIN with partsiq_search
+DATABASE_URL_SEARCH=
+# LOGIN with partsiq_worker
+DATABASE_URL_WORKER=
+# LOGIN with partsiq_catalogue
+DATABASE_URL_CATALOGUE=
+# Schema owner;never runtime
+DATABASE_URL_MIGRATION=
+# Development or production project URL
+SUPABASE_URL=
+# Public browser key;authorization still required
+SUPABASE_ANON_KEY=
+# Secret;never used for ordinary database queries
+SUPABASE_SERVICE_ROLE_KEY=
+# Exact configured auth issuer
+SUPABASE_JWT_ISSUER=
+# Exact JWT audience
+SUPABASE_JWT_AUDIENCE=authenticated
+# Private Compose network
+REDIS_URL=redis://redis:6379/0
+# Comma-separated exact origins
+ALLOWED_ORIGINS=http://localhost:3000
+# Secret live key
+OPENAI_API_KEY=
+# Owner-approved available structured-output model
+OPENAI_TEXT_MODEL=
+# Owner-approved available image model
+OPENAI_VISION_MODEL=
+# Owner-confirmed expiry in UTC;no invented value
+AI_ALLOWANCE_EXPIRES_AT=
+# Dedicated free allowance;zero blocks live calls
+AI_CONFIRMED_ALLOWANCE_USD=0
+# Account identifier without domain suffix
+SNOWFLAKE_ACCOUNT=
+# Read-only service user
+SNOWFLAKE_USER_READER=
+# Publisher service user
+SNOWFLAKE_USER_LOADER=
+# Reporting service user
+SNOWFLAKE_USER_REPORTER=
+# Mounted secret file;restricted permissions
+SNOWFLAKE_PRIVATE_KEY_FILE=
+# Secret optional key passphrase
+SNOWFLAKE_PRIVATE_KEY_PASSWORD=
+# Allowlist PARTSIQ_DEV or PARTSIQ_PROD
+SNOWFLAKE_DATABASE=PARTSIQ_DEV
+# Confirmed allowance required
+SNOWFLAKE_WAREHOUSE=PARTSIQ_WH
+# Zero blocks warehouse creation/resume
+SNOWFLAKE_CREDIT_ALLOWANCE=0
+# Confirmed UTC expiry
+SNOWFLAKE_ALLOWANCE_EXPIRES_AT=
+# Enable only after memory/capability check
+SEMANTIC_SEARCH_ENABLED=false
+# Copy verified immutable revision from infrastructure receipts
+BGE_MODEL_REVISION=
+# Provisional policy;real client chooses
+STOCK_MAX_AGE_SECONDS=3600
+# 24-hour access lifetime
+DEMO_SESSION_TTL_SECONDS=86400
+# Cleanup after access expiry plus one hour
+DEMO_CLEANUP_GRACE_SECONDS=3600
+# Heartbeat every30seconds
+JOB_LEASE_SECONDS=120
+# 10MiB
+MAX_UPLOAD_BYTES=10485760
+# Decoded pixel budget
+MAX_IMAGE_PIXELS=20000000
+# Optional
+LANGFUSE_PUBLIC_KEY=
+# Optional secret
+LANGFUSE_SECRET_KEY=
+# Optional approved endpoint
+LANGFUSE_BASE_URL=
+# Public backend origin
+NEXT_PUBLIC_API_ORIGIN=http://localhost:8000
+# Matching project URL
+NEXT_PUBLIC_SUPABASE_URL=
+# Matching public auth key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+# Existing owner-controlled domain for hosted HTTPS
+API_DOMAIN=

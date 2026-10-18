@@ -1,0 +1,21 @@
+{
+  "edition": "PartsIQ single-workflow Snowflake build kit",
+  "features": 69,
+  "implementation_prompts": 97,
+  "guide_pages": 477,
+  "guide_chapters": 137,
+  "rest_operations": 77,
+  "schemas": 152,
+  "planned_application_paths": 591,
+  "validation": {
+    "kit_consistency": "passed",
+    "postgresql_sql_syntax": "passed for six migration files",
+    "guide_text_bounds": "no page overflows detected",
+    "visual_review": "all pages reviewed in contact sheets; representative pages reviewed at full size"
+  },
+  "limitations": [
+    "Application is specified, not implemented or deployed.",
+    "Live Supabase RLS, Snowflake, and OpenAI integration tests have not been executed.",
+    "Free service allowances require account-specific verification."
+  ]
+}

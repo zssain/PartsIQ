@@ -1,0 +1,331 @@
+[
+  {
+    "name": "APP_ENV",
+    "default": "local",
+    "consumer": "API and worker",
+    "meaning": "local,dev or prod;tests reject prod",
+    "secret": false
+  },
+  {
+    "name": "DATA_SOURCE",
+    "default": "fixture",
+    "consumer": "Worker",
+    "meaning": "fixture or snowflake;never automatic fallback",
+    "secret": false
+  },
+  {
+    "name": "AI_MODE",
+    "default": "fixture",
+    "consumer": "Worker",
+    "meaning": "fixture or live;fixture banner mandatory",
+    "secret": false
+  },
+  {
+    "name": "REAL_ONBOARDING_ENABLED",
+    "default": "false",
+    "consumer": "API",
+    "meaning": "Remain false until client retention is agreed",
+    "secret": false
+  },
+  {
+    "name": "DATABASE_URL_API",
+    "default": "",
+    "consumer": "API",
+    "meaning": "Least-privilege LOGIN with partsiq_api",
+    "secret": true
+  },
+  {
+    "name": "DATABASE_URL_WORKFLOW",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "LOGIN with partsiq_workflow",
+    "secret": true
+  },
+  {
+    "name": "DATABASE_URL_SEARCH",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "LOGIN with partsiq_search",
+    "secret": true
+  },
+  {
+    "name": "DATABASE_URL_WORKER",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "LOGIN with partsiq_worker",
+    "secret": true
+  },
+  {
+    "name": "DATABASE_URL_CATALOGUE",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "LOGIN with partsiq_catalogue",
+    "secret": true
+  },
+  {
+    "name": "DATABASE_URL_MIGRATION",
+    "default": "",
+    "consumer": "Migration command only",
+    "meaning": "Schema owner;never runtime",
+    "secret": true
+  },
+  {
+    "name": "SUPABASE_URL",
+    "default": "",
+    "consumer": "API and web",
+    "meaning": "Development or production project URL",
+    "secret": false
+  },
+  {
+    "name": "SUPABASE_ANON_KEY",
+    "default": "",
+    "consumer": "Web",
+    "meaning": "Public browser key;authorization still required",
+    "secret": false
+  },
+  {
+    "name": "SUPABASE_SERVICE_ROLE_KEY",
+    "default": "",
+    "consumer": "Storage adapter only",
+    "meaning": "Secret;never used for ordinary database queries",
+    "secret": true
+  },
+  {
+    "name": "SUPABASE_JWT_ISSUER",
+    "default": "",
+    "consumer": "API",
+    "meaning": "Exact configured auth issuer",
+    "secret": false
+  },
+  {
+    "name": "SUPABASE_JWT_AUDIENCE",
+    "default": "authenticated",
+    "consumer": "API",
+    "meaning": "Exact JWT audience",
+    "secret": false
+  },
+  {
+    "name": "REDIS_URL",
+    "default": "redis://redis:6379/0",
+    "consumer": "API and worker",
+    "meaning": "Private Compose network",
+    "secret": false
+  },
+  {
+    "name": "ALLOWED_ORIGINS",
+    "default": "http://localhost:3000",
+    "consumer": "API",
+    "meaning": "Comma-separated exact origins",
+    "secret": false
+  },
+  {
+    "name": "OPENAI_API_KEY",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "Secret live key",
+    "secret": true
+  },
+  {
+    "name": "OPENAI_TEXT_MODEL",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "Owner-approved available structured-output model",
+    "secret": false
+  },
+  {
+    "name": "OPENAI_VISION_MODEL",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "Owner-approved available image model",
+    "secret": false
+  },
+  {
+    "name": "AI_ALLOWANCE_EXPIRES_AT",
+    "default": "",
+    "consumer": "Preflight",
+    "meaning": "Owner-confirmed expiry in UTC;no invented value",
+    "secret": false
+  },
+  {
+    "name": "AI_CONFIRMED_ALLOWANCE_USD",
+    "default": "0",
+    "consumer": "Preflight",
+    "meaning": "Dedicated free allowance;zero blocks live calls",
+    "secret": false
+  },
+  {
+    "name": "SNOWFLAKE_ACCOUNT",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "Account identifier without domain suffix",
+    "secret": false
+  },
+  {
+    "name": "SNOWFLAKE_USER_READER",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "Read-only service user",
+    "secret": false
+  },
+  {
+    "name": "SNOWFLAKE_USER_LOADER",
+    "default": "",
+    "consumer": "Publisher",
+    "meaning": "Publisher service user",
+    "secret": false
+  },
+  {
+    "name": "SNOWFLAKE_USER_REPORTER",
+    "default": "",
+    "consumer": "Analytics worker",
+    "meaning": "Reporting service user",
+    "secret": false
+  },
+  {
+    "name": "SNOWFLAKE_PRIVATE_KEY_FILE",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "Mounted secret file;restricted permissions",
+    "secret": true
+  },
+  {
+    "name": "SNOWFLAKE_PRIVATE_KEY_PASSWORD",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "Secret optional key passphrase",
+    "secret": true
+  },
+  {
+    "name": "SNOWFLAKE_DATABASE",
+    "default": "PARTSIQ_DEV",
+    "consumer": "Worker",
+    "meaning": "Allowlist PARTSIQ_DEV or PARTSIQ_PROD",
+    "secret": false
+  },
+  {
+    "name": "SNOWFLAKE_WAREHOUSE",
+    "default": "PARTSIQ_WH",
+    "consumer": "Worker",
+    "meaning": "Confirmed allowance required",
+    "secret": false
+  },
+  {
+    "name": "SNOWFLAKE_CREDIT_ALLOWANCE",
+    "default": "0",
+    "consumer": "Preflight",
+    "meaning": "Zero blocks warehouse creation/resume",
+    "secret": false
+  },
+  {
+    "name": "SNOWFLAKE_ALLOWANCE_EXPIRES_AT",
+    "default": "",
+    "consumer": "Preflight",
+    "meaning": "Confirmed UTC expiry",
+    "secret": false
+  },
+  {
+    "name": "SEMANTIC_SEARCH_ENABLED",
+    "default": "false",
+    "consumer": "Worker",
+    "meaning": "Enable only after memory/capability check",
+    "secret": false
+  },
+  {
+    "name": "BGE_MODEL_REVISION",
+    "default": "",
+    "consumer": "Worker",
+    "meaning": "Copy verified immutable revision from infrastructure receipts",
+    "secret": false
+  },
+  {
+    "name": "STOCK_MAX_AGE_SECONDS",
+    "default": "3600",
+    "consumer": "Domain",
+    "meaning": "Provisional policy;real client chooses",
+    "secret": false
+  },
+  {
+    "name": "DEMO_SESSION_TTL_SECONDS",
+    "default": "86400",
+    "consumer": "API",
+    "meaning": "24-hour access lifetime",
+    "secret": false
+  },
+  {
+    "name": "DEMO_CLEANUP_GRACE_SECONDS",
+    "default": "3600",
+    "consumer": "Worker",
+    "meaning": "Cleanup after access expiry plus one hour",
+    "secret": false
+  },
+  {
+    "name": "JOB_LEASE_SECONDS",
+    "default": "120",
+    "consumer": "Worker",
+    "meaning": "Heartbeat every30seconds",
+    "secret": false
+  },
+  {
+    "name": "MAX_UPLOAD_BYTES",
+    "default": "10485760",
+    "consumer": "API and worker",
+    "meaning": "10MiB",
+    "secret": false
+  },
+  {
+    "name": "MAX_IMAGE_PIXELS",
+    "default": "20000000",
+    "consumer": "Worker",
+    "meaning": "Decoded pixel budget",
+    "secret": false
+  },
+  {
+    "name": "LANGFUSE_PUBLIC_KEY",
+    "default": "",
+    "consumer": "Telemetry",
+    "meaning": "Optional",
+    "secret": false
+  },
+  {
+    "name": "LANGFUSE_SECRET_KEY",
+    "default": "",
+    "consumer": "Telemetry",
+    "meaning": "Optional secret",
+    "secret": true
+  },
+  {
+    "name": "LANGFUSE_BASE_URL",
+    "default": "",
+    "consumer": "Telemetry",
+    "meaning": "Optional approved endpoint",
+    "secret": false
+  },
+  {
+    "name": "NEXT_PUBLIC_API_ORIGIN",
+    "default": "http://localhost:8000",
+    "consumer": "Web",
+    "meaning": "Public backend origin",
+    "secret": false
+  },
+  {
+    "name": "NEXT_PUBLIC_SUPABASE_URL",
+    "default": "",
+    "consumer": "Web",
+    "meaning": "Matching project URL",
+    "secret": false
+  },
+  {
+    "name": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "default": "",
+    "consumer": "Web",
+    "meaning": "Matching public auth key",
+    "secret": false
+  },
+  {
+    "name": "API_DOMAIN",
+    "default": "",
+    "consumer": "Caddy",
+    "meaning": "Existing owner-controlled domain for hosted HTTPS",
+    "secret": false
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "image": "python:3.12.12-slim-bookworm",
+    "digest": "sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c",
+    "pinned": "python:3.12.12-slim-bookworm@sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c",
+    "source": "https://registry-1.docker.io/v2/library/python/manifests/3.12.12-slim-bookworm"
+  },
+  {
+    "image": "node:22.22.0-bookworm-slim",
+    "digest": "sha256:dd9d21971ec4395903fa6143c2b9267d048ae01ca6d3ea96f16cb30df6187d94",
+    "pinned": "node:22.22.0-bookworm-slim@sha256:dd9d21971ec4395903fa6143c2b9267d048ae01ca6d3ea96f16cb30df6187d94",
+    "source": "https://registry-1.docker.io/v2/library/node/manifests/22.22.0-bookworm-slim"
+  },
+  {
+    "image": "redis:7.4.8-alpine",
+    "digest": "sha256:7aec734b2bb298a1d769fd8729f13b8514a41bf90fcdd1f38ec52267fbaa8ee6",
+    "pinned": "redis:7.4.8-alpine@sha256:7aec734b2bb298a1d769fd8729f13b8514a41bf90fcdd1f38ec52267fbaa8ee6",
+    "source": "https://registry-1.docker.io/v2/library/redis/manifests/7.4.8-alpine"
+  },
+  {
+    "image": "caddy:2.11.4-alpine",
+    "digest": "sha256:6aeddd44c3078b0f9a35206472a11420648a79c184603ef95957d0a20044cb2b",
+    "pinned": "caddy:2.11.4-alpine@sha256:6aeddd44c3078b0f9a35206472a11420648a79c184603ef95957d0a20044cb2b",
+    "source": "https://registry-1.docker.io/v2/library/caddy/manifests/2.11.4-alpine"
+  }
+]

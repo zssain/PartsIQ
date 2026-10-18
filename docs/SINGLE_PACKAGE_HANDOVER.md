@@ -64,7 +64,30 @@ All commits below are green (`uv run --all-packages python -m pytest apps/api/te
 - **Web** — `apps/web/lib/api.ts` retargeted at the single-package `/v1` (NEXT_PUBLIC_API_ORIGIN), parses RFC9457 Problem, sends `X-Demo-Token`; existing revamped UI unchanged. tsc clean, 44 web tests pass.
 - **22 security gate** (offline portion) — disposable-env guard, F48 AI input isolation, app access (401/404-no-leak/demo isolation), F53 safe Problem bodies.
 
-Current: **622 Python tests pass, 15 skipped** (all skips = live-infra BLOCKED, never faked), ruff clean; app boots and serves **77 `/v1` routes**; the fixture customer+demo journey returns real seed-42 data end-to-end.
+Current: **636 Python tests pass, 15 skipped** (all skips = live-infra BLOCKED, never faked), ruff clean; app boots and serves **79 `/v1` routes**; the fixture customer+demo journey runs end-to-end through the LangGraph engine and returns real seed-42 data.
+
+## Workflow reconciliation — LangGraph is authoritative (ADR 0001)
+
+The owner reversed the build-kit's plain-Python-only decision: the single `apps/api/partsiq`
+app now coordinates the journey with **LangGraph + deterministic routing** (ADR
+[0001](adr/0001-langgraph-workflow-engine.md)). `partsiq.workflow.graph.build_graph` compiles a
+`StateGraph(EnquiryState)` whose router is the pure `transitions.next_step` (no LLM supervisor);
+blocking/terminal steps `END` and pause durably at the checkpointer (`thread_id =
+enquiry:{id}:rev:{revision}`, Postgres in prod / InMemory in fixture). Nodes reuse the existing
+intake/vision/identification/search/fulfilment/reply/verification functions. The fixture container
+compiles the graph and drives each new enquiry to the human-review pause, recording real progress
+events; staff approval is idempotent (one published reply). State-ownership, dedup/no-replay,
+resume auth+revision checks, and the plain-Python migration path are in the ADR.
+
+Proven offline: `test_workflow_langgraph.py` (routing, durable pause, resume no-op, revision-thread
+isolation), `test_journey_e2e.py` (full loop + 4 scenarios + resume/duplicate/stale-approval/
+unauthorized/fixture-no-credit). Four visibility panels (`apps/web/components/visibility/`) +
+`lib/live.ts` are wired and vitest-green (65 web tests).
+
+**Legacy runtime NOT yet retired.** `services/orchestrator` (the earlier LangGraph runtime) remains
+as the documented **rollback path** and is retired only after the consolidated engine passes the
+browser-journey checks (Phase 6 browser — see below). Rollback = route workflow traffic back to
+`services/orchestrator` (unchanged).
 
 ## Remaining / BLOCKED
 - **Gates 26 (AWS) + 27 (Vercel/hosted acceptance)**: deployment-receipt gates — entirely BLOCKED here (no AWS/Vercel/Supabase account). The services build already carries `infra/ec2/preflight.py` + `tools/hosted_acceptance.py`; re-port only when an account exists. Not re-created to avoid near-empty duplicates.

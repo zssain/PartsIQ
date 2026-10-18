@@ -1,0 +1,2366 @@
+[
+  {
+    "path": ".env.example",
+    "created_by": "00"
+  },
+  {
+    "path": ".github/workflows/ci.yml",
+    "created_by": "25"
+  },
+  {
+    "path": ".github/workflows/deploy.yml",
+    "created_by": "25"
+  },
+  {
+    "path": ".gitignore",
+    "created_by": "00"
+  },
+  {
+    "path": ".nvmrc",
+    "created_by": "00"
+  },
+  {
+    "path": ".python-version",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/Dockerfile",
+    "created_by": "24"
+  },
+  {
+    "path": "apps/api/partsiq/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/ai/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/ai/budget.py",
+    "created_by": "10"
+  },
+  {
+    "path": "apps/api/partsiq/ai/client.py",
+    "created_by": "10"
+  },
+  {
+    "path": "apps/api/partsiq/ai/extraction.py",
+    "created_by": "10"
+  },
+  {
+    "path": "apps/api/partsiq/ai/prompts.py",
+    "created_by": "10"
+  },
+  {
+    "path": "apps/api/partsiq/ai/reply.py",
+    "created_by": "13"
+  },
+  {
+    "path": "apps/api/partsiq/ai/vision.py",
+    "created_by": "16"
+  },
+  {
+    "path": "apps/api/partsiq/analytics/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/analytics/outbox.py",
+    "created_by": "23"
+  },
+  {
+    "path": "apps/api/partsiq/analytics/service.py",
+    "created_by": "23"
+  },
+  {
+    "path": "apps/api/partsiq/analytics/snowflake.py",
+    "created_by": "23"
+  },
+  {
+    "path": "apps/api/partsiq/api/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/api/f02_demo_scenarios_and_assets.py",
+    "created_by": "F02"
+  },
+  {
+    "path": "apps/api/partsiq/api/f04_demo_isolation.py",
+    "created_by": "F04"
+  },
+  {
+    "path": "apps/api/partsiq/api/f05_demo_reset.py",
+    "created_by": "F05"
+  },
+  {
+    "path": "apps/api/partsiq/api/f09_bilingual_chat.py",
+    "created_by": "F09"
+  },
+  {
+    "path": "apps/api/partsiq/api/f10_structured_extraction.py",
+    "created_by": "F10"
+  },
+  {
+    "path": "apps/api/partsiq/api/f11_clarifying_questions.py",
+    "created_by": "F11"
+  },
+  {
+    "path": "apps/api/partsiq/api/f12_conversation_memory.py",
+    "created_by": "F12"
+  },
+  {
+    "path": "apps/api/partsiq/api/f13_private_uploads.py",
+    "created_by": "F13"
+  },
+  {
+    "path": "apps/api/partsiq/api/f14_nameplate_ocr.py",
+    "created_by": "F14"
+  },
+  {
+    "path": "apps/api/partsiq/api/f15_ocr_confirmation.py",
+    "created_by": "F15"
+  },
+  {
+    "path": "apps/api/partsiq/api/f16_photo_quality_feedback.py",
+    "created_by": "F16"
+  },
+  {
+    "path": "apps/api/partsiq/api/f17_multi_part_enquiries.py",
+    "created_by": "F17"
+  },
+  {
+    "path": "apps/api/partsiq/api/f18_progress_timeline.py",
+    "created_by": "F18"
+  },
+  {
+    "path": "apps/api/partsiq/api/f19_enquiry_history.py",
+    "created_by": "F19"
+  },
+  {
+    "path": "apps/api/partsiq/api/f20_machine_identification.py",
+    "created_by": "F20"
+  },
+  {
+    "path": "apps/api/partsiq/api/f21_machine_mismatch_detection.py",
+    "created_by": "F21"
+  },
+  {
+    "path": "apps/api/partsiq/api/f22_compatibility_gate.py",
+    "created_by": "F22"
+  },
+  {
+    "path": "apps/api/partsiq/api/f23_aliases_and_typo_matching.py",
+    "created_by": "F23"
+  },
+  {
+    "path": "apps/api/partsiq/api/f24_semantic_retrieval.py",
+    "created_by": "F24"
+  },
+  {
+    "path": "apps/api/partsiq/api/f25_ranked_candidates.py",
+    "created_by": "F25"
+  },
+  {
+    "path": "apps/api/partsiq/api/f26_ambiguity_handling.py",
+    "created_by": "F26"
+  },
+  {
+    "path": "apps/api/partsiq/api/f27_match_explanations.py",
+    "created_by": "F27"
+  },
+  {
+    "path": "apps/api/partsiq/api/f28_compatibility_references.py",
+    "created_by": "F28"
+  },
+  {
+    "path": "apps/api/partsiq/api/f29_evidence_page_viewer.py",
+    "created_by": "F29"
+  },
+  {
+    "path": "apps/api/partsiq/api/f30_old_part_numbers.py",
+    "created_by": "F30"
+  },
+  {
+    "path": "apps/api/partsiq/api/f31_candidate_comparison.py",
+    "created_by": "F31"
+  },
+  {
+    "path": "apps/api/partsiq/api/f32_warehouse_stock.py",
+    "created_by": "F32"
+  },
+  {
+    "path": "apps/api/partsiq/api/f33_fulfilment_planning.py",
+    "created_by": "F33"
+  },
+  {
+    "path": "apps/api/partsiq/api/f34_transfer_estimates.py",
+    "created_by": "F34"
+  },
+  {
+    "path": "apps/api/partsiq/api/f35_stock_freshness.py",
+    "created_by": "F35"
+  },
+  {
+    "path": "apps/api/partsiq/api/f36_staff_inbox.py",
+    "created_by": "F36"
+  },
+  {
+    "path": "apps/api/partsiq/api/f37_review_workspace.py",
+    "created_by": "F37"
+  },
+  {
+    "path": "apps/api/partsiq/api/f38_correct_extracted_details.py",
+    "created_by": "F38"
+  },
+  {
+    "path": "apps/api/partsiq/api/f39_review_actions.py",
+    "created_by": "F39"
+  },
+  {
+    "path": "apps/api/partsiq/api/f40_approval_invalidation.py",
+    "created_by": "F40"
+  },
+  {
+    "path": "apps/api/partsiq/api/f41_internal_notes.py",
+    "created_by": "F41"
+  },
+  {
+    "path": "apps/api/partsiq/api/f42_assignments.py",
+    "created_by": "F42"
+  },
+  {
+    "path": "apps/api/partsiq/api/f43_overdue_indicators.py",
+    "created_by": "F43"
+  },
+  {
+    "path": "apps/api/partsiq/api/f44_conversation_summary.py",
+    "created_by": "F44"
+  },
+  {
+    "path": "apps/api/partsiq/api/f45_reply_drafting.py",
+    "created_by": "F45"
+  },
+  {
+    "path": "apps/api/partsiq/api/f46_verification_gate.py",
+    "created_by": "F46"
+  },
+  {
+    "path": "apps/api/partsiq/api/f47_human_publication_gate.py",
+    "created_by": "F47"
+  },
+  {
+    "path": "apps/api/partsiq/api/f49_audit_trail.py",
+    "created_by": "F49"
+  },
+  {
+    "path": "apps/api/partsiq/api/f50_durable_workflows.py",
+    "created_by": "F50"
+  },
+  {
+    "path": "apps/api/partsiq/api/f51_background_jobs.py",
+    "created_by": "F51"
+  },
+  {
+    "path": "apps/api/partsiq/api/f52_retry_and_deduplication.py",
+    "created_by": "F52"
+  },
+  {
+    "path": "apps/api/partsiq/api/f54_access_and_permissions.py",
+    "created_by": "F54"
+  },
+  {
+    "path": "apps/api/partsiq/api/f55_saved_machines.py",
+    "created_by": "F55"
+  },
+  {
+    "path": "apps/api/partsiq/api/f56_repeat_enquiry.py",
+    "created_by": "F56"
+  },
+  {
+    "path": "apps/api/partsiq/api/f57_catalogue_browser.py",
+    "created_by": "F57"
+  },
+  {
+    "path": "apps/api/partsiq/api/f58_catalogue_imports.py",
+    "created_by": "F58"
+  },
+  {
+    "path": "apps/api/partsiq/api/f59_catalogue_versioning.py",
+    "created_by": "F59"
+  },
+  {
+    "path": "apps/api/partsiq/api/f60_missing_parts_queue.py",
+    "created_by": "F60"
+  },
+  {
+    "path": "apps/api/partsiq/api/f61_enquiry_pdf.py",
+    "created_by": "F61"
+  },
+  {
+    "path": "apps/api/partsiq/api/f62_labelled_evaluations.py",
+    "created_by": "F62"
+  },
+  {
+    "path": "apps/api/partsiq/api/f63_metrics_dashboard.py",
+    "created_by": "F63"
+  },
+  {
+    "path": "apps/api/partsiq/api/f64_latency_and_ai_cost.py",
+    "created_by": "F64"
+  },
+  {
+    "path": "apps/api/partsiq/api/f65_correction_feedback.py",
+    "created_by": "F65"
+  },
+  {
+    "path": "apps/api/partsiq/api/f67_traces.py",
+    "created_by": "F67"
+  },
+  {
+    "path": "apps/api/partsiq/api/router.py",
+    "created_by": "01"
+  },
+  {
+    "path": "apps/api/partsiq/auth/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/auth/access.py",
+    "created_by": "07"
+  },
+  {
+    "path": "apps/api/partsiq/auth/demo.py",
+    "created_by": "07"
+  },
+  {
+    "path": "apps/api/partsiq/auth/tokens.py",
+    "created_by": "07"
+  },
+  {
+    "path": "apps/api/partsiq/catalogue/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/catalogue/activation.py",
+    "created_by": "03"
+  },
+  {
+    "path": "apps/api/partsiq/catalogue/fixture_repository.py",
+    "created_by": "02"
+  },
+  {
+    "path": "apps/api/partsiq/catalogue/fixtures.py",
+    "created_by": "05"
+  },
+  {
+    "path": "apps/api/partsiq/catalogue/models.py",
+    "created_by": "02"
+  },
+  {
+    "path": "apps/api/partsiq/catalogue/snowflake_repository.py",
+    "created_by": "02"
+  },
+  {
+    "path": "apps/api/partsiq/catalogue/validation.py",
+    "created_by": "02"
+  },
+  {
+    "path": "apps/api/partsiq/core/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/core/api_models.py",
+    "created_by": "01"
+  },
+  {
+    "path": "apps/api/partsiq/core/contracts.py",
+    "created_by": "01"
+  },
+  {
+    "path": "apps/api/partsiq/core/db.py",
+    "created_by": "01"
+  },
+  {
+    "path": "apps/api/partsiq/core/dependencies.py",
+    "created_by": "01"
+  },
+  {
+    "path": "apps/api/partsiq/core/errors.py",
+    "created_by": "01"
+  },
+  {
+    "path": "apps/api/partsiq/core/idempotency.py",
+    "created_by": "08"
+  },
+  {
+    "path": "apps/api/partsiq/core/observability.py",
+    "created_by": "23"
+  },
+  {
+    "path": "apps/api/partsiq/core/rate_limit.py",
+    "created_by": "08"
+  },
+  {
+    "path": "apps/api/partsiq/core/settings.py",
+    "created_by": "01"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/approval.py",
+    "created_by": "14"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/drafts.py",
+    "created_by": "13"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/extraction.py",
+    "created_by": "16"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/facts.py",
+    "created_by": "12"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/fulfilment.py",
+    "created_by": "11"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/history.py",
+    "created_by": "08"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/intake.py",
+    "created_by": "08"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/publication.py",
+    "created_by": "14"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/questions.py",
+    "created_by": "11"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/renderer.py",
+    "created_by": "13"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/review.py",
+    "created_by": "14"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/revisions.py",
+    "created_by": "14"
+  },
+  {
+    "path": "apps/api/partsiq/enquiries/verification.py",
+    "created_by": "12"
+  },
+  {
+    "path": "apps/api/partsiq/evaluation/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/evaluation/curation.py",
+    "created_by": "21"
+  },
+  {
+    "path": "apps/api/partsiq/evaluation/runner.py",
+    "created_by": "21"
+  },
+  {
+    "path": "apps/api/partsiq/exports/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/exports/render.py",
+    "created_by": "17"
+  },
+  {
+    "path": "apps/api/partsiq/exports/service.py",
+    "created_by": "17"
+  },
+  {
+    "path": "apps/api/partsiq/exports/templates/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/exports/templates/enquiry.html",
+    "created_by": "17"
+  },
+  {
+    "path": "apps/api/partsiq/features/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/features/f01_branded_landing.py",
+    "created_by": "F01"
+  },
+  {
+    "path": "apps/api/partsiq/features/f02_demo_scenarios_and_assets.py",
+    "created_by": "F02"
+  },
+  {
+    "path": "apps/api/partsiq/features/f03_demo_role_switching.py",
+    "created_by": "F03"
+  },
+  {
+    "path": "apps/api/partsiq/features/f04_demo_isolation.py",
+    "created_by": "F04"
+  },
+  {
+    "path": "apps/api/partsiq/features/f05_demo_reset.py",
+    "created_by": "F05"
+  },
+  {
+    "path": "apps/api/partsiq/features/f06_responsive_layouts.py",
+    "created_by": "F06"
+  },
+  {
+    "path": "apps/api/partsiq/features/f07_arabic_and_english_interface.py",
+    "created_by": "F07"
+  },
+  {
+    "path": "apps/api/partsiq/features/f08_light_and_dark_themes.py",
+    "created_by": "F08"
+  },
+  {
+    "path": "apps/api/partsiq/features/f09_bilingual_chat.py",
+    "created_by": "F09"
+  },
+  {
+    "path": "apps/api/partsiq/features/f10_structured_extraction.py",
+    "created_by": "F10"
+  },
+  {
+    "path": "apps/api/partsiq/features/f11_clarifying_questions.py",
+    "created_by": "F11"
+  },
+  {
+    "path": "apps/api/partsiq/features/f12_conversation_memory.py",
+    "created_by": "F12"
+  },
+  {
+    "path": "apps/api/partsiq/features/f13_private_uploads.py",
+    "created_by": "F13"
+  },
+  {
+    "path": "apps/api/partsiq/features/f14_nameplate_ocr.py",
+    "created_by": "F14"
+  },
+  {
+    "path": "apps/api/partsiq/features/f15_ocr_confirmation.py",
+    "created_by": "F15"
+  },
+  {
+    "path": "apps/api/partsiq/features/f16_photo_quality_feedback.py",
+    "created_by": "F16"
+  },
+  {
+    "path": "apps/api/partsiq/features/f17_multi_part_enquiries.py",
+    "created_by": "F17"
+  },
+  {
+    "path": "apps/api/partsiq/features/f18_progress_timeline.py",
+    "created_by": "F18"
+  },
+  {
+    "path": "apps/api/partsiq/features/f19_enquiry_history.py",
+    "created_by": "F19"
+  },
+  {
+    "path": "apps/api/partsiq/features/f20_machine_identification.py",
+    "created_by": "F20"
+  },
+  {
+    "path": "apps/api/partsiq/features/f21_machine_mismatch_detection.py",
+    "created_by": "F21"
+  },
+  {
+    "path": "apps/api/partsiq/features/f22_compatibility_gate.py",
+    "created_by": "F22"
+  },
+  {
+    "path": "apps/api/partsiq/features/f23_aliases_and_typo_matching.py",
+    "created_by": "F23"
+  },
+  {
+    "path": "apps/api/partsiq/features/f24_semantic_retrieval.py",
+    "created_by": "F24"
+  },
+  {
+    "path": "apps/api/partsiq/features/f25_ranked_candidates.py",
+    "created_by": "F25"
+  },
+  {
+    "path": "apps/api/partsiq/features/f26_ambiguity_handling.py",
+    "created_by": "F26"
+  },
+  {
+    "path": "apps/api/partsiq/features/f27_match_explanations.py",
+    "created_by": "F27"
+  },
+  {
+    "path": "apps/api/partsiq/features/f28_compatibility_references.py",
+    "created_by": "F28"
+  },
+  {
+    "path": "apps/api/partsiq/features/f29_evidence_page_viewer.py",
+    "created_by": "F29"
+  },
+  {
+    "path": "apps/api/partsiq/features/f30_old_part_numbers.py",
+    "created_by": "F30"
+  },
+  {
+    "path": "apps/api/partsiq/features/f31_candidate_comparison.py",
+    "created_by": "F31"
+  },
+  {
+    "path": "apps/api/partsiq/features/f32_warehouse_stock.py",
+    "created_by": "F32"
+  },
+  {
+    "path": "apps/api/partsiq/features/f33_fulfilment_planning.py",
+    "created_by": "F33"
+  },
+  {
+    "path": "apps/api/partsiq/features/f34_transfer_estimates.py",
+    "created_by": "F34"
+  },
+  {
+    "path": "apps/api/partsiq/features/f35_stock_freshness.py",
+    "created_by": "F35"
+  },
+  {
+    "path": "apps/api/partsiq/features/f36_staff_inbox.py",
+    "created_by": "F36"
+  },
+  {
+    "path": "apps/api/partsiq/features/f37_review_workspace.py",
+    "created_by": "F37"
+  },
+  {
+    "path": "apps/api/partsiq/features/f38_correct_extracted_details.py",
+    "created_by": "F38"
+  },
+  {
+    "path": "apps/api/partsiq/features/f39_review_actions.py",
+    "created_by": "F39"
+  },
+  {
+    "path": "apps/api/partsiq/features/f40_approval_invalidation.py",
+    "created_by": "F40"
+  },
+  {
+    "path": "apps/api/partsiq/features/f41_internal_notes.py",
+    "created_by": "F41"
+  },
+  {
+    "path": "apps/api/partsiq/features/f42_assignments.py",
+    "created_by": "F42"
+  },
+  {
+    "path": "apps/api/partsiq/features/f43_overdue_indicators.py",
+    "created_by": "F43"
+  },
+  {
+    "path": "apps/api/partsiq/features/f44_conversation_summary.py",
+    "created_by": "F44"
+  },
+  {
+    "path": "apps/api/partsiq/features/f45_reply_drafting.py",
+    "created_by": "F45"
+  },
+  {
+    "path": "apps/api/partsiq/features/f46_verification_gate.py",
+    "created_by": "F46"
+  },
+  {
+    "path": "apps/api/partsiq/features/f47_human_publication_gate.py",
+    "created_by": "F47"
+  },
+  {
+    "path": "apps/api/partsiq/features/f48_input_isolation.py",
+    "created_by": "F48"
+  },
+  {
+    "path": "apps/api/partsiq/features/f49_audit_trail.py",
+    "created_by": "F49"
+  },
+  {
+    "path": "apps/api/partsiq/features/f50_durable_workflows.py",
+    "created_by": "F50"
+  },
+  {
+    "path": "apps/api/partsiq/features/f51_background_jobs.py",
+    "created_by": "F51"
+  },
+  {
+    "path": "apps/api/partsiq/features/f52_retry_and_deduplication.py",
+    "created_by": "F52"
+  },
+  {
+    "path": "apps/api/partsiq/features/f53_graceful_failures.py",
+    "created_by": "F53"
+  },
+  {
+    "path": "apps/api/partsiq/features/f54_access_and_permissions.py",
+    "created_by": "F54"
+  },
+  {
+    "path": "apps/api/partsiq/features/f55_saved_machines.py",
+    "created_by": "F55"
+  },
+  {
+    "path": "apps/api/partsiq/features/f56_repeat_enquiry.py",
+    "created_by": "F56"
+  },
+  {
+    "path": "apps/api/partsiq/features/f57_catalogue_browser.py",
+    "created_by": "F57"
+  },
+  {
+    "path": "apps/api/partsiq/features/f58_catalogue_imports.py",
+    "created_by": "F58"
+  },
+  {
+    "path": "apps/api/partsiq/features/f59_catalogue_versioning.py",
+    "created_by": "F59"
+  },
+  {
+    "path": "apps/api/partsiq/features/f60_missing_parts_queue.py",
+    "created_by": "F60"
+  },
+  {
+    "path": "apps/api/partsiq/features/f61_enquiry_pdf.py",
+    "created_by": "F61"
+  },
+  {
+    "path": "apps/api/partsiq/features/f62_labelled_evaluations.py",
+    "created_by": "F62"
+  },
+  {
+    "path": "apps/api/partsiq/features/f63_metrics_dashboard.py",
+    "created_by": "F63"
+  },
+  {
+    "path": "apps/api/partsiq/features/f64_latency_and_ai_cost.py",
+    "created_by": "F64"
+  },
+  {
+    "path": "apps/api/partsiq/features/f65_correction_feedback.py",
+    "created_by": "F65"
+  },
+  {
+    "path": "apps/api/partsiq/features/f66_tests_and_ci.py",
+    "created_by": "F66"
+  },
+  {
+    "path": "apps/api/partsiq/features/f67_traces.py",
+    "created_by": "F67"
+  },
+  {
+    "path": "apps/api/partsiq/features/f68_recruiter_documentation.py",
+    "created_by": "F68"
+  },
+  {
+    "path": "apps/api/partsiq/features/f69_demo_walkthrough.py",
+    "created_by": "F69"
+  },
+  {
+    "path": "apps/api/partsiq/jobs/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/jobs/handlers.py",
+    "created_by": "15"
+  },
+  {
+    "path": "apps/api/partsiq/jobs/main.py",
+    "created_by": "15"
+  },
+  {
+    "path": "apps/api/partsiq/jobs/nameplate.py",
+    "created_by": "16"
+  },
+  {
+    "path": "apps/api/partsiq/jobs/repository.py",
+    "created_by": "15"
+  },
+  {
+    "path": "apps/api/partsiq/jobs/sweeper.py",
+    "created_by": "15"
+  },
+  {
+    "path": "apps/api/partsiq/main.py",
+    "created_by": "01"
+  },
+  {
+    "path": "apps/api/partsiq/search/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/search/embeddings.py",
+    "created_by": "06"
+  },
+  {
+    "path": "apps/api/partsiq/search/fulfilment.py",
+    "created_by": "06"
+  },
+  {
+    "path": "apps/api/partsiq/search/identification.py",
+    "created_by": "06"
+  },
+  {
+    "path": "apps/api/partsiq/search/lexical.py",
+    "created_by": "06"
+  },
+  {
+    "path": "apps/api/partsiq/search/repository.py",
+    "created_by": "06"
+  },
+  {
+    "path": "apps/api/partsiq/search/schemas.py",
+    "created_by": "06"
+  },
+  {
+    "path": "apps/api/partsiq/search/service.py",
+    "created_by": "06"
+  },
+  {
+    "path": "apps/api/partsiq/storage/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/storage/client.py",
+    "created_by": "04"
+  },
+  {
+    "path": "apps/api/partsiq/storage/images.py",
+    "created_by": "04"
+  },
+  {
+    "path": "apps/api/partsiq/storage/service.py",
+    "created_by": "04"
+  },
+  {
+    "path": "apps/api/partsiq/workflow/__init__.py",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/api/partsiq/workflow/repository.py",
+    "created_by": "09"
+  },
+  {
+    "path": "apps/api/partsiq/workflow/resolution.py",
+    "created_by": "11"
+  },
+  {
+    "path": "apps/api/partsiq/workflow/runner.py",
+    "created_by": "09"
+  },
+  {
+    "path": "apps/api/partsiq/workflow/state.py",
+    "created_by": "09"
+  },
+  {
+    "path": "apps/api/partsiq/workflow/transitions.py",
+    "created_by": "09"
+  },
+  {
+    "path": "apps/api/pyproject.toml",
+    "created_by": "00"
+  },
+  {
+    "path": "apps/web/next.config.ts",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/package.json",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/pnpm-lock.yaml",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/BRAND.md",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets-manifest.json",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/Preview.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-1024.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-128.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-144.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-152.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-16.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-180.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-192.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-24.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-256.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-32.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-384.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-48.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-512.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-64.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-96.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-1024.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-128.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-144.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-152.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-16.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-180.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-192.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-24.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-256.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-32.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-384.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-48.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-512.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-64.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-96.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-1280.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-1740.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-320.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-640.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-1280.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-1740.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-320.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-640.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-hdpi-72.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-mdpi-48.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xhdpi-96.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xxhdpi-144.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xxxhdpi-192.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/google-play-512.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/ios-app-store-1024.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/social/partsiq-og-1200x630.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/social/partsiq-profile-1080.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/source/original-logo.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/source/transparent-logo.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/android-chrome-192x192.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/android-chrome-512x512.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/apple-touch-icon.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-16x16.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-32x32.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-48x48.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-96x96.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon.ico",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/maskable-icon-192x192.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/maskable-icon-512x512.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/site.webmanifest",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/fonts/NotoNaskhArabic-OFL.txt",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/fonts/NotoNaskhArabic.ttf",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/fonts/NotoSans-OFL.txt",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/fonts/NotoSans.ttf",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/fonts/NotoSansArabic-OFL.txt",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/fonts/NotoSansArabic.ttf",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/logo-original.png",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/tokens.css",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/public/brand/tokens.json",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/src/app/demo/page.tsx",
+    "created_by": "19"
+  },
+  {
+    "path": "apps/web/src/app/enquiries/[id]/page.tsx",
+    "created_by": "19"
+  },
+  {
+    "path": "apps/web/src/app/globals.css",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/src/app/layout.tsx",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/src/app/page.tsx",
+    "created_by": "19"
+  },
+  {
+    "path": "apps/web/src/app/providers.tsx",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/src/app/staff/enquiries/[id]/page.tsx",
+    "created_by": "20"
+  },
+  {
+    "path": "apps/web/src/app/staff/page.tsx",
+    "created_by": "20"
+  },
+  {
+    "path": "apps/web/src/components/AppShell.tsx",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/src/components/CustomerShell.tsx",
+    "created_by": "19"
+  },
+  {
+    "path": "apps/web/src/components/ReviewActions.tsx",
+    "created_by": "20"
+  },
+  {
+    "path": "apps/web/src/components/StaffShell.tsx",
+    "created_by": "20"
+  },
+  {
+    "path": "apps/web/src/features/f01_branded_landing/Panel.tsx",
+    "created_by": "F01"
+  },
+  {
+    "path": "apps/web/src/features/f02_demo_scenarios_and_assets/Panel.tsx",
+    "created_by": "F02"
+  },
+  {
+    "path": "apps/web/src/features/f03_demo_role_switching/Panel.tsx",
+    "created_by": "F03"
+  },
+  {
+    "path": "apps/web/src/features/f04_demo_isolation/Panel.tsx",
+    "created_by": "F04"
+  },
+  {
+    "path": "apps/web/src/features/f05_demo_reset/Panel.tsx",
+    "created_by": "F05"
+  },
+  {
+    "path": "apps/web/src/features/f06_responsive_layouts/Panel.tsx",
+    "created_by": "F06"
+  },
+  {
+    "path": "apps/web/src/features/f07_arabic_and_english_interface/Panel.tsx",
+    "created_by": "F07"
+  },
+  {
+    "path": "apps/web/src/features/f08_light_and_dark_themes/Panel.tsx",
+    "created_by": "F08"
+  },
+  {
+    "path": "apps/web/src/features/f09_bilingual_chat/Panel.tsx",
+    "created_by": "F09"
+  },
+  {
+    "path": "apps/web/src/features/f10_structured_extraction/Panel.tsx",
+    "created_by": "F10"
+  },
+  {
+    "path": "apps/web/src/features/f11_clarifying_questions/Panel.tsx",
+    "created_by": "F11"
+  },
+  {
+    "path": "apps/web/src/features/f12_conversation_memory/Panel.tsx",
+    "created_by": "F12"
+  },
+  {
+    "path": "apps/web/src/features/f13_private_uploads/Panel.tsx",
+    "created_by": "F13"
+  },
+  {
+    "path": "apps/web/src/features/f14_nameplate_ocr/Panel.tsx",
+    "created_by": "F14"
+  },
+  {
+    "path": "apps/web/src/features/f15_ocr_confirmation/Panel.tsx",
+    "created_by": "F15"
+  },
+  {
+    "path": "apps/web/src/features/f16_photo_quality_feedback/Panel.tsx",
+    "created_by": "F16"
+  },
+  {
+    "path": "apps/web/src/features/f17_multi_part_enquiries/Panel.tsx",
+    "created_by": "F17"
+  },
+  {
+    "path": "apps/web/src/features/f18_progress_timeline/Panel.tsx",
+    "created_by": "F18"
+  },
+  {
+    "path": "apps/web/src/features/f19_enquiry_history/Panel.tsx",
+    "created_by": "F19"
+  },
+  {
+    "path": "apps/web/src/features/f20_machine_identification/Panel.tsx",
+    "created_by": "F20"
+  },
+  {
+    "path": "apps/web/src/features/f21_machine_mismatch_detection/Panel.tsx",
+    "created_by": "F21"
+  },
+  {
+    "path": "apps/web/src/features/f22_compatibility_gate/Panel.tsx",
+    "created_by": "F22"
+  },
+  {
+    "path": "apps/web/src/features/f23_aliases_and_typo_matching/Panel.tsx",
+    "created_by": "F23"
+  },
+  {
+    "path": "apps/web/src/features/f24_semantic_retrieval/Panel.tsx",
+    "created_by": "F24"
+  },
+  {
+    "path": "apps/web/src/features/f25_ranked_candidates/Panel.tsx",
+    "created_by": "F25"
+  },
+  {
+    "path": "apps/web/src/features/f26_ambiguity_handling/Panel.tsx",
+    "created_by": "F26"
+  },
+  {
+    "path": "apps/web/src/features/f27_match_explanations/Panel.tsx",
+    "created_by": "F27"
+  },
+  {
+    "path": "apps/web/src/features/f28_compatibility_references/Panel.tsx",
+    "created_by": "F28"
+  },
+  {
+    "path": "apps/web/src/features/f29_evidence_page_viewer/Panel.tsx",
+    "created_by": "F29"
+  },
+  {
+    "path": "apps/web/src/features/f30_old_part_numbers/Panel.tsx",
+    "created_by": "F30"
+  },
+  {
+    "path": "apps/web/src/features/f31_candidate_comparison/Panel.tsx",
+    "created_by": "F31"
+  },
+  {
+    "path": "apps/web/src/features/f32_warehouse_stock/Panel.tsx",
+    "created_by": "F32"
+  },
+  {
+    "path": "apps/web/src/features/f33_fulfilment_planning/Panel.tsx",
+    "created_by": "F33"
+  },
+  {
+    "path": "apps/web/src/features/f34_transfer_estimates/Panel.tsx",
+    "created_by": "F34"
+  },
+  {
+    "path": "apps/web/src/features/f35_stock_freshness/Panel.tsx",
+    "created_by": "F35"
+  },
+  {
+    "path": "apps/web/src/features/f36_staff_inbox/Panel.tsx",
+    "created_by": "F36"
+  },
+  {
+    "path": "apps/web/src/features/f37_review_workspace/Panel.tsx",
+    "created_by": "F37"
+  },
+  {
+    "path": "apps/web/src/features/f38_correct_extracted_details/Panel.tsx",
+    "created_by": "F38"
+  },
+  {
+    "path": "apps/web/src/features/f39_review_actions/Panel.tsx",
+    "created_by": "F39"
+  },
+  {
+    "path": "apps/web/src/features/f40_approval_invalidation/Panel.tsx",
+    "created_by": "F40"
+  },
+  {
+    "path": "apps/web/src/features/f41_internal_notes/Panel.tsx",
+    "created_by": "F41"
+  },
+  {
+    "path": "apps/web/src/features/f42_assignments/Panel.tsx",
+    "created_by": "F42"
+  },
+  {
+    "path": "apps/web/src/features/f43_overdue_indicators/Panel.tsx",
+    "created_by": "F43"
+  },
+  {
+    "path": "apps/web/src/features/f44_conversation_summary/Panel.tsx",
+    "created_by": "F44"
+  },
+  {
+    "path": "apps/web/src/features/f45_reply_drafting/Panel.tsx",
+    "created_by": "F45"
+  },
+  {
+    "path": "apps/web/src/features/f46_verification_gate/Panel.tsx",
+    "created_by": "F46"
+  },
+  {
+    "path": "apps/web/src/features/f47_human_publication_gate/Panel.tsx",
+    "created_by": "F47"
+  },
+  {
+    "path": "apps/web/src/features/f49_audit_trail/Panel.tsx",
+    "created_by": "F49"
+  },
+  {
+    "path": "apps/web/src/features/f50_durable_workflows/Panel.tsx",
+    "created_by": "F50"
+  },
+  {
+    "path": "apps/web/src/features/f51_background_jobs/Panel.tsx",
+    "created_by": "F51"
+  },
+  {
+    "path": "apps/web/src/features/f52_retry_and_deduplication/Panel.tsx",
+    "created_by": "F52"
+  },
+  {
+    "path": "apps/web/src/features/f54_access_and_permissions/Panel.tsx",
+    "created_by": "F54"
+  },
+  {
+    "path": "apps/web/src/features/f55_saved_machines/Panel.tsx",
+    "created_by": "F55"
+  },
+  {
+    "path": "apps/web/src/features/f56_repeat_enquiry/Panel.tsx",
+    "created_by": "F56"
+  },
+  {
+    "path": "apps/web/src/features/f57_catalogue_browser/Panel.tsx",
+    "created_by": "F57"
+  },
+  {
+    "path": "apps/web/src/features/f58_catalogue_imports/Panel.tsx",
+    "created_by": "F58"
+  },
+  {
+    "path": "apps/web/src/features/f59_catalogue_versioning/Panel.tsx",
+    "created_by": "F59"
+  },
+  {
+    "path": "apps/web/src/features/f60_missing_parts_queue/Panel.tsx",
+    "created_by": "F60"
+  },
+  {
+    "path": "apps/web/src/features/f61_enquiry_pdf/Panel.tsx",
+    "created_by": "F61"
+  },
+  {
+    "path": "apps/web/src/features/f62_labelled_evaluations/Panel.tsx",
+    "created_by": "F62"
+  },
+  {
+    "path": "apps/web/src/features/f63_metrics_dashboard/Panel.tsx",
+    "created_by": "F63"
+  },
+  {
+    "path": "apps/web/src/features/f64_latency_and_ai_cost/Panel.tsx",
+    "created_by": "F64"
+  },
+  {
+    "path": "apps/web/src/features/f65_correction_feedback/Panel.tsx",
+    "created_by": "F65"
+  },
+  {
+    "path": "apps/web/src/features/f67_traces/Panel.tsx",
+    "created_by": "F67"
+  },
+  {
+    "path": "apps/web/src/features/f68_recruiter_documentation/Panel.tsx",
+    "created_by": "F68"
+  },
+  {
+    "path": "apps/web/src/features/f69_demo_walkthrough/Panel.tsx",
+    "created_by": "F69"
+  },
+  {
+    "path": "apps/web/src/hooks/useEnquiry.ts",
+    "created_by": "19"
+  },
+  {
+    "path": "apps/web/src/i18n/ar.json",
+    "created_by": "19"
+  },
+  {
+    "path": "apps/web/src/i18n/en.json",
+    "created_by": "19"
+  },
+  {
+    "path": "apps/web/src/lib/api.ts",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/src/lib/auth.ts",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/src/lib/contracts.ts",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/src/lib/problem.ts",
+    "created_by": "18"
+  },
+  {
+    "path": "apps/web/tests/features/f01.test.tsx",
+    "created_by": "F01"
+  },
+  {
+    "path": "apps/web/tests/features/f02.test.tsx",
+    "created_by": "F02"
+  },
+  {
+    "path": "apps/web/tests/features/f03.test.tsx",
+    "created_by": "F03"
+  },
+  {
+    "path": "apps/web/tests/features/f04.test.tsx",
+    "created_by": "F04"
+  },
+  {
+    "path": "apps/web/tests/features/f05.test.tsx",
+    "created_by": "F05"
+  },
+  {
+    "path": "apps/web/tests/features/f06.test.tsx",
+    "created_by": "F06"
+  },
+  {
+    "path": "apps/web/tests/features/f07.test.tsx",
+    "created_by": "F07"
+  },
+  {
+    "path": "apps/web/tests/features/f08.test.tsx",
+    "created_by": "F08"
+  },
+  {
+    "path": "apps/web/tests/features/f09.test.tsx",
+    "created_by": "F09"
+  },
+  {
+    "path": "apps/web/tests/features/f10.test.tsx",
+    "created_by": "F10"
+  },
+  {
+    "path": "apps/web/tests/features/f11.test.tsx",
+    "created_by": "F11"
+  },
+  {
+    "path": "apps/web/tests/features/f12.test.tsx",
+    "created_by": "F12"
+  },
+  {
+    "path": "apps/web/tests/features/f13.test.tsx",
+    "created_by": "F13"
+  },
+  {
+    "path": "apps/web/tests/features/f14.test.tsx",
+    "created_by": "F14"
+  },
+  {
+    "path": "apps/web/tests/features/f15.test.tsx",
+    "created_by": "F15"
+  },
+  {
+    "path": "apps/web/tests/features/f16.test.tsx",
+    "created_by": "F16"
+  },
+  {
+    "path": "apps/web/tests/features/f17.test.tsx",
+    "created_by": "F17"
+  },
+  {
+    "path": "apps/web/tests/features/f18.test.tsx",
+    "created_by": "F18"
+  },
+  {
+    "path": "apps/web/tests/features/f19.test.tsx",
+    "created_by": "F19"
+  },
+  {
+    "path": "apps/web/tests/features/f20.test.tsx",
+    "created_by": "F20"
+  },
+  {
+    "path": "apps/web/tests/features/f21.test.tsx",
+    "created_by": "F21"
+  },
+  {
+    "path": "apps/web/tests/features/f22.test.tsx",
+    "created_by": "F22"
+  },
+  {
+    "path": "apps/web/tests/features/f23.test.tsx",
+    "created_by": "F23"
+  },
+  {
+    "path": "apps/web/tests/features/f24.test.tsx",
+    "created_by": "F24"
+  },
+  {
+    "path": "apps/web/tests/features/f25.test.tsx",
+    "created_by": "F25"
+  },
+  {
+    "path": "apps/web/tests/features/f26.test.tsx",
+    "created_by": "F26"
+  },
+  {
+    "path": "apps/web/tests/features/f27.test.tsx",
+    "created_by": "F27"
+  },
+  {
+    "path": "apps/web/tests/features/f28.test.tsx",
+    "created_by": "F28"
+  },
+  {
+    "path": "apps/web/tests/features/f29.test.tsx",
+    "created_by": "F29"
+  },
+  {
+    "path": "apps/web/tests/features/f30.test.tsx",
+    "created_by": "F30"
+  },
+  {
+    "path": "apps/web/tests/features/f31.test.tsx",
+    "created_by": "F31"
+  },
+  {
+    "path": "apps/web/tests/features/f32.test.tsx",
+    "created_by": "F32"
+  },
+  {
+    "path": "apps/web/tests/features/f33.test.tsx",
+    "created_by": "F33"
+  },
+  {
+    "path": "apps/web/tests/features/f34.test.tsx",
+    "created_by": "F34"
+  },
+  {
+    "path": "apps/web/tests/features/f35.test.tsx",
+    "created_by": "F35"
+  },
+  {
+    "path": "apps/web/tests/features/f36.test.tsx",
+    "created_by": "F36"
+  },
+  {
+    "path": "apps/web/tests/features/f37.test.tsx",
+    "created_by": "F37"
+  },
+  {
+    "path": "apps/web/tests/features/f38.test.tsx",
+    "created_by": "F38"
+  },
+  {
+    "path": "apps/web/tests/features/f39.test.tsx",
+    "created_by": "F39"
+  },
+  {
+    "path": "apps/web/tests/features/f40.test.tsx",
+    "created_by": "F40"
+  },
+  {
+    "path": "apps/web/tests/features/f41.test.tsx",
+    "created_by": "F41"
+  },
+  {
+    "path": "apps/web/tests/features/f42.test.tsx",
+    "created_by": "F42"
+  },
+  {
+    "path": "apps/web/tests/features/f43.test.tsx",
+    "created_by": "F43"
+  },
+  {
+    "path": "apps/web/tests/features/f44.test.tsx",
+    "created_by": "F44"
+  },
+  {
+    "path": "apps/web/tests/features/f45.test.tsx",
+    "created_by": "F45"
+  },
+  {
+    "path": "apps/web/tests/features/f46.test.tsx",
+    "created_by": "F46"
+  },
+  {
+    "path": "apps/web/tests/features/f47.test.tsx",
+    "created_by": "F47"
+  },
+  {
+    "path": "apps/web/tests/features/f48.test.tsx",
+    "created_by": "F48"
+  },
+  {
+    "path": "apps/web/tests/features/f49.test.tsx",
+    "created_by": "F49"
+  },
+  {
+    "path": "apps/web/tests/features/f50.test.tsx",
+    "created_by": "F50"
+  },
+  {
+    "path": "apps/web/tests/features/f51.test.tsx",
+    "created_by": "F51"
+  },
+  {
+    "path": "apps/web/tests/features/f52.test.tsx",
+    "created_by": "F52"
+  },
+  {
+    "path": "apps/web/tests/features/f53.test.tsx",
+    "created_by": "F53"
+  },
+  {
+    "path": "apps/web/tests/features/f54.test.tsx",
+    "created_by": "F54"
+  },
+  {
+    "path": "apps/web/tests/features/f55.test.tsx",
+    "created_by": "F55"
+  },
+  {
+    "path": "apps/web/tests/features/f56.test.tsx",
+    "created_by": "F56"
+  },
+  {
+    "path": "apps/web/tests/features/f57.test.tsx",
+    "created_by": "F57"
+  },
+  {
+    "path": "apps/web/tests/features/f58.test.tsx",
+    "created_by": "F58"
+  },
+  {
+    "path": "apps/web/tests/features/f59.test.tsx",
+    "created_by": "F59"
+  },
+  {
+    "path": "apps/web/tests/features/f60.test.tsx",
+    "created_by": "F60"
+  },
+  {
+    "path": "apps/web/tests/features/f61.test.tsx",
+    "created_by": "F61"
+  },
+  {
+    "path": "apps/web/tests/features/f62.test.tsx",
+    "created_by": "F62"
+  },
+  {
+    "path": "apps/web/tests/features/f63.test.tsx",
+    "created_by": "F63"
+  },
+  {
+    "path": "apps/web/tests/features/f64.test.tsx",
+    "created_by": "F64"
+  },
+  {
+    "path": "apps/web/tests/features/f65.test.tsx",
+    "created_by": "F65"
+  },
+  {
+    "path": "apps/web/tests/features/f66.test.tsx",
+    "created_by": "F66"
+  },
+  {
+    "path": "apps/web/tests/features/f67.test.tsx",
+    "created_by": "F67"
+  },
+  {
+    "path": "apps/web/tests/features/f68.test.tsx",
+    "created_by": "F68"
+  },
+  {
+    "path": "apps/web/tests/features/f69.test.tsx",
+    "created_by": "F69"
+  },
+  {
+    "path": "apps/web/tsconfig.json",
+    "created_by": "18"
+  },
+  {
+    "path": "docker-compose.yml",
+    "created_by": "24"
+  },
+  {
+    "path": "docs/DEMO_SCRIPT.md",
+    "created_by": "27"
+  },
+  {
+    "path": "docs/DEPLOYMENT_RECEIPT.md",
+    "created_by": "26"
+  },
+  {
+    "path": "docs/HOSTED_ACCEPTANCE.md",
+    "created_by": "27"
+  },
+  {
+    "path": "docs/RECRUITER_GUIDE.md",
+    "created_by": "27"
+  },
+  {
+    "path": "evals/README.md",
+    "created_by": "21"
+  },
+  {
+    "path": "evals/cases.json",
+    "created_by": "21"
+  },
+  {
+    "path": "fixtures/README.md",
+    "created_by": "05"
+  },
+  {
+    "path": "fixtures/catalogue.json",
+    "created_by": "05"
+  },
+  {
+    "path": "fixtures/scenarios.json",
+    "created_by": "05"
+  },
+  {
+    "path": "infra/Caddyfile",
+    "created_by": "24"
+  },
+  {
+    "path": "infra/compose.fixture.yml",
+    "created_by": "24"
+  },
+  {
+    "path": "infra/compose.production.yml",
+    "created_by": "24"
+  },
+  {
+    "path": "infra/deploy.sh",
+    "created_by": "26"
+  },
+  {
+    "path": "infra/rollback.sh",
+    "created_by": "26"
+  },
+  {
+    "path": "infra/snowflake/001_schema.sql",
+    "created_by": "02"
+  },
+  {
+    "path": "infra/snowflake/002_roles.sql",
+    "created_by": "02"
+  },
+  {
+    "path": "infra/snowflake/003_validation_queries.sql",
+    "created_by": "02"
+  },
+  {
+    "path": "pyproject.toml",
+    "created_by": "00"
+  },
+  {
+    "path": "supabase/config.toml",
+    "created_by": "03"
+  },
+  {
+    "path": "supabase/migrations/001_initial_schema.sql",
+    "created_by": "03"
+  },
+  {
+    "path": "supabase/migrations/002_search_and_fulfilment.sql",
+    "created_by": "03"
+  },
+  {
+    "path": "supabase/migrations/003_application.sql",
+    "created_by": "03"
+  },
+  {
+    "path": "supabase/migrations/004_rls.sql",
+    "created_by": "03"
+  },
+  {
+    "path": "supabase/migrations/005_storage.sql",
+    "created_by": "03"
+  },
+  {
+    "path": "supabase/migrations/006_plain_workflow_and_snowflake.sql",
+    "created_by": "03"
+  },
+  {
+    "path": "tests/acceptance/test_concurrency.py",
+    "created_by": "22"
+  },
+  {
+    "path": "tests/acceptance/test_recovery.py",
+    "created_by": "22"
+  },
+  {
+    "path": "tests/acceptance/test_security.py",
+    "created_by": "22"
+  },
+  {
+    "path": "tests/features/test_f01.py",
+    "created_by": "F01"
+  },
+  {
+    "path": "tests/features/test_f02.py",
+    "created_by": "F02"
+  },
+  {
+    "path": "tests/features/test_f03.py",
+    "created_by": "F03"
+  },
+  {
+    "path": "tests/features/test_f04.py",
+    "created_by": "F04"
+  },
+  {
+    "path": "tests/features/test_f05.py",
+    "created_by": "F05"
+  },
+  {
+    "path": "tests/features/test_f06.py",
+    "created_by": "F06"
+  },
+  {
+    "path": "tests/features/test_f07.py",
+    "created_by": "F07"
+  },
+  {
+    "path": "tests/features/test_f08.py",
+    "created_by": "F08"
+  },
+  {
+    "path": "tests/features/test_f09.py",
+    "created_by": "F09"
+  },
+  {
+    "path": "tests/features/test_f10.py",
+    "created_by": "F10"
+  },
+  {
+    "path": "tests/features/test_f11.py",
+    "created_by": "F11"
+  },
+  {
+    "path": "tests/features/test_f12.py",
+    "created_by": "F12"
+  },
+  {
+    "path": "tests/features/test_f13.py",
+    "created_by": "F13"
+  },
+  {
+    "path": "tests/features/test_f14.py",
+    "created_by": "F14"
+  },
+  {
+    "path": "tests/features/test_f15.py",
+    "created_by": "F15"
+  },
+  {
+    "path": "tests/features/test_f16.py",
+    "created_by": "F16"
+  },
+  {
+    "path": "tests/features/test_f17.py",
+    "created_by": "F17"
+  },
+  {
+    "path": "tests/features/test_f18.py",
+    "created_by": "F18"
+  },
+  {
+    "path": "tests/features/test_f19.py",
+    "created_by": "F19"
+  },
+  {
+    "path": "tests/features/test_f20.py",
+    "created_by": "F20"
+  },
+  {
+    "path": "tests/features/test_f21.py",
+    "created_by": "F21"
+  },
+  {
+    "path": "tests/features/test_f22.py",
+    "created_by": "F22"
+  },
+  {
+    "path": "tests/features/test_f23.py",
+    "created_by": "F23"
+  },
+  {
+    "path": "tests/features/test_f24.py",
+    "created_by": "F24"
+  },
+  {
+    "path": "tests/features/test_f25.py",
+    "created_by": "F25"
+  },
+  {
+    "path": "tests/features/test_f26.py",
+    "created_by": "F26"
+  },
+  {
+    "path": "tests/features/test_f27.py",
+    "created_by": "F27"
+  },
+  {
+    "path": "tests/features/test_f28.py",
+    "created_by": "F28"
+  },
+  {
+    "path": "tests/features/test_f29.py",
+    "created_by": "F29"
+  },
+  {
+    "path": "tests/features/test_f30.py",
+    "created_by": "F30"
+  },
+  {
+    "path": "tests/features/test_f31.py",
+    "created_by": "F31"
+  },
+  {
+    "path": "tests/features/test_f32.py",
+    "created_by": "F32"
+  },
+  {
+    "path": "tests/features/test_f33.py",
+    "created_by": "F33"
+  },
+  {
+    "path": "tests/features/test_f34.py",
+    "created_by": "F34"
+  },
+  {
+    "path": "tests/features/test_f35.py",
+    "created_by": "F35"
+  },
+  {
+    "path": "tests/features/test_f36.py",
+    "created_by": "F36"
+  },
+  {
+    "path": "tests/features/test_f37.py",
+    "created_by": "F37"
+  },
+  {
+    "path": "tests/features/test_f38.py",
+    "created_by": "F38"
+  },
+  {
+    "path": "tests/features/test_f39.py",
+    "created_by": "F39"
+  },
+  {
+    "path": "tests/features/test_f40.py",
+    "created_by": "F40"
+  },
+  {
+    "path": "tests/features/test_f41.py",
+    "created_by": "F41"
+  },
+  {
+    "path": "tests/features/test_f42.py",
+    "created_by": "F42"
+  },
+  {
+    "path": "tests/features/test_f43.py",
+    "created_by": "F43"
+  },
+  {
+    "path": "tests/features/test_f44.py",
+    "created_by": "F44"
+  },
+  {
+    "path": "tests/features/test_f45.py",
+    "created_by": "F45"
+  },
+  {
+    "path": "tests/features/test_f46.py",
+    "created_by": "F46"
+  },
+  {
+    "path": "tests/features/test_f47.py",
+    "created_by": "F47"
+  },
+  {
+    "path": "tests/features/test_f48.py",
+    "created_by": "F48"
+  },
+  {
+    "path": "tests/features/test_f49.py",
+    "created_by": "F49"
+  },
+  {
+    "path": "tests/features/test_f50.py",
+    "created_by": "F50"
+  },
+  {
+    "path": "tests/features/test_f51.py",
+    "created_by": "F51"
+  },
+  {
+    "path": "tests/features/test_f52.py",
+    "created_by": "F52"
+  },
+  {
+    "path": "tests/features/test_f53.py",
+    "created_by": "F53"
+  },
+  {
+    "path": "tests/features/test_f54.py",
+    "created_by": "F54"
+  },
+  {
+    "path": "tests/features/test_f55.py",
+    "created_by": "F55"
+  },
+  {
+    "path": "tests/features/test_f56.py",
+    "created_by": "F56"
+  },
+  {
+    "path": "tests/features/test_f57.py",
+    "created_by": "F57"
+  },
+  {
+    "path": "tests/features/test_f58.py",
+    "created_by": "F58"
+  },
+  {
+    "path": "tests/features/test_f59.py",
+    "created_by": "F59"
+  },
+  {
+    "path": "tests/features/test_f60.py",
+    "created_by": "F60"
+  },
+  {
+    "path": "tests/features/test_f61.py",
+    "created_by": "F61"
+  },
+  {
+    "path": "tests/features/test_f62.py",
+    "created_by": "F62"
+  },
+  {
+    "path": "tests/features/test_f63.py",
+    "created_by": "F63"
+  },
+  {
+    "path": "tests/features/test_f64.py",
+    "created_by": "F64"
+  },
+  {
+    "path": "tests/features/test_f65.py",
+    "created_by": "F65"
+  },
+  {
+    "path": "tests/features/test_f66.py",
+    "created_by": "F66"
+  },
+  {
+    "path": "tests/features/test_f67.py",
+    "created_by": "F67"
+  },
+  {
+    "path": "tests/features/test_f68.py",
+    "created_by": "F68"
+  },
+  {
+    "path": "tests/features/test_f69.py",
+    "created_by": "F69"
+  },
+  {
+    "path": "tests/foundations/test_00.py",
+    "created_by": "00"
+  },
+  {
+    "path": "tests/foundations/test_01.py",
+    "created_by": "01"
+  },
+  {
+    "path": "tests/foundations/test_02.py",
+    "created_by": "02"
+  },
+  {
+    "path": "tests/foundations/test_03.py",
+    "created_by": "03"
+  },
+  {
+    "path": "tests/foundations/test_04.py",
+    "created_by": "04"
+  },
+  {
+    "path": "tests/foundations/test_05.py",
+    "created_by": "05"
+  },
+  {
+    "path": "tests/foundations/test_06.py",
+    "created_by": "06"
+  },
+  {
+    "path": "tests/foundations/test_07.py",
+    "created_by": "07"
+  },
+  {
+    "path": "tests/foundations/test_08.py",
+    "created_by": "08"
+  },
+  {
+    "path": "tests/foundations/test_09.py",
+    "created_by": "09"
+  },
+  {
+    "path": "tests/foundations/test_10.py",
+    "created_by": "10"
+  },
+  {
+    "path": "tests/foundations/test_11.py",
+    "created_by": "11"
+  },
+  {
+    "path": "tests/foundations/test_12.py",
+    "created_by": "12"
+  },
+  {
+    "path": "tests/foundations/test_13.py",
+    "created_by": "13"
+  },
+  {
+    "path": "tests/foundations/test_14.py",
+    "created_by": "14"
+  },
+  {
+    "path": "tests/foundations/test_15.py",
+    "created_by": "15"
+  },
+  {
+    "path": "tests/foundations/test_16.py",
+    "created_by": "16"
+  },
+  {
+    "path": "tests/foundations/test_17.py",
+    "created_by": "17"
+  },
+  {
+    "path": "tests/foundations/test_18.py",
+    "created_by": "18"
+  },
+  {
+    "path": "tests/foundations/test_19.py",
+    "created_by": "19"
+  },
+  {
+    "path": "tests/foundations/test_20.py",
+    "created_by": "20"
+  },
+  {
+    "path": "tests/foundations/test_21.py",
+    "created_by": "21"
+  },
+  {
+    "path": "tests/foundations/test_22.py",
+    "created_by": "22"
+  },
+  {
+    "path": "tests/foundations/test_23.py",
+    "created_by": "23"
+  },
+  {
+    "path": "tests/foundations/test_24.py",
+    "created_by": "24"
+  },
+  {
+    "path": "tests/foundations/test_25.py",
+    "created_by": "25"
+  },
+  {
+    "path": "tests/foundations/test_26.py",
+    "created_by": "26"
+  },
+  {
+    "path": "tests/foundations/test_27.py",
+    "created_by": "27"
+  },
+  {
+    "path": "tests/hosted/test_walkthrough.py",
+    "created_by": "27"
+  },
+  {
+    "path": "tests/integration/test_publication.py",
+    "created_by": "03"
+  },
+  {
+    "path": "tests/integration/test_rls.py",
+    "created_by": "03"
+  },
+  {
+    "path": "tools/account_preflight.py",
+    "created_by": "26"
+  },
+  {
+    "path": "tools/apply_postgres.py",
+    "created_by": "03"
+  },
+  {
+    "path": "tools/apply_snowflake.py",
+    "created_by": "02"
+  },
+  {
+    "path": "tools/check_contract_drift.py",
+    "created_by": "25"
+  },
+  {
+    "path": "tools/check_secret_patterns.py",
+    "created_by": "25"
+  },
+  {
+    "path": "tools/healthcheck.py",
+    "created_by": "24"
+  },
+  {
+    "path": "tools/inspect_legacy.py",
+    "created_by": "00"
+  },
+  {
+    "path": "tools/release_gate.py",
+    "created_by": "22"
+  },
+  {
+    "path": "tools/run_checks.py",
+    "created_by": "00"
+  },
+  {
+    "path": "tools/run_evaluations.py",
+    "created_by": "21"
+  },
+  {
+    "path": "tools/seed_demo.py",
+    "created_by": "05"
+  },
+  {
+    "path": "tools/snowflake_preflight.py",
+    "created_by": "02"
+  },
+  {
+    "path": "tools/verify_kit.py",
+    "created_by": "00"
+  }
+]

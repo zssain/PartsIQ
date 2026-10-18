@@ -1,0 +1,39 @@
+# Synthetic API examples
+
+The UUIDs below are illustrative fixture IDs,not real resources. Obtain actual IDs from API responses during execution. Authenticate with a real test user token without committing it.
+
+## create enquiry
+
+```json
+{
+  "text": "ابغى فلتر ديزل للمولد, need 4 pcs urgently",
+  "locale": "ar",
+  "destination_warehouse_id": 1,
+  "session_id": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+## approve
+
+```json
+{
+  "enquiry_id": "22222222-2222-4222-8222-222222222222",
+  "expected_revision": 3,
+  "draft_id": "33333333-3333-4333-8333-333333333333",
+  "edited_slots": null
+}
+```
+
+## problem
+
+```json
+{
+  "type": "urn:partsiq:problem:stale_revision",
+  "title": "Enquiry changed",
+  "status": 409,
+  "code": "stale_revision",
+  "detail": "Reload the current enquiry before approving.",
+  "request_id": "44444444-4444-4444-8444-444444444444",
+  "retryable": false
+}
+```

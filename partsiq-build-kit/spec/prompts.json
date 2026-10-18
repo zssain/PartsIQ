@@ -1,0 +1,1990 @@
+{
+  "00": {
+    "id": "00",
+    "title": "Repository bootstrap and legacy characterization",
+    "path": "prompts/00-bootstrap.md",
+    "depends_on": [],
+    "creates": [
+      "pyproject.toml",
+      "apps/api/pyproject.toml",
+      "apps/api/partsiq/__init__.py",
+      "tools/run_checks.py",
+      "tools/inspect_legacy.py",
+      ".env.example",
+      ".python-version",
+      ".nvmrc",
+      ".gitignore",
+      "tools/verify_kit.py",
+      "tests/foundations/test_00.py",
+      "apps/api/partsiq/ai/__init__.py",
+      "apps/api/partsiq/analytics/__init__.py",
+      "apps/api/partsiq/api/__init__.py",
+      "apps/api/partsiq/auth/__init__.py",
+      "apps/api/partsiq/catalogue/__init__.py",
+      "apps/api/partsiq/core/__init__.py",
+      "apps/api/partsiq/enquiries/__init__.py",
+      "apps/api/partsiq/evaluation/__init__.py",
+      "apps/api/partsiq/exports/__init__.py",
+      "apps/api/partsiq/exports/templates/__init__.py",
+      "apps/api/partsiq/features/__init__.py",
+      "apps/api/partsiq/jobs/__init__.py",
+      "apps/api/partsiq/search/__init__.py",
+      "apps/api/partsiq/storage/__init__.py",
+      "apps/api/partsiq/workflow/__init__.py"
+    ],
+    "tests": [
+      "tests/foundations/test_00.py"
+    ]
+  },
+  "01": {
+    "id": "01",
+    "title": "Typed contracts and application configuration",
+    "path": "prompts/01-core.md",
+    "depends_on": [
+      "00"
+    ],
+    "creates": [
+      "apps/api/partsiq/main.py",
+      "apps/api/partsiq/core/settings.py",
+      "apps/api/partsiq/core/contracts.py",
+      "apps/api/partsiq/core/api_models.py",
+      "apps/api/partsiq/core/errors.py",
+      "apps/api/partsiq/core/db.py",
+      "apps/api/partsiq/core/dependencies.py",
+      "apps/api/partsiq/api/router.py",
+      "tests/foundations/test_01.py"
+    ],
+    "tests": [
+      "tests/foundations/test_01.py"
+    ]
+  },
+  "02": {
+    "id": "02",
+    "title": "Snowflake connector and validated catalogue source",
+    "path": "prompts/02-snowflake.md",
+    "depends_on": [
+      "01"
+    ],
+    "creates": [
+      "apps/api/partsiq/catalogue/snowflake_repository.py",
+      "apps/api/partsiq/catalogue/models.py",
+      "apps/api/partsiq/catalogue/validation.py",
+      "apps/api/partsiq/catalogue/fixture_repository.py",
+      "tools/snowflake_preflight.py",
+      "tools/apply_snowflake.py",
+      "infra/snowflake/001_schema.sql",
+      "infra/snowflake/002_roles.sql",
+      "infra/snowflake/003_validation_queries.sql",
+      "tests/foundations/test_02.py"
+    ],
+    "tests": [
+      "tests/foundations/test_02.py"
+    ]
+  },
+  "03": {
+    "id": "03",
+    "title": "Supabase schema permissions and serving cache",
+    "path": "prompts/03-database.md",
+    "depends_on": [
+      "02"
+    ],
+    "creates": [
+      "apps/api/partsiq/catalogue/activation.py",
+      "tools/apply_postgres.py",
+      "supabase/config.toml",
+      "tests/integration/test_rls.py",
+      "tests/integration/test_publication.py",
+      "supabase/migrations/005_storage.sql",
+      "supabase/migrations/003_application.sql",
+      "supabase/migrations/004_rls.sql",
+      "supabase/migrations/001_initial_schema.sql",
+      "supabase/migrations/002_search_and_fulfilment.sql",
+      "supabase/migrations/006_plain_workflow_and_snowflake.sql",
+      "tests/foundations/test_03.py"
+    ],
+    "tests": [
+      "tests/foundations/test_03.py"
+    ]
+  },
+  "04": {
+    "id": "04",
+    "title": "Private uploads evidence and storage access",
+    "path": "prompts/04-storage.md",
+    "depends_on": [
+      "03"
+    ],
+    "creates": [
+      "apps/api/partsiq/storage/service.py",
+      "apps/api/partsiq/storage/client.py",
+      "apps/api/partsiq/storage/images.py",
+      "tests/foundations/test_04.py"
+    ],
+    "tests": [
+      "tests/foundations/test_04.py"
+    ]
+  },
+  "05": {
+    "id": "05",
+    "title": "Synthetic catalogue and four scenario fixtures",
+    "path": "prompts/05-fixtures.md",
+    "depends_on": [
+      "04"
+    ],
+    "creates": [
+      "apps/api/partsiq/catalogue/fixtures.py",
+      "tools/seed_demo.py",
+      "fixtures/scenarios.json",
+      "fixtures/catalogue.json",
+      "fixtures/README.md",
+      "tests/foundations/test_05.py"
+    ],
+    "tests": [
+      "tests/foundations/test_05.py"
+    ]
+  },
+  "06": {
+    "id": "06",
+    "title": "Compatibility lexical matching and optional embeddings",
+    "path": "prompts/06-search.md",
+    "depends_on": [
+      "05"
+    ],
+    "creates": [
+      "apps/api/partsiq/search/identification.py",
+      "apps/api/partsiq/search/lexical.py",
+      "apps/api/partsiq/search/fulfilment.py",
+      "apps/api/partsiq/search/repository.py",
+      "apps/api/partsiq/search/service.py",
+      "apps/api/partsiq/search/schemas.py",
+      "apps/api/partsiq/search/embeddings.py",
+      "tests/foundations/test_06.py"
+    ],
+    "tests": [
+      "tests/foundations/test_06.py"
+    ]
+  },
+  "07": {
+    "id": "07",
+    "title": "Authentication ownership and demo isolation",
+    "path": "prompts/07-auth.md",
+    "depends_on": [
+      "06"
+    ],
+    "creates": [
+      "apps/api/partsiq/auth/tokens.py",
+      "apps/api/partsiq/auth/access.py",
+      "apps/api/partsiq/auth/demo.py",
+      "tests/foundations/test_07.py"
+    ],
+    "tests": [
+      "tests/foundations/test_07.py"
+    ]
+  },
+  "08": {
+    "id": "08",
+    "title": "Enquiry intake idempotency and rate limiting",
+    "path": "prompts/08-intake.md",
+    "depends_on": [
+      "07"
+    ],
+    "creates": [
+      "apps/api/partsiq/enquiries/intake.py",
+      "apps/api/partsiq/enquiries/history.py",
+      "apps/api/partsiq/core/idempotency.py",
+      "apps/api/partsiq/core/rate_limit.py",
+      "tests/foundations/test_08.py"
+    ],
+    "tests": [
+      "tests/foundations/test_08.py"
+    ]
+  },
+  "09": {
+    "id": "09",
+    "title": "Plain Python durable workflow",
+    "path": "prompts/09-workflow.md",
+    "depends_on": [
+      "08"
+    ],
+    "creates": [
+      "apps/api/partsiq/workflow/runner.py",
+      "apps/api/partsiq/workflow/transitions.py",
+      "apps/api/partsiq/workflow/state.py",
+      "apps/api/partsiq/workflow/repository.py",
+      "tests/foundations/test_09.py"
+    ],
+    "tests": [
+      "tests/foundations/test_09.py"
+    ]
+  },
+  "10": {
+    "id": "10",
+    "title": "OpenAI extraction and usage allowance",
+    "path": "prompts/10-extraction.md",
+    "depends_on": [
+      "09"
+    ],
+    "creates": [
+      "apps/api/partsiq/ai/client.py",
+      "apps/api/partsiq/ai/budget.py",
+      "apps/api/partsiq/ai/extraction.py",
+      "apps/api/partsiq/ai/prompts.py",
+      "tests/foundations/test_10.py"
+    ],
+    "tests": [
+      "tests/foundations/test_10.py"
+    ]
+  },
+  "11": {
+    "id": "11",
+    "title": "Machine search and fulfilment application flow",
+    "path": "prompts/11-resolution.md",
+    "depends_on": [
+      "10"
+    ],
+    "creates": [
+      "apps/api/partsiq/workflow/resolution.py",
+      "apps/api/partsiq/enquiries/fulfilment.py",
+      "apps/api/partsiq/enquiries/questions.py",
+      "tests/foundations/test_11.py"
+    ],
+    "tests": [
+      "tests/foundations/test_11.py"
+    ]
+  },
+  "12": {
+    "id": "12",
+    "title": "Deterministic verification and fact hashing",
+    "path": "prompts/12-verification.md",
+    "depends_on": [
+      "11"
+    ],
+    "creates": [
+      "apps/api/partsiq/enquiries/verification.py",
+      "apps/api/partsiq/enquiries/facts.py",
+      "tests/foundations/test_12.py"
+    ],
+    "tests": [
+      "tests/foundations/test_12.py"
+    ]
+  },
+  "13": {
+    "id": "13",
+    "title": "Bilingual reply slots and safe rendering",
+    "path": "prompts/13-drafts.md",
+    "depends_on": [
+      "12"
+    ],
+    "creates": [
+      "apps/api/partsiq/ai/reply.py",
+      "apps/api/partsiq/enquiries/drafts.py",
+      "apps/api/partsiq/enquiries/renderer.py",
+      "tests/foundations/test_13.py"
+    ],
+    "tests": [
+      "tests/foundations/test_13.py"
+    ]
+  },
+  "14": {
+    "id": "14",
+    "title": "Review transactions revisions and publication",
+    "path": "prompts/14-approval.md",
+    "depends_on": [
+      "13"
+    ],
+    "creates": [
+      "apps/api/partsiq/enquiries/approval.py",
+      "apps/api/partsiq/enquiries/revisions.py",
+      "apps/api/partsiq/enquiries/publication.py",
+      "apps/api/partsiq/enquiries/review.py",
+      "tests/foundations/test_14.py"
+    ],
+    "tests": [
+      "tests/foundations/test_14.py"
+    ]
+  },
+  "15": {
+    "id": "15",
+    "title": "Durable worker leases retries and cleanup",
+    "path": "prompts/15-jobs.md",
+    "depends_on": [
+      "14"
+    ],
+    "creates": [
+      "apps/api/partsiq/jobs/main.py",
+      "apps/api/partsiq/jobs/repository.py",
+      "apps/api/partsiq/jobs/handlers.py",
+      "apps/api/partsiq/jobs/sweeper.py",
+      "tests/foundations/test_15.py"
+    ],
+    "tests": [
+      "tests/foundations/test_15.py"
+    ]
+  },
+  "16": {
+    "id": "16",
+    "title": "Nameplate reading and human confirmation",
+    "path": "prompts/16-vision.md",
+    "depends_on": [
+      "15"
+    ],
+    "creates": [
+      "apps/api/partsiq/ai/vision.py",
+      "apps/api/partsiq/jobs/nameplate.py",
+      "apps/api/partsiq/enquiries/extraction.py",
+      "tests/foundations/test_16.py"
+    ],
+    "tests": [
+      "tests/foundations/test_16.py"
+    ]
+  },
+  "17": {
+    "id": "17",
+    "title": "Approved bilingual PDF export",
+    "path": "prompts/17-exports.md",
+    "depends_on": [
+      "16"
+    ],
+    "creates": [
+      "apps/api/partsiq/exports/service.py",
+      "apps/api/partsiq/exports/render.py",
+      "apps/api/partsiq/exports/templates/enquiry.html",
+      "tests/foundations/test_17.py"
+    ],
+    "tests": [
+      "tests/foundations/test_17.py"
+    ]
+  },
+  "18": {
+    "id": "18",
+    "title": "Next.js shell branding authentication and API client",
+    "path": "prompts/18-web.md",
+    "depends_on": [
+      "17"
+    ],
+    "creates": [
+      "apps/web/package.json",
+      "apps/web/tsconfig.json",
+      "apps/web/next.config.ts",
+      "apps/web/src/app/layout.tsx",
+      "apps/web/src/app/globals.css",
+      "apps/web/src/lib/api.ts",
+      "apps/web/src/lib/auth.ts",
+      "apps/web/src/lib/contracts.ts",
+      "apps/web/src/components/AppShell.tsx",
+      "apps/web/pnpm-lock.yaml",
+      "apps/web/src/app/providers.tsx",
+      "apps/web/src/lib/problem.ts",
+      "tests/foundations/test_18.py",
+      "apps/web/public/brand/assets-manifest.json",
+      "apps/web/public/brand/BRAND.md",
+      "apps/web/public/brand/logo-original.png",
+      "apps/web/public/brand/tokens.json",
+      "apps/web/public/brand/tokens.css",
+      "apps/web/public/brand/fonts/NotoSansArabic.ttf",
+      "apps/web/public/brand/fonts/NotoSans.ttf",
+      "apps/web/public/brand/fonts/NotoNaskhArabic.ttf",
+      "apps/web/public/brand/fonts/NotoSansArabic-OFL.txt",
+      "apps/web/public/brand/fonts/NotoSans-OFL.txt",
+      "apps/web/public/brand/fonts/NotoNaskhArabic-OFL.txt",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/Preview.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-48x48.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/site.webmanifest",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/maskable-icon-512x512.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/apple-touch-icon.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/android-chrome-192x192.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/maskable-icon-192x192.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-32x32.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/android-chrome-512x512.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-16x16.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon-96x96.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/web/favicon.ico",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/source/original-logo.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/source/transparent-logo.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-180.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-384.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-1024.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-152.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-256.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-24.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-32.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-48.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-144.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-512.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-384.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-144.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-128.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-64.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-1024.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-180.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-48.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-16.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-512.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-96.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-64.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-24.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-256.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-128.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-192.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-192.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-32.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-16.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-white-152.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/icons/partsiq-icon-transparent-96.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-320.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-1280.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-1280.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-640.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-1740.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-320.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-white-640.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/logos/partsiq-logo-transparent-1740.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xhdpi-96.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-hdpi-72.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xxxhdpi-192.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-xxhdpi-144.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/google-play-512.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/android-launcher-mdpi-48.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/mobile/ios-app-store-1024.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/social/partsiq-og-1200x630.png",
+      "apps/web/public/brand/assets/PartsIQ-Asset-Pack/social/partsiq-profile-1080.png"
+    ],
+    "tests": [
+      "tests/foundations/test_18.py"
+    ]
+  },
+  "19": {
+    "id": "19",
+    "title": "Customer pages and demo integration shell",
+    "path": "prompts/19-customer_web.md",
+    "depends_on": [
+      "18"
+    ],
+    "creates": [
+      "apps/web/src/app/page.tsx",
+      "apps/web/src/app/demo/page.tsx",
+      "apps/web/src/app/enquiries/[id]/page.tsx",
+      "apps/web/src/components/CustomerShell.tsx",
+      "apps/web/src/hooks/useEnquiry.ts",
+      "apps/web/src/i18n/en.json",
+      "apps/web/src/i18n/ar.json",
+      "tests/foundations/test_19.py"
+    ],
+    "tests": [
+      "tests/foundations/test_19.py"
+    ]
+  },
+  "20": {
+    "id": "20",
+    "title": "Staff pages and authorized review shell",
+    "path": "prompts/20-staff_web.md",
+    "depends_on": [
+      "19"
+    ],
+    "creates": [
+      "apps/web/src/app/staff/page.tsx",
+      "apps/web/src/app/staff/enquiries/[id]/page.tsx",
+      "apps/web/src/components/StaffShell.tsx",
+      "apps/web/src/components/ReviewActions.tsx",
+      "tests/foundations/test_20.py"
+    ],
+    "tests": [
+      "tests/foundations/test_20.py"
+    ]
+  },
+  "21": {
+    "id": "21",
+    "title": "Deterministic evaluation and evidence receipts",
+    "path": "prompts/21-evaluation.md",
+    "depends_on": [
+      "20"
+    ],
+    "creates": [
+      "apps/api/partsiq/evaluation/runner.py",
+      "apps/api/partsiq/evaluation/curation.py",
+      "evals/cases.json",
+      "evals/README.md",
+      "tools/run_evaluations.py",
+      "tests/foundations/test_21.py"
+    ],
+    "tests": [
+      "tests/foundations/test_21.py"
+    ]
+  },
+  "22": {
+    "id": "22",
+    "title": "Security concurrency and failure recovery acceptance",
+    "path": "prompts/22-security.md",
+    "depends_on": [
+      "F69"
+    ],
+    "creates": [
+      "tests/acceptance/test_security.py",
+      "tests/acceptance/test_recovery.py",
+      "tests/acceptance/test_concurrency.py",
+      "tools/release_gate.py",
+      "tests/foundations/test_22.py"
+    ],
+    "tests": [
+      "tests/foundations/test_22.py"
+    ]
+  },
+  "23": {
+    "id": "23",
+    "title": "Structured logs tracing metrics and Snowflake outbox",
+    "path": "prompts/23-analytics.md",
+    "depends_on": [
+      "21"
+    ],
+    "creates": [
+      "apps/api/partsiq/analytics/outbox.py",
+      "apps/api/partsiq/analytics/snowflake.py",
+      "apps/api/partsiq/analytics/service.py",
+      "apps/api/partsiq/core/observability.py",
+      "tests/foundations/test_23.py"
+    ],
+    "tests": [
+      "tests/foundations/test_23.py"
+    ]
+  },
+  "24": {
+    "id": "24",
+    "title": "One application image worker and Caddy",
+    "path": "prompts/24-containers.md",
+    "depends_on": [
+      "23"
+    ],
+    "creates": [
+      "apps/api/Dockerfile",
+      "docker-compose.yml",
+      "infra/Caddyfile",
+      "infra/compose.production.yml",
+      "infra/compose.fixture.yml",
+      "tools/healthcheck.py",
+      "tests/foundations/test_24.py"
+    ],
+    "tests": [
+      "tests/foundations/test_24.py"
+    ]
+  },
+  "25": {
+    "id": "25",
+    "title": "CI reproducible builds and release checks",
+    "path": "prompts/25-ci.md",
+    "depends_on": [
+      "24"
+    ],
+    "creates": [
+      ".github/workflows/ci.yml",
+      ".github/workflows/deploy.yml",
+      "tools/check_contract_drift.py",
+      "tools/check_secret_patterns.py",
+      "tests/foundations/test_25.py"
+    ],
+    "tests": [
+      "tests/foundations/test_25.py"
+    ]
+  },
+  "26": {
+    "id": "26",
+    "title": "AWS and Snowflake account setup and deployment",
+    "path": "prompts/26-deployment.md",
+    "depends_on": [
+      "22",
+      "25"
+    ],
+    "creates": [
+      "infra/deploy.sh",
+      "infra/rollback.sh",
+      "tools/account_preflight.py",
+      "docs/DEPLOYMENT_RECEIPT.md",
+      "tests/foundations/test_26.py"
+    ],
+    "tests": [
+      "tests/foundations/test_26.py"
+    ]
+  },
+  "27": {
+    "id": "27",
+    "title": "Vercel configuration and complete hosted walkthrough",
+    "path": "prompts/27-hosted.md",
+    "depends_on": [
+      "26"
+    ],
+    "creates": [
+      "tests/hosted/test_walkthrough.py",
+      "docs/HOSTED_ACCEPTANCE.md",
+      "docs/RECRUITER_GUIDE.md",
+      "docs/DEMO_SCRIPT.md",
+      "tests/foundations/test_27.py"
+    ],
+    "tests": [
+      "tests/foundations/test_27.py"
+    ]
+  },
+  "F01": {
+    "id": "F01",
+    "title": "Branded landing",
+    "path": "prompts/F01-branded-landing.md",
+    "depends_on": [
+      "25"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f01_branded_landing.py",
+      "apps/web/src/features/f01_branded_landing/Panel.tsx",
+      "tests/features/test_f01.py",
+      "apps/web/tests/features/f01.test.tsx"
+    ],
+    "tests": [
+      "tests/features/test_f01.py",
+      "apps/web/tests/features/f01.test.tsx"
+    ]
+  },
+  "F02": {
+    "id": "F02",
+    "title": "Demo scenarios and assets",
+    "path": "prompts/F02-demo-scenarios-and-assets.md",
+    "depends_on": [
+      "20",
+      "F01"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f02_demo_scenarios_and_assets.py",
+      "apps/web/src/features/f02_demo_scenarios_and_assets/Panel.tsx",
+      "tests/features/test_f02.py",
+      "apps/web/tests/features/f02.test.tsx",
+      "apps/api/partsiq/api/f02_demo_scenarios_and_assets.py"
+    ],
+    "tests": [
+      "tests/features/test_f02.py",
+      "apps/web/tests/features/f02.test.tsx"
+    ]
+  },
+  "F03": {
+    "id": "F03",
+    "title": "Demo role switching",
+    "path": "prompts/F03-demo-role-switching.md",
+    "depends_on": [
+      "20",
+      "F02"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f03_demo_role_switching.py",
+      "apps/web/src/features/f03_demo_role_switching/Panel.tsx",
+      "tests/features/test_f03.py",
+      "apps/web/tests/features/f03.test.tsx"
+    ],
+    "tests": [
+      "tests/features/test_f03.py",
+      "apps/web/tests/features/f03.test.tsx"
+    ]
+  },
+  "F04": {
+    "id": "F04",
+    "title": "Demo isolation",
+    "path": "prompts/F04-demo-isolation.md",
+    "depends_on": [
+      "20",
+      "F03"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f04_demo_isolation.py",
+      "apps/web/src/features/f04_demo_isolation/Panel.tsx",
+      "tests/features/test_f04.py",
+      "apps/web/tests/features/f04.test.tsx",
+      "apps/api/partsiq/api/f04_demo_isolation.py"
+    ],
+    "tests": [
+      "tests/features/test_f04.py",
+      "apps/web/tests/features/f04.test.tsx"
+    ]
+  },
+  "F05": {
+    "id": "F05",
+    "title": "Demo reset",
+    "path": "prompts/F05-demo-reset.md",
+    "depends_on": [
+      "20",
+      "F04"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f05_demo_reset.py",
+      "apps/web/src/features/f05_demo_reset/Panel.tsx",
+      "tests/features/test_f05.py",
+      "apps/web/tests/features/f05.test.tsx",
+      "apps/api/partsiq/api/f05_demo_reset.py"
+    ],
+    "tests": [
+      "tests/features/test_f05.py",
+      "apps/web/tests/features/f05.test.tsx"
+    ]
+  },
+  "F06": {
+    "id": "F06",
+    "title": "Responsive layouts",
+    "path": "prompts/F06-responsive-layouts.md",
+    "depends_on": [
+      "20",
+      "F05"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f06_responsive_layouts.py",
+      "apps/web/src/features/f06_responsive_layouts/Panel.tsx",
+      "tests/features/test_f06.py",
+      "apps/web/tests/features/f06.test.tsx"
+    ],
+    "tests": [
+      "tests/features/test_f06.py",
+      "apps/web/tests/features/f06.test.tsx"
+    ]
+  },
+  "F07": {
+    "id": "F07",
+    "title": "Arabic and English interface",
+    "path": "prompts/F07-arabic-and-english-interface.md",
+    "depends_on": [
+      "20",
+      "F06"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f07_arabic_and_english_interface.py",
+      "apps/web/src/features/f07_arabic_and_english_interface/Panel.tsx",
+      "tests/features/test_f07.py",
+      "apps/web/tests/features/f07.test.tsx"
+    ],
+    "tests": [
+      "tests/features/test_f07.py",
+      "apps/web/tests/features/f07.test.tsx"
+    ]
+  },
+  "F08": {
+    "id": "F08",
+    "title": "Light and dark themes",
+    "path": "prompts/F08-light-and-dark-themes.md",
+    "depends_on": [
+      "20",
+      "F07"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f08_light_and_dark_themes.py",
+      "apps/web/src/features/f08_light_and_dark_themes/Panel.tsx",
+      "tests/features/test_f08.py",
+      "apps/web/tests/features/f08.test.tsx"
+    ],
+    "tests": [
+      "tests/features/test_f08.py",
+      "apps/web/tests/features/f08.test.tsx"
+    ]
+  },
+  "F09": {
+    "id": "F09",
+    "title": "Bilingual chat",
+    "path": "prompts/F09-bilingual-chat.md",
+    "depends_on": [
+      "20",
+      "F08"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f09_bilingual_chat.py",
+      "apps/web/src/features/f09_bilingual_chat/Panel.tsx",
+      "tests/features/test_f09.py",
+      "apps/web/tests/features/f09.test.tsx",
+      "apps/api/partsiq/api/f09_bilingual_chat.py"
+    ],
+    "tests": [
+      "tests/features/test_f09.py",
+      "apps/web/tests/features/f09.test.tsx"
+    ]
+  },
+  "F10": {
+    "id": "F10",
+    "title": "Structured extraction",
+    "path": "prompts/F10-structured-extraction.md",
+    "depends_on": [
+      "20",
+      "F09"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f10_structured_extraction.py",
+      "apps/web/src/features/f10_structured_extraction/Panel.tsx",
+      "tests/features/test_f10.py",
+      "apps/web/tests/features/f10.test.tsx",
+      "apps/api/partsiq/api/f10_structured_extraction.py"
+    ],
+    "tests": [
+      "tests/features/test_f10.py",
+      "apps/web/tests/features/f10.test.tsx"
+    ]
+  },
+  "F11": {
+    "id": "F11",
+    "title": "Clarifying questions",
+    "path": "prompts/F11-clarifying-questions.md",
+    "depends_on": [
+      "20",
+      "F10"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f11_clarifying_questions.py",
+      "apps/web/src/features/f11_clarifying_questions/Panel.tsx",
+      "tests/features/test_f11.py",
+      "apps/web/tests/features/f11.test.tsx",
+      "apps/api/partsiq/api/f11_clarifying_questions.py"
+    ],
+    "tests": [
+      "tests/features/test_f11.py",
+      "apps/web/tests/features/f11.test.tsx"
+    ]
+  },
+  "F12": {
+    "id": "F12",
+    "title": "Conversation memory",
+    "path": "prompts/F12-conversation-memory.md",
+    "depends_on": [
+      "20",
+      "F11"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f12_conversation_memory.py",
+      "apps/web/src/features/f12_conversation_memory/Panel.tsx",
+      "tests/features/test_f12.py",
+      "apps/web/tests/features/f12.test.tsx",
+      "apps/api/partsiq/api/f12_conversation_memory.py"
+    ],
+    "tests": [
+      "tests/features/test_f12.py",
+      "apps/web/tests/features/f12.test.tsx"
+    ]
+  },
+  "F13": {
+    "id": "F13",
+    "title": "Private uploads",
+    "path": "prompts/F13-private-uploads.md",
+    "depends_on": [
+      "20",
+      "F12"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f13_private_uploads.py",
+      "apps/web/src/features/f13_private_uploads/Panel.tsx",
+      "tests/features/test_f13.py",
+      "apps/web/tests/features/f13.test.tsx",
+      "apps/api/partsiq/api/f13_private_uploads.py"
+    ],
+    "tests": [
+      "tests/features/test_f13.py",
+      "apps/web/tests/features/f13.test.tsx"
+    ]
+  },
+  "F14": {
+    "id": "F14",
+    "title": "Nameplate OCR",
+    "path": "prompts/F14-nameplate-ocr.md",
+    "depends_on": [
+      "20",
+      "F13"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f14_nameplate_ocr.py",
+      "apps/web/src/features/f14_nameplate_ocr/Panel.tsx",
+      "tests/features/test_f14.py",
+      "apps/web/tests/features/f14.test.tsx",
+      "apps/api/partsiq/api/f14_nameplate_ocr.py"
+    ],
+    "tests": [
+      "tests/features/test_f14.py",
+      "apps/web/tests/features/f14.test.tsx"
+    ]
+  },
+  "F15": {
+    "id": "F15",
+    "title": "OCR confirmation",
+    "path": "prompts/F15-ocr-confirmation.md",
+    "depends_on": [
+      "20",
+      "F14"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f15_ocr_confirmation.py",
+      "apps/web/src/features/f15_ocr_confirmation/Panel.tsx",
+      "tests/features/test_f15.py",
+      "apps/web/tests/features/f15.test.tsx",
+      "apps/api/partsiq/api/f15_ocr_confirmation.py"
+    ],
+    "tests": [
+      "tests/features/test_f15.py",
+      "apps/web/tests/features/f15.test.tsx"
+    ]
+  },
+  "F16": {
+    "id": "F16",
+    "title": "Photo quality feedback",
+    "path": "prompts/F16-photo-quality-feedback.md",
+    "depends_on": [
+      "20",
+      "F15"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f16_photo_quality_feedback.py",
+      "apps/web/src/features/f16_photo_quality_feedback/Panel.tsx",
+      "tests/features/test_f16.py",
+      "apps/web/tests/features/f16.test.tsx",
+      "apps/api/partsiq/api/f16_photo_quality_feedback.py"
+    ],
+    "tests": [
+      "tests/features/test_f16.py",
+      "apps/web/tests/features/f16.test.tsx"
+    ]
+  },
+  "F17": {
+    "id": "F17",
+    "title": "Multi-part enquiries",
+    "path": "prompts/F17-multi-part-enquiries.md",
+    "depends_on": [
+      "20",
+      "F16"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f17_multi_part_enquiries.py",
+      "apps/web/src/features/f17_multi_part_enquiries/Panel.tsx",
+      "tests/features/test_f17.py",
+      "apps/web/tests/features/f17.test.tsx",
+      "apps/api/partsiq/api/f17_multi_part_enquiries.py"
+    ],
+    "tests": [
+      "tests/features/test_f17.py",
+      "apps/web/tests/features/f17.test.tsx"
+    ]
+  },
+  "F18": {
+    "id": "F18",
+    "title": "Progress timeline",
+    "path": "prompts/F18-progress-timeline.md",
+    "depends_on": [
+      "20",
+      "F17"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f18_progress_timeline.py",
+      "apps/web/src/features/f18_progress_timeline/Panel.tsx",
+      "tests/features/test_f18.py",
+      "apps/web/tests/features/f18.test.tsx",
+      "apps/api/partsiq/api/f18_progress_timeline.py"
+    ],
+    "tests": [
+      "tests/features/test_f18.py",
+      "apps/web/tests/features/f18.test.tsx"
+    ]
+  },
+  "F19": {
+    "id": "F19",
+    "title": "Enquiry history",
+    "path": "prompts/F19-enquiry-history.md",
+    "depends_on": [
+      "20",
+      "F18"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f19_enquiry_history.py",
+      "apps/web/src/features/f19_enquiry_history/Panel.tsx",
+      "tests/features/test_f19.py",
+      "apps/web/tests/features/f19.test.tsx",
+      "apps/api/partsiq/api/f19_enquiry_history.py"
+    ],
+    "tests": [
+      "tests/features/test_f19.py",
+      "apps/web/tests/features/f19.test.tsx"
+    ]
+  },
+  "F20": {
+    "id": "F20",
+    "title": "Machine identification",
+    "path": "prompts/F20-machine-identification.md",
+    "depends_on": [
+      "20",
+      "F19"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f20_machine_identification.py",
+      "apps/web/src/features/f20_machine_identification/Panel.tsx",
+      "tests/features/test_f20.py",
+      "apps/web/tests/features/f20.test.tsx",
+      "apps/api/partsiq/api/f20_machine_identification.py"
+    ],
+    "tests": [
+      "tests/features/test_f20.py",
+      "apps/web/tests/features/f20.test.tsx"
+    ]
+  },
+  "F21": {
+    "id": "F21",
+    "title": "Machine mismatch detection",
+    "path": "prompts/F21-machine-mismatch-detection.md",
+    "depends_on": [
+      "20",
+      "F20"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f21_machine_mismatch_detection.py",
+      "apps/web/src/features/f21_machine_mismatch_detection/Panel.tsx",
+      "tests/features/test_f21.py",
+      "apps/web/tests/features/f21.test.tsx",
+      "apps/api/partsiq/api/f21_machine_mismatch_detection.py"
+    ],
+    "tests": [
+      "tests/features/test_f21.py",
+      "apps/web/tests/features/f21.test.tsx"
+    ]
+  },
+  "F22": {
+    "id": "F22",
+    "title": "Compatibility gate",
+    "path": "prompts/F22-compatibility-gate.md",
+    "depends_on": [
+      "20",
+      "F21"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f22_compatibility_gate.py",
+      "apps/web/src/features/f22_compatibility_gate/Panel.tsx",
+      "tests/features/test_f22.py",
+      "apps/web/tests/features/f22.test.tsx",
+      "apps/api/partsiq/api/f22_compatibility_gate.py"
+    ],
+    "tests": [
+      "tests/features/test_f22.py",
+      "apps/web/tests/features/f22.test.tsx"
+    ]
+  },
+  "F23": {
+    "id": "F23",
+    "title": "Aliases and typo matching",
+    "path": "prompts/F23-aliases-and-typo-matching.md",
+    "depends_on": [
+      "20",
+      "F22"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f23_aliases_and_typo_matching.py",
+      "apps/web/src/features/f23_aliases_and_typo_matching/Panel.tsx",
+      "tests/features/test_f23.py",
+      "apps/web/tests/features/f23.test.tsx",
+      "apps/api/partsiq/api/f23_aliases_and_typo_matching.py"
+    ],
+    "tests": [
+      "tests/features/test_f23.py",
+      "apps/web/tests/features/f23.test.tsx"
+    ]
+  },
+  "F24": {
+    "id": "F24",
+    "title": "Semantic retrieval",
+    "path": "prompts/F24-semantic-retrieval.md",
+    "depends_on": [
+      "20",
+      "F23"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f24_semantic_retrieval.py",
+      "apps/web/src/features/f24_semantic_retrieval/Panel.tsx",
+      "tests/features/test_f24.py",
+      "apps/web/tests/features/f24.test.tsx",
+      "apps/api/partsiq/api/f24_semantic_retrieval.py"
+    ],
+    "tests": [
+      "tests/features/test_f24.py",
+      "apps/web/tests/features/f24.test.tsx"
+    ]
+  },
+  "F25": {
+    "id": "F25",
+    "title": "Ranked candidates",
+    "path": "prompts/F25-ranked-candidates.md",
+    "depends_on": [
+      "20",
+      "F24"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f25_ranked_candidates.py",
+      "apps/web/src/features/f25_ranked_candidates/Panel.tsx",
+      "tests/features/test_f25.py",
+      "apps/web/tests/features/f25.test.tsx",
+      "apps/api/partsiq/api/f25_ranked_candidates.py"
+    ],
+    "tests": [
+      "tests/features/test_f25.py",
+      "apps/web/tests/features/f25.test.tsx"
+    ]
+  },
+  "F26": {
+    "id": "F26",
+    "title": "Ambiguity handling",
+    "path": "prompts/F26-ambiguity-handling.md",
+    "depends_on": [
+      "20",
+      "F25"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f26_ambiguity_handling.py",
+      "apps/web/src/features/f26_ambiguity_handling/Panel.tsx",
+      "tests/features/test_f26.py",
+      "apps/web/tests/features/f26.test.tsx",
+      "apps/api/partsiq/api/f26_ambiguity_handling.py"
+    ],
+    "tests": [
+      "tests/features/test_f26.py",
+      "apps/web/tests/features/f26.test.tsx"
+    ]
+  },
+  "F27": {
+    "id": "F27",
+    "title": "Match explanations",
+    "path": "prompts/F27-match-explanations.md",
+    "depends_on": [
+      "20",
+      "F26"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f27_match_explanations.py",
+      "apps/web/src/features/f27_match_explanations/Panel.tsx",
+      "tests/features/test_f27.py",
+      "apps/web/tests/features/f27.test.tsx",
+      "apps/api/partsiq/api/f27_match_explanations.py"
+    ],
+    "tests": [
+      "tests/features/test_f27.py",
+      "apps/web/tests/features/f27.test.tsx"
+    ]
+  },
+  "F28": {
+    "id": "F28",
+    "title": "Compatibility references",
+    "path": "prompts/F28-compatibility-references.md",
+    "depends_on": [
+      "20",
+      "F27"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f28_compatibility_references.py",
+      "apps/web/src/features/f28_compatibility_references/Panel.tsx",
+      "tests/features/test_f28.py",
+      "apps/web/tests/features/f28.test.tsx",
+      "apps/api/partsiq/api/f28_compatibility_references.py"
+    ],
+    "tests": [
+      "tests/features/test_f28.py",
+      "apps/web/tests/features/f28.test.tsx"
+    ]
+  },
+  "F29": {
+    "id": "F29",
+    "title": "Evidence page viewer",
+    "path": "prompts/F29-evidence-page-viewer.md",
+    "depends_on": [
+      "20",
+      "F28"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f29_evidence_page_viewer.py",
+      "apps/web/src/features/f29_evidence_page_viewer/Panel.tsx",
+      "tests/features/test_f29.py",
+      "apps/web/tests/features/f29.test.tsx",
+      "apps/api/partsiq/api/f29_evidence_page_viewer.py"
+    ],
+    "tests": [
+      "tests/features/test_f29.py",
+      "apps/web/tests/features/f29.test.tsx"
+    ]
+  },
+  "F30": {
+    "id": "F30",
+    "title": "Old part numbers",
+    "path": "prompts/F30-old-part-numbers.md",
+    "depends_on": [
+      "20",
+      "F29"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f30_old_part_numbers.py",
+      "apps/web/src/features/f30_old_part_numbers/Panel.tsx",
+      "tests/features/test_f30.py",
+      "apps/web/tests/features/f30.test.tsx",
+      "apps/api/partsiq/api/f30_old_part_numbers.py"
+    ],
+    "tests": [
+      "tests/features/test_f30.py",
+      "apps/web/tests/features/f30.test.tsx"
+    ]
+  },
+  "F31": {
+    "id": "F31",
+    "title": "Candidate comparison",
+    "path": "prompts/F31-candidate-comparison.md",
+    "depends_on": [
+      "20",
+      "F30"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f31_candidate_comparison.py",
+      "apps/web/src/features/f31_candidate_comparison/Panel.tsx",
+      "tests/features/test_f31.py",
+      "apps/web/tests/features/f31.test.tsx",
+      "apps/api/partsiq/api/f31_candidate_comparison.py"
+    ],
+    "tests": [
+      "tests/features/test_f31.py",
+      "apps/web/tests/features/f31.test.tsx"
+    ]
+  },
+  "F32": {
+    "id": "F32",
+    "title": "Warehouse stock",
+    "path": "prompts/F32-warehouse-stock.md",
+    "depends_on": [
+      "20",
+      "F31"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f32_warehouse_stock.py",
+      "apps/web/src/features/f32_warehouse_stock/Panel.tsx",
+      "tests/features/test_f32.py",
+      "apps/web/tests/features/f32.test.tsx",
+      "apps/api/partsiq/api/f32_warehouse_stock.py"
+    ],
+    "tests": [
+      "tests/features/test_f32.py",
+      "apps/web/tests/features/f32.test.tsx"
+    ]
+  },
+  "F33": {
+    "id": "F33",
+    "title": "Fulfilment planning",
+    "path": "prompts/F33-fulfilment-planning.md",
+    "depends_on": [
+      "20",
+      "F32"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f33_fulfilment_planning.py",
+      "apps/web/src/features/f33_fulfilment_planning/Panel.tsx",
+      "tests/features/test_f33.py",
+      "apps/web/tests/features/f33.test.tsx",
+      "apps/api/partsiq/api/f33_fulfilment_planning.py"
+    ],
+    "tests": [
+      "tests/features/test_f33.py",
+      "apps/web/tests/features/f33.test.tsx"
+    ]
+  },
+  "F34": {
+    "id": "F34",
+    "title": "Transfer estimates",
+    "path": "prompts/F34-transfer-estimates.md",
+    "depends_on": [
+      "20",
+      "F33"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f34_transfer_estimates.py",
+      "apps/web/src/features/f34_transfer_estimates/Panel.tsx",
+      "tests/features/test_f34.py",
+      "apps/web/tests/features/f34.test.tsx",
+      "apps/api/partsiq/api/f34_transfer_estimates.py"
+    ],
+    "tests": [
+      "tests/features/test_f34.py",
+      "apps/web/tests/features/f34.test.tsx"
+    ]
+  },
+  "F35": {
+    "id": "F35",
+    "title": "Stock freshness",
+    "path": "prompts/F35-stock-freshness.md",
+    "depends_on": [
+      "20",
+      "F34"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f35_stock_freshness.py",
+      "apps/web/src/features/f35_stock_freshness/Panel.tsx",
+      "tests/features/test_f35.py",
+      "apps/web/tests/features/f35.test.tsx",
+      "apps/api/partsiq/api/f35_stock_freshness.py"
+    ],
+    "tests": [
+      "tests/features/test_f35.py",
+      "apps/web/tests/features/f35.test.tsx"
+    ]
+  },
+  "F36": {
+    "id": "F36",
+    "title": "Staff inbox",
+    "path": "prompts/F36-staff-inbox.md",
+    "depends_on": [
+      "20",
+      "F35"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f36_staff_inbox.py",
+      "apps/web/src/features/f36_staff_inbox/Panel.tsx",
+      "tests/features/test_f36.py",
+      "apps/web/tests/features/f36.test.tsx",
+      "apps/api/partsiq/api/f36_staff_inbox.py"
+    ],
+    "tests": [
+      "tests/features/test_f36.py",
+      "apps/web/tests/features/f36.test.tsx"
+    ]
+  },
+  "F37": {
+    "id": "F37",
+    "title": "Review workspace",
+    "path": "prompts/F37-review-workspace.md",
+    "depends_on": [
+      "20",
+      "F36"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f37_review_workspace.py",
+      "apps/web/src/features/f37_review_workspace/Panel.tsx",
+      "tests/features/test_f37.py",
+      "apps/web/tests/features/f37.test.tsx",
+      "apps/api/partsiq/api/f37_review_workspace.py"
+    ],
+    "tests": [
+      "tests/features/test_f37.py",
+      "apps/web/tests/features/f37.test.tsx"
+    ]
+  },
+  "F38": {
+    "id": "F38",
+    "title": "Correct extracted details",
+    "path": "prompts/F38-correct-extracted-details.md",
+    "depends_on": [
+      "20",
+      "F37"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f38_correct_extracted_details.py",
+      "apps/web/src/features/f38_correct_extracted_details/Panel.tsx",
+      "tests/features/test_f38.py",
+      "apps/web/tests/features/f38.test.tsx",
+      "apps/api/partsiq/api/f38_correct_extracted_details.py"
+    ],
+    "tests": [
+      "tests/features/test_f38.py",
+      "apps/web/tests/features/f38.test.tsx"
+    ]
+  },
+  "F39": {
+    "id": "F39",
+    "title": "Review actions",
+    "path": "prompts/F39-review-actions.md",
+    "depends_on": [
+      "20",
+      "F38"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f39_review_actions.py",
+      "apps/web/src/features/f39_review_actions/Panel.tsx",
+      "tests/features/test_f39.py",
+      "apps/web/tests/features/f39.test.tsx",
+      "apps/api/partsiq/api/f39_review_actions.py"
+    ],
+    "tests": [
+      "tests/features/test_f39.py",
+      "apps/web/tests/features/f39.test.tsx"
+    ]
+  },
+  "F40": {
+    "id": "F40",
+    "title": "Approval invalidation",
+    "path": "prompts/F40-approval-invalidation.md",
+    "depends_on": [
+      "20",
+      "F39"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f40_approval_invalidation.py",
+      "apps/web/src/features/f40_approval_invalidation/Panel.tsx",
+      "tests/features/test_f40.py",
+      "apps/web/tests/features/f40.test.tsx",
+      "apps/api/partsiq/api/f40_approval_invalidation.py"
+    ],
+    "tests": [
+      "tests/features/test_f40.py",
+      "apps/web/tests/features/f40.test.tsx"
+    ]
+  },
+  "F41": {
+    "id": "F41",
+    "title": "Internal notes",
+    "path": "prompts/F41-internal-notes.md",
+    "depends_on": [
+      "20",
+      "F40"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f41_internal_notes.py",
+      "apps/web/src/features/f41_internal_notes/Panel.tsx",
+      "tests/features/test_f41.py",
+      "apps/web/tests/features/f41.test.tsx",
+      "apps/api/partsiq/api/f41_internal_notes.py"
+    ],
+    "tests": [
+      "tests/features/test_f41.py",
+      "apps/web/tests/features/f41.test.tsx"
+    ]
+  },
+  "F42": {
+    "id": "F42",
+    "title": "Assignments",
+    "path": "prompts/F42-assignments.md",
+    "depends_on": [
+      "20",
+      "F41"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f42_assignments.py",
+      "apps/web/src/features/f42_assignments/Panel.tsx",
+      "tests/features/test_f42.py",
+      "apps/web/tests/features/f42.test.tsx",
+      "apps/api/partsiq/api/f42_assignments.py"
+    ],
+    "tests": [
+      "tests/features/test_f42.py",
+      "apps/web/tests/features/f42.test.tsx"
+    ]
+  },
+  "F43": {
+    "id": "F43",
+    "title": "Overdue indicators",
+    "path": "prompts/F43-overdue-indicators.md",
+    "depends_on": [
+      "20",
+      "F42"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f43_overdue_indicators.py",
+      "apps/web/src/features/f43_overdue_indicators/Panel.tsx",
+      "tests/features/test_f43.py",
+      "apps/web/tests/features/f43.test.tsx",
+      "apps/api/partsiq/api/f43_overdue_indicators.py"
+    ],
+    "tests": [
+      "tests/features/test_f43.py",
+      "apps/web/tests/features/f43.test.tsx"
+    ]
+  },
+  "F44": {
+    "id": "F44",
+    "title": "Conversation summary",
+    "path": "prompts/F44-conversation-summary.md",
+    "depends_on": [
+      "20",
+      "F43"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f44_conversation_summary.py",
+      "apps/web/src/features/f44_conversation_summary/Panel.tsx",
+      "tests/features/test_f44.py",
+      "apps/web/tests/features/f44.test.tsx",
+      "apps/api/partsiq/api/f44_conversation_summary.py"
+    ],
+    "tests": [
+      "tests/features/test_f44.py",
+      "apps/web/tests/features/f44.test.tsx"
+    ]
+  },
+  "F45": {
+    "id": "F45",
+    "title": "Reply drafting",
+    "path": "prompts/F45-reply-drafting.md",
+    "depends_on": [
+      "20",
+      "F44"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f45_reply_drafting.py",
+      "apps/web/src/features/f45_reply_drafting/Panel.tsx",
+      "tests/features/test_f45.py",
+      "apps/web/tests/features/f45.test.tsx",
+      "apps/api/partsiq/api/f45_reply_drafting.py"
+    ],
+    "tests": [
+      "tests/features/test_f45.py",
+      "apps/web/tests/features/f45.test.tsx"
+    ]
+  },
+  "F46": {
+    "id": "F46",
+    "title": "Verification gate",
+    "path": "prompts/F46-verification-gate.md",
+    "depends_on": [
+      "20",
+      "F45"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f46_verification_gate.py",
+      "apps/web/src/features/f46_verification_gate/Panel.tsx",
+      "tests/features/test_f46.py",
+      "apps/web/tests/features/f46.test.tsx",
+      "apps/api/partsiq/api/f46_verification_gate.py"
+    ],
+    "tests": [
+      "tests/features/test_f46.py",
+      "apps/web/tests/features/f46.test.tsx"
+    ]
+  },
+  "F47": {
+    "id": "F47",
+    "title": "Human publication gate",
+    "path": "prompts/F47-human-publication-gate.md",
+    "depends_on": [
+      "20",
+      "F46"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f47_human_publication_gate.py",
+      "apps/web/src/features/f47_human_publication_gate/Panel.tsx",
+      "tests/features/test_f47.py",
+      "apps/web/tests/features/f47.test.tsx",
+      "apps/api/partsiq/api/f47_human_publication_gate.py"
+    ],
+    "tests": [
+      "tests/features/test_f47.py",
+      "apps/web/tests/features/f47.test.tsx"
+    ]
+  },
+  "F48": {
+    "id": "F48",
+    "title": "Input isolation",
+    "path": "prompts/F48-input-isolation.md",
+    "depends_on": [
+      "20",
+      "F47"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f48_input_isolation.py",
+      "tests/features/test_f48.py",
+      "apps/web/tests/features/f48.test.tsx"
+    ],
+    "tests": [
+      "tests/features/test_f48.py",
+      "apps/web/tests/features/f48.test.tsx"
+    ]
+  },
+  "F49": {
+    "id": "F49",
+    "title": "Audit trail",
+    "path": "prompts/F49-audit-trail.md",
+    "depends_on": [
+      "20",
+      "F48"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f49_audit_trail.py",
+      "apps/web/src/features/f49_audit_trail/Panel.tsx",
+      "tests/features/test_f49.py",
+      "apps/web/tests/features/f49.test.tsx",
+      "apps/api/partsiq/api/f49_audit_trail.py"
+    ],
+    "tests": [
+      "tests/features/test_f49.py",
+      "apps/web/tests/features/f49.test.tsx"
+    ]
+  },
+  "F50": {
+    "id": "F50",
+    "title": "Durable workflows",
+    "path": "prompts/F50-durable-workflows.md",
+    "depends_on": [
+      "20",
+      "F49"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f50_durable_workflows.py",
+      "apps/web/src/features/f50_durable_workflows/Panel.tsx",
+      "tests/features/test_f50.py",
+      "apps/web/tests/features/f50.test.tsx",
+      "apps/api/partsiq/api/f50_durable_workflows.py"
+    ],
+    "tests": [
+      "tests/features/test_f50.py",
+      "apps/web/tests/features/f50.test.tsx"
+    ]
+  },
+  "F51": {
+    "id": "F51",
+    "title": "Background jobs",
+    "path": "prompts/F51-background-jobs.md",
+    "depends_on": [
+      "20",
+      "F50"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f51_background_jobs.py",
+      "apps/web/src/features/f51_background_jobs/Panel.tsx",
+      "tests/features/test_f51.py",
+      "apps/web/tests/features/f51.test.tsx",
+      "apps/api/partsiq/api/f51_background_jobs.py"
+    ],
+    "tests": [
+      "tests/features/test_f51.py",
+      "apps/web/tests/features/f51.test.tsx"
+    ]
+  },
+  "F52": {
+    "id": "F52",
+    "title": "Retry and deduplication",
+    "path": "prompts/F52-retry-and-deduplication.md",
+    "depends_on": [
+      "20",
+      "F51"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f52_retry_and_deduplication.py",
+      "apps/web/src/features/f52_retry_and_deduplication/Panel.tsx",
+      "tests/features/test_f52.py",
+      "apps/web/tests/features/f52.test.tsx",
+      "apps/api/partsiq/api/f52_retry_and_deduplication.py"
+    ],
+    "tests": [
+      "tests/features/test_f52.py",
+      "apps/web/tests/features/f52.test.tsx"
+    ]
+  },
+  "F53": {
+    "id": "F53",
+    "title": "Graceful failures",
+    "path": "prompts/F53-graceful-failures.md",
+    "depends_on": [
+      "20",
+      "F52"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f53_graceful_failures.py",
+      "tests/features/test_f53.py",
+      "apps/web/tests/features/f53.test.tsx"
+    ],
+    "tests": [
+      "tests/features/test_f53.py",
+      "apps/web/tests/features/f53.test.tsx"
+    ]
+  },
+  "F54": {
+    "id": "F54",
+    "title": "Access and permissions",
+    "path": "prompts/F54-access-and-permissions.md",
+    "depends_on": [
+      "20",
+      "F53"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f54_access_and_permissions.py",
+      "apps/web/src/features/f54_access_and_permissions/Panel.tsx",
+      "tests/features/test_f54.py",
+      "apps/web/tests/features/f54.test.tsx",
+      "apps/api/partsiq/api/f54_access_and_permissions.py"
+    ],
+    "tests": [
+      "tests/features/test_f54.py",
+      "apps/web/tests/features/f54.test.tsx"
+    ]
+  },
+  "F55": {
+    "id": "F55",
+    "title": "Saved machines",
+    "path": "prompts/F55-saved-machines.md",
+    "depends_on": [
+      "20",
+      "F54"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f55_saved_machines.py",
+      "apps/web/src/features/f55_saved_machines/Panel.tsx",
+      "tests/features/test_f55.py",
+      "apps/web/tests/features/f55.test.tsx",
+      "apps/api/partsiq/api/f55_saved_machines.py"
+    ],
+    "tests": [
+      "tests/features/test_f55.py",
+      "apps/web/tests/features/f55.test.tsx"
+    ]
+  },
+  "F56": {
+    "id": "F56",
+    "title": "Repeat enquiry",
+    "path": "prompts/F56-repeat-enquiry.md",
+    "depends_on": [
+      "20",
+      "F55"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f56_repeat_enquiry.py",
+      "apps/web/src/features/f56_repeat_enquiry/Panel.tsx",
+      "tests/features/test_f56.py",
+      "apps/web/tests/features/f56.test.tsx",
+      "apps/api/partsiq/api/f56_repeat_enquiry.py"
+    ],
+    "tests": [
+      "tests/features/test_f56.py",
+      "apps/web/tests/features/f56.test.tsx"
+    ]
+  },
+  "F57": {
+    "id": "F57",
+    "title": "Catalogue browser",
+    "path": "prompts/F57-catalogue-browser.md",
+    "depends_on": [
+      "20",
+      "F56"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f57_catalogue_browser.py",
+      "apps/web/src/features/f57_catalogue_browser/Panel.tsx",
+      "tests/features/test_f57.py",
+      "apps/web/tests/features/f57.test.tsx",
+      "apps/api/partsiq/api/f57_catalogue_browser.py"
+    ],
+    "tests": [
+      "tests/features/test_f57.py",
+      "apps/web/tests/features/f57.test.tsx"
+    ]
+  },
+  "F58": {
+    "id": "F58",
+    "title": "Catalogue imports",
+    "path": "prompts/F58-catalogue-imports.md",
+    "depends_on": [
+      "20",
+      "F57"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f58_catalogue_imports.py",
+      "apps/web/src/features/f58_catalogue_imports/Panel.tsx",
+      "tests/features/test_f58.py",
+      "apps/web/tests/features/f58.test.tsx",
+      "apps/api/partsiq/api/f58_catalogue_imports.py"
+    ],
+    "tests": [
+      "tests/features/test_f58.py",
+      "apps/web/tests/features/f58.test.tsx"
+    ]
+  },
+  "F59": {
+    "id": "F59",
+    "title": "Catalogue versioning",
+    "path": "prompts/F59-catalogue-versioning.md",
+    "depends_on": [
+      "20",
+      "F58"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f59_catalogue_versioning.py",
+      "apps/web/src/features/f59_catalogue_versioning/Panel.tsx",
+      "tests/features/test_f59.py",
+      "apps/web/tests/features/f59.test.tsx",
+      "apps/api/partsiq/api/f59_catalogue_versioning.py"
+    ],
+    "tests": [
+      "tests/features/test_f59.py",
+      "apps/web/tests/features/f59.test.tsx"
+    ]
+  },
+  "F60": {
+    "id": "F60",
+    "title": "Missing-parts queue",
+    "path": "prompts/F60-missing-parts-queue.md",
+    "depends_on": [
+      "20",
+      "F59"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f60_missing_parts_queue.py",
+      "apps/web/src/features/f60_missing_parts_queue/Panel.tsx",
+      "tests/features/test_f60.py",
+      "apps/web/tests/features/f60.test.tsx",
+      "apps/api/partsiq/api/f60_missing_parts_queue.py"
+    ],
+    "tests": [
+      "tests/features/test_f60.py",
+      "apps/web/tests/features/f60.test.tsx"
+    ]
+  },
+  "F61": {
+    "id": "F61",
+    "title": "Enquiry PDF",
+    "path": "prompts/F61-enquiry-pdf.md",
+    "depends_on": [
+      "20",
+      "F60"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f61_enquiry_pdf.py",
+      "apps/web/src/features/f61_enquiry_pdf/Panel.tsx",
+      "tests/features/test_f61.py",
+      "apps/web/tests/features/f61.test.tsx",
+      "apps/api/partsiq/api/f61_enquiry_pdf.py"
+    ],
+    "tests": [
+      "tests/features/test_f61.py",
+      "apps/web/tests/features/f61.test.tsx"
+    ]
+  },
+  "F62": {
+    "id": "F62",
+    "title": "Labelled evaluations",
+    "path": "prompts/F62-labelled-evaluations.md",
+    "depends_on": [
+      "20",
+      "F61"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f62_labelled_evaluations.py",
+      "apps/web/src/features/f62_labelled_evaluations/Panel.tsx",
+      "tests/features/test_f62.py",
+      "apps/web/tests/features/f62.test.tsx",
+      "apps/api/partsiq/api/f62_labelled_evaluations.py"
+    ],
+    "tests": [
+      "tests/features/test_f62.py",
+      "apps/web/tests/features/f62.test.tsx"
+    ]
+  },
+  "F63": {
+    "id": "F63",
+    "title": "Metrics dashboard",
+    "path": "prompts/F63-metrics-dashboard.md",
+    "depends_on": [
+      "20",
+      "F62"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f63_metrics_dashboard.py",
+      "apps/web/src/features/f63_metrics_dashboard/Panel.tsx",
+      "tests/features/test_f63.py",
+      "apps/web/tests/features/f63.test.tsx",
+      "apps/api/partsiq/api/f63_metrics_dashboard.py"
+    ],
+    "tests": [
+      "tests/features/test_f63.py",
+      "apps/web/tests/features/f63.test.tsx"
+    ]
+  },
+  "F64": {
+    "id": "F64",
+    "title": "Latency and AI cost",
+    "path": "prompts/F64-latency-and-ai-cost.md",
+    "depends_on": [
+      "20",
+      "F63"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f64_latency_and_ai_cost.py",
+      "apps/web/src/features/f64_latency_and_ai_cost/Panel.tsx",
+      "tests/features/test_f64.py",
+      "apps/web/tests/features/f64.test.tsx",
+      "apps/api/partsiq/api/f64_latency_and_ai_cost.py"
+    ],
+    "tests": [
+      "tests/features/test_f64.py",
+      "apps/web/tests/features/f64.test.tsx"
+    ]
+  },
+  "F65": {
+    "id": "F65",
+    "title": "Correction feedback",
+    "path": "prompts/F65-correction-feedback.md",
+    "depends_on": [
+      "20",
+      "F64"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f65_correction_feedback.py",
+      "apps/web/src/features/f65_correction_feedback/Panel.tsx",
+      "tests/features/test_f65.py",
+      "apps/web/tests/features/f65.test.tsx",
+      "apps/api/partsiq/api/f65_correction_feedback.py"
+    ],
+    "tests": [
+      "tests/features/test_f65.py",
+      "apps/web/tests/features/f65.test.tsx"
+    ]
+  },
+  "F66": {
+    "id": "F66",
+    "title": "Tests and CI",
+    "path": "prompts/F66-tests-and-ci.md",
+    "depends_on": [
+      "20",
+      "F65"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f66_tests_and_ci.py",
+      "tests/features/test_f66.py",
+      "apps/web/tests/features/f66.test.tsx"
+    ],
+    "tests": [
+      "tests/features/test_f66.py",
+      "apps/web/tests/features/f66.test.tsx"
+    ]
+  },
+  "F67": {
+    "id": "F67",
+    "title": "Traces",
+    "path": "prompts/F67-traces.md",
+    "depends_on": [
+      "20",
+      "F66"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f67_traces.py",
+      "apps/web/src/features/f67_traces/Panel.tsx",
+      "tests/features/test_f67.py",
+      "apps/web/tests/features/f67.test.tsx",
+      "apps/api/partsiq/api/f67_traces.py"
+    ],
+    "tests": [
+      "tests/features/test_f67.py",
+      "apps/web/tests/features/f67.test.tsx"
+    ]
+  },
+  "F68": {
+    "id": "F68",
+    "title": "Recruiter documentation",
+    "path": "prompts/F68-recruiter-documentation.md",
+    "depends_on": [
+      "20",
+      "F67"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f68_recruiter_documentation.py",
+      "apps/web/src/features/f68_recruiter_documentation/Panel.tsx",
+      "tests/features/test_f68.py",
+      "apps/web/tests/features/f68.test.tsx"
+    ],
+    "tests": [
+      "tests/features/test_f68.py",
+      "apps/web/tests/features/f68.test.tsx"
+    ]
+  },
+  "F69": {
+    "id": "F69",
+    "title": "Demo walkthrough",
+    "path": "prompts/F69-demo-walkthrough.md",
+    "depends_on": [
+      "20",
+      "F68"
+    ],
+    "creates": [
+      "apps/api/partsiq/features/f69_demo_walkthrough.py",
+      "apps/web/src/features/f69_demo_walkthrough/Panel.tsx",
+      "tests/features/test_f69.py",
+      "apps/web/tests/features/f69.test.tsx"
+    ],
+    "tests": [
+      "tests/features/test_f69.py",
+      "apps/web/tests/features/f69.test.tsx"
+    ]
+  }
+}

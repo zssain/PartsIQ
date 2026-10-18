@@ -1,0 +1,72 @@
+[
+  {
+    "check": "69 feature IDs",
+    "passed": true,
+    "detail": 69
+  },
+  {
+    "check": "97 prompts",
+    "passed": true,
+    "detail": 97
+  },
+  {
+    "check": "69 traces and test mappings",
+    "passed": true,
+    "detail": 69
+  },
+  {
+    "check": "No forward declared dependencies",
+    "passed": true,
+    "detail": []
+  },
+  {
+    "check": "One creator per planned file",
+    "passed": true,
+    "detail": 591
+  },
+  {
+    "check": "No agent runtime dependencies",
+    "passed": true,
+    "detail": "Python manifests and lock"
+  },
+  {
+    "check": "CPU wheel",
+    "passed": true,
+    "detail": "CPU target"
+  },
+  {
+    "check": "77 unique REST operations",
+    "passed": true,
+    "detail": 77
+  },
+  {
+    "check": "OpenAPI references",
+    "passed": true,
+    "detail": []
+  },
+  {
+    "check": "Prompt template parity",
+    "passed": true,
+    "detail": []
+  },
+  {
+    "check": "Detailed prompts above1000words",
+    "passed": true,
+    "detail": []
+  },
+  {
+    "check": "Postgres table RLS coverage",
+    "passed": true,
+    "detail": []
+  },
+  {
+    "check": "No checkpoint DDL",
+    "passed": true,
+    "detail": "Plain workflow migration only"
+  },
+  {
+    "check": "Original references preserved",
+    "passed": true,
+    "detail": "3 references"
+  }
+]

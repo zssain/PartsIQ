@@ -1,0 +1,9 @@
+{
+  "package": "torch",
+  "base_release": "2.10.0",
+  "wheel_version": "2.10.0+cpu",
+  "target": "CPython3.12 Linux x86_64 glibc2.28+",
+  "wheel": "https://download-r2.pytorch.org/whl/cpu/torch-2.10.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl#sha256=ee40b8a4b4b2cf0670c6fd4f35a7ef23871af956fecb238fbf5da15a72650b1d",
+  "source": "https://download.pytorch.org/whl/cpu/torch/",
+  "checked": "2026-10-11"
+}

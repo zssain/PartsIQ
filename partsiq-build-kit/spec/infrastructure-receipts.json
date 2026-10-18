@@ -1,0 +1,67 @@
+[
+  {
+    "repo": "caddyserver/caddy",
+    "tag": "v2.11.4",
+    "released": "2026-06-03T06:52:22Z",
+    "source": "https://github.com/caddyserver/caddy/releases/tag/v2.11.4"
+  },
+  {
+    "repo": "redis/redis",
+    "tag": "7.4.8",
+    "released": "2026-02-23T09:57:36Z",
+    "source": "https://github.com/redis/redis/releases/tag/7.4.8"
+  },
+  {
+    "repo": "docker/compose",
+    "tag": "v2.39.4",
+    "released": "2025-09-19T08:49:23Z",
+    "source": "https://github.com/docker/compose/releases/tag/v2.39.4"
+  },
+  {
+    "repo": "moby/moby",
+    "tag": "v28.4.0",
+    "released": "2025-09-03T21:52:07Z",
+    "source": "https://github.com/moby/moby/releases/tag/v28.4.0"
+  },
+  {
+    "repo": "actions/checkout",
+    "tag": "v4.2.2",
+    "sha": "11bd71901bbe5b1630ceea73d27597364c9af683",
+    "source": "https://api.github.com/repos/actions/checkout/git/refs/tags/v4.2.2"
+  },
+  {
+    "repo": "actions/setup-python",
+    "tag": "v5.6.0",
+    "sha": "a26af69be951a213d495a4c3e4e4022e16d87065",
+    "source": "https://api.github.com/repos/actions/setup-python/git/refs/tags/v5.6.0"
+  },
+  {
+    "repo": "actions/setup-node",
+    "tag": "v4.4.0",
+    "sha": "49933ea5288caeca8642d1e84afbd3f7d6820020",
+    "source": "https://api.github.com/repos/actions/setup-node/git/refs/tags/v4.4.0"
+  },
+  {
+    "repo": "docker/login-action",
+    "tag": "v3.4.0",
+    "sha": "74a5d142397b4f367a81961eba4e8cd7edddf772",
+    "source": "https://api.github.com/repos/docker/login-action/git/refs/tags/v3.4.0"
+  },
+  {
+    "repo": "docker/build-push-action",
+    "tag": "v6.18.0",
+    "sha": "263435318d21b8e681c14492fe198d362a7d2c83",
+    "source": "https://api.github.com/repos/docker/build-push-action/git/refs/tags/v6.18.0"
+  },
+  {
+    "repo": "aws-actions/configure-aws-credentials",
+    "tag": "v4.2.1",
+    "sha": "b47578312673ae6fa5b5096b330d9fbac3d116df",
+    "source": "https://api.github.com/repos/aws-actions/configure-aws-credentials/git/refs/tags/v4.2.1"
+  },
+  {
+    "model": "BAAI/bge-m3",
+    "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "source": "https://huggingface.co/BAAI/bge-m3"
+  }
+]

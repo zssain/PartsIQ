@@ -1,0 +1,12 @@
+{
+  "edition": "single-workflow-snowflake",
+  "date": "2026-10-16",
+  "scope": 69,
+  "multi_agent": false,
+  "langgraph": false,
+  "application_database": "Supabase PostgreSQL",
+  "catalogue_source": "Snowflake immutable versions",
+  "serving_cache": "validated PostgreSQL relational mirror",
+  "runtime": "one FastAPI package plus one worker process from the same image",
+  "free_budget": "No paid activation or automatic fallback"
+}
