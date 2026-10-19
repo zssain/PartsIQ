@@ -123,30 +123,47 @@ def test_every_staff_route_is_mounted_with_its_method(client: TestClient) -> Non
 
 # --------------------------------------------------------------------------- demo refusal
 
-def test_demo_caller_is_refused_on_every_staff_route_never_a_200(client: TestClient) -> None:
-    """A demo token carries no staff role — every staff route must refuse, never leak a 200."""
-    enquiry_id = uuid4()
-    calls = (
-        ("get", "/v1/staff/enquiries", DEMO, None),
-        ("get", f"/v1/staff/enquiries/{enquiry_id}", DEMO, None),
-        ("post", f"/v1/staff/enquiries/{enquiry_id}/approve", _mutate_headers(),
-         {"enquiry_id": str(enquiry_id), "expected_revision": 1, "draft_id": str(uuid4())}),
-        ("post", f"/v1/staff/enquiries/{enquiry_id}/reject", _mutate_headers(),
-         {"enquiry_id": str(enquiry_id), "expected_revision": 1, "reason": "no"}),
-        ("post", f"/v1/staff/enquiries/{enquiry_id}/notes", _mutate_headers(), {"body": "hi"}),
-        ("get", f"/v1/staff/enquiries/{enquiry_id}/notes", DEMO, None),
-        ("put", f"/v1/staff/enquiries/{enquiry_id}/assignment", _mutate_headers(),
-         {"expected_revision": 1, "assignee_id": None}),
-        ("get", f"/v1/staff/enquiries/{enquiry_id}/deadline", DEMO, None),
-        ("get", f"/v1/staff/enquiries/{enquiry_id}/audit", DEMO, None),
+def test_demo_reviewer_sees_only_own_session_and_never_a_foreign_enquiry(client: TestClient) -> None:
+    """F03/F04: in the demo the reviewer is the same anonymous session.
+
+    The own-session REVIEW queue and own-session workspace are served (200) — that is the demo role
+    switch. But a FOREIGN enquiry's detail/approval is NOT_FOUND (404, no existence leak), and the
+    privileged admin/staff-only actions (assignment, internal notes) are refused — never a 200.
+    """
+    foreign_id = uuid4()  # not owned by this demo session
+    # The reviewer inbox is the caller's OWN-SESSION queue (200, possibly empty) — F03 role switch.
+    assert client.get("/v1/staff/enquiries", headers=DEMO).status_code == 200
+    # The REVIEW surface (workspace/approve/reject) is own-session scoped: a FOREIGN enquiry is
+    # NOT_FOUND (404), never a 403 that leaks existence (F04 isolation).
+    foreign_review = (
+        ("get", f"/v1/staff/enquiries/{foreign_id}", DEMO, None),
+        ("post", f"/v1/staff/enquiries/{foreign_id}/approve", _mutate_headers(),
+         {"enquiry_id": str(foreign_id), "expected_revision": 1, "draft_id": str(uuid4())}),
+        ("post", f"/v1/staff/enquiries/{foreign_id}/reject", _mutate_headers(),
+         {"enquiry_id": str(foreign_id), "expected_revision": 1, "reason": "no"}),
     )
-    for method, path, headers, body in calls:
+    for method, path, headers, body in foreign_review:
         kwargs = {"headers": headers}
         if body is not None:
             kwargs["json"] = body
         resp = getattr(client, method)(path, **kwargs)
-        assert resp.status_code in (403, 404), f"{method.upper()} {path} -> {resp.status_code}"
-        assert resp.status_code != 200
+        assert resp.status_code == 404, f"{method.upper()} {path} -> {resp.status_code}"
+    # Secondary staff actions NOT part of the demo review loop (assignment, internal notes,
+    # deadline, audit) stay role-gated: a demo caller is refused (403), never a 200.
+    refused = (
+        ("put", f"/v1/staff/enquiries/{foreign_id}/assignment", _mutate_headers(),
+         {"expected_revision": 1, "assignee_id": None}),
+        ("post", f"/v1/staff/enquiries/{foreign_id}/notes", _mutate_headers(), {"body": "hi"}),
+        ("get", f"/v1/staff/enquiries/{foreign_id}/notes", DEMO, None),
+        ("get", f"/v1/staff/enquiries/{foreign_id}/deadline", DEMO, None),
+        ("get", f"/v1/staff/enquiries/{foreign_id}/audit", DEMO, None),
+    )
+    for method, path, headers, body in refused:
+        kwargs = {"headers": headers}
+        if body is not None:
+            kwargs["json"] = body
+        resp = getattr(client, method)(path, **kwargs)
+        assert resp.status_code == 403, f"{method.upper()} {path} -> {resp.status_code}"
 
 
 def test_staff_route_without_a_token_is_unauthenticated(client: TestClient) -> None:

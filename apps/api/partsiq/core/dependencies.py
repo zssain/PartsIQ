@@ -28,7 +28,7 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, TypeVar
-from uuid import UUID, uuid4
+from uuid import UUID, uuid4, uuid5
 
 from fastapi import Request
 
@@ -239,6 +239,13 @@ class _JourneyEnquiry:
     draft_id: UUID | None = None
     verification_id: UUID | None = None
     approved: bool = False
+    #: Review content assembled from the seed-42 catalogue once the workflow reaches review.
+    facts: object | None = None  # VerifiedFacts | None
+    draft_slots: object | None = None  # ReplySlots | None
+    verification: object | None = None  # VerificationResult | None
+    decision_id: UUID | None = None
+    rejected: bool = False
+    reject_reason: str | None = None
 
 
 class FixtureJourneyStore:
@@ -269,11 +276,16 @@ class FixtureJourneyStore:
     }
 
     def __init__(
-        self, *, workflow_graph: object | None = None, catalogue_version_id: UUID | None = None
+        self,
+        *,
+        workflow_graph: object | None = None,
+        catalogue_version_id: UUID | None = None,
+        catalogue: object | None = None,
     ) -> None:
         self._by_id: dict[UUID, _JourneyEnquiry] = {}
         self._graph = workflow_graph
         self._catalogue_version_id = catalogue_version_id
+        self._catalogue = catalogue  # FixtureCatalogueRepository, for review-content lookups
 
     # --- helpers --------------------------------------------------------
 
@@ -394,6 +406,7 @@ class FixtureJourneyStore:
         record.verification_id = final.verification_id
         record.step = result.step
         if result.step == WorkflowStep.REVIEW:
+            self._build_review_content(record)
             record.wait_reason = "waiting for staff review"
             record.view = record.view.model_copy(
                 update={"status": "awaiting_review", "catalogue_version_id": self._catalogue_version_id}
@@ -403,6 +416,85 @@ class FixtureJourneyStore:
             )
         else:
             record.wait_reason = result.reason
+
+    def _build_review_content(self, record: _JourneyEnquiry) -> None:
+        """Assemble the verified facts, the code-owned draft and the verification result for review.
+
+        Honest fixture content: the selected part, its names and a source reference come from the
+        seed-42 catalogue (part 92 under configuration 13); the draft prose is code-owned (no
+        provider call); verification passes because the deterministic plan is consistent. These are
+        exactly the three separated regions the reviewer sees — AI/DB evidence vs the draft vs the
+        (pending) human decision.
+        """
+        from datetime import datetime, timezone
+        from decimal import Decimal
+
+        from partsiq.core.contracts import (
+            Allocation,
+            ReplySlots,
+            VerificationResult,
+            VerifiedFacts,
+            VerifiedItem,
+        )
+        from partsiq.enquiries.facts import facts_sha256
+
+        if record.facts is not None:
+            return
+        part = self._lookup_part(92)
+        item_id = record.view.item_ids[0] if record.view.item_ids else uuid4()
+        now = datetime(2026, 1, 1, tzinfo=timezone.utc)
+        verified_item = VerifiedItem(
+            item_id=item_id,
+            configuration_id=13,
+            part_id=92,
+            part_number=part.get("part_number", "CA-AF-8973"),
+            name_en=part.get("name_en", "Air filter element"),
+            name_ar=part.get("name_ar", "فلتر هواء"),
+            requested_quantity=Decimal("1"),
+            allocations=[
+                Allocation(
+                    warehouse_id=1,
+                    quantity=Decimal("1"),
+                    transfer_days=0,
+                    stock_updated_at=now,
+                )
+            ],
+            shortage=Decimal("0"),
+            source_reference="Catalogue CA-170 · Configuration A · fitment table",
+            evidence_id=uuid5(_DEMO_NAMESPACE, f"{record.view.id}:evidence"),
+        )
+        facts = VerifiedFacts(
+            enquiry_id=record.view.id,
+            revision=record.view.revision,
+            catalogue_version_id=self._catalogue_version_id or uuid4(),
+            items=[verified_item],
+        )
+        record.facts = facts
+        record.draft_slots = ReplySlots(
+            greeting="Thank you for your enquiry.",
+            explanation=(
+                "We identified a compatible part for your machine and confirmed availability "
+                "from our regional warehouse. A staff member has reviewed the selection and the "
+                "supporting catalogue evidence before sending this reply."
+            ),
+            closing="Please reply if you need anything further.",
+        )
+        record.verification = VerificationResult(
+            passed=True, failures=[], facts_sha256=facts_sha256(facts)
+        )
+
+    def _lookup_part(self, part_id: int) -> dict:
+        """Return a part payload from the fixture catalogue, or a safe default if unavailable."""
+        if self._catalogue is None or self._catalogue_version_id is None:
+            return {}
+        try:
+            snapshot = self._catalogue.read_version(self._catalogue_version_id)
+        except Exception:  # noqa: BLE001 - lookup is best-effort; defaults cover a miss
+            return {}
+        for record in snapshot.records:
+            if record.entity_type == "parts" and str(record.entity_key) == str(part_id):
+                return dict(record.payload)
+        return {}
 
     async def lock_current_revision(
         self, actor: ActorContext, enquiry_id: UUID
@@ -496,28 +588,64 @@ class FixtureJourneyStore:
             for e in record.events
         ]
 
-    async def approve_fixture(self, actor: ActorContext, enquiry_id: UUID) -> EnquiryView:
-        """Record a human approval and publish the single recommendation reply (fixture mode).
+    # --- StaffReviewSource (own-demo-session scope; F03 role switching is presentational) -----
+    #
+    # In fixture mode the canonical /v1/staff review endpoints (F36/F37/F39) delegate here. A demo
+    # caller is authorised by OWN-SESSION scope (the `review` access level = own active demo session
+    # OR assigned reviewer OR admin), NEVER by a staff role — a foreign/stale session is NOT_FOUND.
+    # Real enquiries in DB mode still go through the role+assignment-gated store, not this journey.
 
-        Idempotent: a second approval does not publish a duplicate reply. Only an enquiry paused
-        at human review can be approved; the published reply is a code-owned message.
-        """
+    async def list_assigned(self, actor: ActorContext, query: object) -> object:
+        """The demo reviewer queue: the caller's own-session enquiries (optionally status-filtered)."""
+        from partsiq.core.api_models import EnquiryPage
+
+        status = getattr(query, "status", None)
+        views = [
+            r.view
+            for r in self._by_id.values()
+            if self._is_owned(r, actor) and (status is None or r.view.status == status)
+        ]
+        views.sort(key=lambda v: v.updated_at, reverse=True)
+        return EnquiryPage(items=views, next_cursor=None)
+
+    async def get_workspace(self, actor: ActorContext, enquiry_id: UUID) -> object:
+        """Assemble the review workspace (enquiry + facts + draft + verification) for the owner."""
+        from partsiq.core.api_models import ReviewView
+
         record = self._owned(actor, enquiry_id)
-        if record.approved:
-            return record.view  # no duplicate publication on replay/double-click
-        if record.step != WorkflowStep.REVIEW:
-            raise PartsIQError("CONFLICT", internal_detail="enquiry is not awaiting review")
-        now = _now()
-        reply = MessageView(
-            id=uuid4(),
-            enquiry_id=enquiry_id,
-            revision=record.view.revision,
-            kind="recommendation",
-            body="Thank you — a staff member has reviewed and approved your enquiry.",
-            created_at=now,
+        return ReviewView(
+            enquiry=record.view,
+            facts=record.facts,  # type: ignore[arg-type]
+            draft=record.draft_slots,  # type: ignore[arg-type]
+            verification=record.verification,  # type: ignore[arg-type]
+            assigned_to=None,
         )
+
+    async def approve(self, actor: ActorContext, request: object, key: UUID) -> object:
+        """Publish exactly one recommendation for the current verified draft (idempotent)."""
+        from partsiq.core.api_models import ApprovalResult
+
+        enquiry_id = request.enquiry_id  # type: ignore[attr-defined]
+        record = self._owned(actor, enquiry_id)
+        if record.approved and record.decision_id is not None:
+            msg = next((m for m in record.messages if m.kind == "recommendation"), None)
+            return ApprovalResult(
+                decision_id=record.decision_id,
+                message_id=msg.id if msg else uuid4(),
+                revision=record.view.revision,
+                already_applied=True,  # replay: no duplicate publication
+            )
+        self._guard_review(record, request)
+        now = _now()
+        body = self._render_published_reply(record)
+        reply = MessageView(
+            id=uuid4(), enquiry_id=enquiry_id, revision=record.view.revision,
+            kind="recommendation", body=body, created_at=now,
+        )
+        decision_id = uuid4()
         record.messages.append(reply)
         record.approved = True
+        record.decision_id = decision_id
         record.step = WorkflowStep.COMPLETE
         record.wait_reason = None
         record.events.append(
@@ -526,7 +654,91 @@ class FixtureJourneyStore:
         record.view = record.view.model_copy(
             update={"status": "approved", "messages": list(record.messages), "updated_at": now}
         )
-        return record.view
+        return ApprovalResult(
+            decision_id=decision_id, message_id=reply.id,
+            revision=record.view.revision, already_applied=False,
+        )
+
+    async def reject(self, actor: ActorContext, request: object, key: UUID) -> object:
+        """Record a rejection with its reason; never publishes a recommendation."""
+        from partsiq.core.api_models import ReviewResult
+
+        enquiry_id = request.enquiry_id  # type: ignore[attr-defined]
+        record = self._owned(actor, enquiry_id)
+        if record.rejected and record.decision_id is not None:
+            return ReviewResult(
+                decision_id=record.decision_id, revision=record.view.revision, status="rejected"
+            )
+        self._guard_review(record, request)
+        now = _now()
+        decision_id = uuid4()
+        record.rejected = True
+        record.decision_id = decision_id
+        record.reject_reason = request.reason  # type: ignore[attr-defined]
+        record.step = WorkflowStep.NEEDS_STAFF
+        record.wait_reason = "rejected by reviewer"
+        record.events.append(
+            _ProgressEvent(step="rejected", label="Rejected by reviewer", at=now, status="failed")
+        )
+        record.view = record.view.model_copy(update={"status": "rejected", "updated_at": now})
+        return ReviewResult(decision_id=decision_id, revision=record.view.revision, status="rejected")
+
+    def _guard_review(self, record: "_JourneyEnquiry", request: object) -> None:
+        """Shared approve/reject guard: enquiry must be awaiting review at the expected revision."""
+        if record.step != WorkflowStep.REVIEW:
+            raise PartsIQError("CONFLICT", internal_detail="enquiry is not awaiting review")
+        expected = getattr(request, "expected_revision", None)
+        if expected is not None and expected != record.view.revision:
+            raise PartsIQError("STALE_REVISION", internal_detail="revision moved since the draft")
+
+    def _render_published_reply(self, record: "_JourneyEnquiry") -> str:
+        slots = record.draft_slots
+        if slots is None:
+            return "A staff member has reviewed and approved your enquiry."
+        return f"{slots.greeting}\n\n{slots.explanation}\n\n{slots.closing}"  # type: ignore[attr-defined]
+
+    def _is_owned(self, record: "_JourneyEnquiry", actor: ActorContext) -> bool:
+        try:
+            self._owned(actor, record.view.id)
+            return True
+        except PartsIQError:
+            return False
+
+    # Staff-review methods not part of the demo review loop: honest minimal own-session behaviour.
+    async def append_note(self, actor, enquiry_id, body, key):  # noqa: ANN001, ARG002
+        raise PartsIQError("DEPENDENCY_UNAVAILABLE", internal_detail="notes not in the fixture demo")
+
+    async def list_notes(self, actor, enquiry_id, query):  # noqa: ANN001, ARG002
+        from partsiq.core.api_models import NotePage
+
+        self._owned(actor, enquiry_id)
+        return NotePage(items=[], next_cursor=None)
+
+    async def assign(self, actor, enquiry_id, assignee_id, expected_revision, key):  # noqa: ANN001, ARG002
+        raise PartsIQError("FORBIDDEN", internal_detail="assignment is not available in the demo")
+
+    async def deadline(self, actor, enquiry_id):  # noqa: ANN001
+        from partsiq.core.api_models import DeadlineView
+
+        record = self._owned(actor, enquiry_id)
+        return DeadlineView(due_at=None, overdue=False, server_time=record.view.updated_at)
+
+    async def read_published(self, actor, enquiry_id):  # noqa: ANN001
+        from partsiq.core.api_models import PublishedView
+
+        record = self._owned(actor, enquiry_id)
+        msg = next((m for m in record.messages if m.kind == "recommendation"), None)
+        return PublishedView(
+            message=msg,
+            decision_id=record.decision_id,
+            approved_revision=record.view.revision if record.approved else None,
+        )
+
+    async def list_audit(self, actor, enquiry_id, query):  # noqa: ANN001, ARG002
+        from partsiq.core.api_models import AuditPage
+
+        self._owned(actor, enquiry_id)
+        return AuditPage(items=[], next_cursor=None)
 
     async def list_owned(
         self,
@@ -644,6 +856,7 @@ def build_container(settings: Settings) -> AppContainer:
         container.journey = FixtureJourneyStore(
             workflow_graph=container.workflow_graph,
             catalogue_version_id=snapshot.version_id,
+            catalogue=container.catalogue,
         )
         container.fixture_adapters = FixtureAdapters(
             rate_limiter=_AllowAllRateLimiter(),

@@ -26,8 +26,7 @@ from partsiq.core.contracts import (
 from partsiq.core.dependencies import AppContainer
 from partsiq.features.f36_staff_inbox import (
     StaffReviewSource,
-    require_staff_review,
-    require_staff_role,
+    resolve_review_source,
 )
 
 
@@ -39,9 +38,12 @@ async def approve(
     container: AppContainer,
     source: StaffReviewSource | None = None,
 ) -> ApprovalResult:
-    """Publish the single recommendation for the current, verified draft — once (review access)."""
-    require_staff_role(actor)
-    source = source or require_staff_review(container)
+    """Publish the single recommendation for the current, verified draft — once (review access).
+
+    ``review`` access = assigned reviewer / admin / own active demo session. In fixture mode the
+    own-session journey publishes it idempotently (F03); real enquiries use the locked DB path.
+    """
+    source = resolve_review_source(container, actor, source=source)
     return await source.approve(actor, request, key)
 
 
@@ -54,6 +56,5 @@ async def reject(
     source: StaffReviewSource | None = None,
 ) -> ReviewResult:
     """Record a rejection with its reason; never publishes a recommendation (review access)."""
-    require_staff_role(actor)
-    source = source or require_staff_review(container)
+    source = resolve_review_source(container, actor, source=source)
     return await source.reject(actor, request, key)

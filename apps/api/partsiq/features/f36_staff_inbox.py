@@ -146,6 +146,30 @@ def require_staff_review(container: AppContainer) -> StaffReviewSource:
     return source
 
 
+def resolve_review_source(
+    container: AppContainer,
+    actor: ActorContext,
+    *,
+    source: StaffReviewSource | None = None,
+    admin_only: bool = False,
+) -> StaffReviewSource:
+    """Return the review source for the current mode, enforcing the right authorization boundary.
+
+    FIXTURE mode: the in-memory journey IS the review source, authorised by OWN-DEMO-SESSION scope
+    (the ``review`` access level; F03 role switching is presentational — same anonymous session).
+    A demo caller reviews ONLY its own session's enquiries; a foreign/stale session is NOT_FOUND.
+
+    DB mode: the role gate ALWAYS runs first — ``require_staff_role`` refuses a non-staff caller
+    (403) even when a store is injected for testing — then the injected ``source`` or the live
+    ``require_staff_review`` store (clean 503 until wired) is returned. Real RBAC is never weakened;
+    the fixture branch only ever exposes own-session demo data.
+    """
+    if getattr(container, "is_fixture", False) and getattr(container, "journey", None) is not None:
+        return container.journey  # type: ignore[return-value]
+    require_staff_role(actor, admin_only=admin_only)
+    return source or require_staff_review(container)
+
+
 async def list_assigned(
     actor: ActorContext,
     query: InboxQuery,
@@ -153,7 +177,9 @@ async def list_assigned(
     container: AppContainer,
     source: StaffReviewSource | None = None,
 ) -> EnquiryPage:
-    """List the caller's staff inbox within their access scope (reviewer/admin), keyset-paged."""
-    require_staff_role(actor)
-    source = source or require_staff_review(container)
+    """List the caller's staff inbox within their access scope (reviewer/admin), keyset-paged.
+
+    In the fixture demo this is the caller's OWN-SESSION review queue (F03/F04 own-demo scope).
+    """
+    source = resolve_review_source(container, actor, source=source)
     return await source.list_assigned(actor, query)

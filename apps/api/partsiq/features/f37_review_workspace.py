@@ -17,11 +17,7 @@ from uuid import UUID
 from partsiq.core.api_models import ReviewView
 from partsiq.core.contracts import ActorContext
 from partsiq.core.dependencies import AppContainer
-from partsiq.features.f36_staff_inbox import (
-    StaffReviewSource,
-    require_staff_review,
-    require_staff_role,
-)
+from partsiq.features.f36_staff_inbox import StaffReviewSource, resolve_review_source
 
 
 async def get_workspace(
@@ -31,7 +27,10 @@ async def get_workspace(
     container: AppContainer,
     source: StaffReviewSource | None = None,
 ) -> ReviewView:
-    """Return the current review snapshot for an authorized reviewer (review access; 404 foreign)."""
-    require_staff_role(actor)
-    source = source or require_staff_review(container)
+    """Return the current review snapshot for an authorized reviewer (review access; 404 foreign).
+
+    ``review`` access = assigned reviewer of a real enquiry, an admin, OR the owner of the matching
+    active demo session. In fixture mode the own-session journey serves it (F03 role switching).
+    """
+    source = resolve_review_source(container, actor, source=source)
     return await source.get_workspace(actor, enquiry_id)

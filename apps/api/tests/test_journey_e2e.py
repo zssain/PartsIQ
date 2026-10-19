@@ -54,6 +54,19 @@ def _create(client: TestClient, text: str, token: str = "journey") -> str:
     return resp.json()["id"]
 
 
+def _approve(client: TestClient, enquiry_id: str, token: str = "journey"):
+    """Approve via the CANONICAL review endpoint (own-demo-session scope, F03 role switch)."""
+    ws = client.get(f"/v1/staff/enquiries/{enquiry_id}", headers=_demo(token))
+    revision = ws.json()["enquiry"]["revision"] if ws.status_code == 200 else 1
+    from uuid import uuid4 as _uuid4
+
+    return client.post(
+        f"/v1/staff/enquiries/{enquiry_id}/approve",
+        headers=_demo(token, key=True),
+        json={"enquiry_id": enquiry_id, "expected_revision": revision, "draft_id": str(_uuid4())},
+    )
+
+
 # --- the happy-path loop ----------------------------------------------
 
 def test_full_loop_create_progress_review_approve(client: TestClient) -> None:
@@ -65,10 +78,16 @@ def test_full_loop_create_progress_review_approve(client: TestClient) -> None:
     steps = [e["step"] for e in timeline["events"]]
     assert steps[:6] == ["intake", "identify", "search", "plan", "draft", "verify"]
     assert steps[-1] == "review"
-    # Human approval publishes exactly one recommendation reply.
-    approved = client.post(f"/v1/enquiries/{enquiry_id}/approve", headers=_demo()).json()
-    assert approved["status"] == "approved"
-    assert sum(1 for m in approved["messages"] if m["kind"] == "recommendation") == 1
+    # The reviewer workspace assembles real seed-42 content (facts/draft/verification).
+    ws = client.get(f"/v1/staff/enquiries/{enquiry_id}", headers=_demo()).json()
+    assert ws["facts"]["items"][0]["part_number"] == "CA-AF-8973"
+    assert ws["verification"]["passed"] is True
+    # Human approval publishes exactly one recommendation reply (canonical review endpoint).
+    result = _approve(client, enquiry_id).json()
+    assert result["already_applied"] is False
+    enq = client.get(f"/v1/enquiries/{enquiry_id}", headers=_demo()).json()
+    assert enq["status"] == "approved"
+    assert sum(1 for m in enq["messages"] if m["kind"] == "recommendation") == 1
 
 
 # --- the four demo scenarios run end-to-end ---------------------------
@@ -106,17 +125,24 @@ def test_duplicate_submission_is_one_enquiry(client: TestClient) -> None:
 
 def test_duplicate_approval_publishes_once(client: TestClient) -> None:
     enquiry_id = _create(client, "need filter")
-    first = client.post(f"/v1/enquiries/{enquiry_id}/approve", headers=_demo()).json()
-    second = client.post(f"/v1/enquiries/{enquiry_id}/approve", headers=_demo()).json()
-    recs = sum(1 for m in second["messages"] if m["kind"] == "recommendation")
-    assert first["status"] == "approved" and recs == 1  # no duplicate reply on replay
+    first = _approve(client, enquiry_id).json()
+    second = _approve(client, enquiry_id).json()
+    assert first["already_applied"] is False and second["already_applied"] is True
+    enq = client.get(f"/v1/enquiries/{enquiry_id}", headers=_demo()).json()
+    recs = sum(1 for m in enq["messages"] if m["kind"] == "recommendation")
+    assert enq["status"] == "approved" and recs == 1  # no duplicate reply on replay
 
 
 def test_unauthorized_access_is_404(client: TestClient) -> None:
     enquiry_id = _create(client, "mine", token="owner")
-    for path in (f"/v1/enquiries/{enquiry_id}", f"/v1/enquiries/{enquiry_id}/timeline"):
+    for path in (
+        f"/v1/enquiries/{enquiry_id}",
+        f"/v1/enquiries/{enquiry_id}/timeline",
+        f"/v1/staff/enquiries/{enquiry_id}",  # a foreign session can't review it either
+    ):
         assert client.get(path, headers=_demo("intruder")).status_code == 404
-    assert client.post(f"/v1/enquiries/{enquiry_id}/approve", headers=_demo("intruder")).status_code == 404
+    # A foreign session approving another session's enquiry is NOT_FOUND (own-session isolation).
+    assert _approve(client, enquiry_id, token="intruder").status_code == 404
 
 
 def test_fixture_mode_completes_without_live_credits(client: TestClient) -> None:
