@@ -6,6 +6,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Self-contained server bundle for VM deploys (.next/standalone + server.js). Images are
+  // served unoptimized so the bundle stays pure-JS (no native `sharp`) and is architecture-
+  // independent — safe to build on one machine and run on another.
+  output: "standalone",
+  images: { unoptimized: true },
   env: {
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   },
