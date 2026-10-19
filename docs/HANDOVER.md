@@ -348,3 +348,6 @@ All 26 remaining F-prompts implemented this session (F16,F17,F19,F55,F56,F59,F57
 - Limits: Node v25.3.0 is installed here (project pin is 22.22.0); pinned-runtime/hosted acceptance and live backend checks remain external. No claim of complete translated marketing copy: existing locale control and RTL behavior preserved. No public deployment attempted. Rollback tag: `pre-ui-revamp`; revert the implementation commit to roll back this presentation change. Model identifier: not exposed.
 
 Implementation commit: `bc072da` — `feat(web): revamp PartsIQ interface with editorial design and foil parallax`.
+
+## Command workspace update
+See docs/reviews/command-workspace.md for new workspace screens, API URL correction, measured checks and unfinished collaboration/RBAC scope. No package pins or migrations changed. Production is not updated by this commit.

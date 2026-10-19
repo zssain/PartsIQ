@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from "react";
 
 import "../styles/tokens.css";
 import "../styles/pq.css";
+import "../styles/workspace.css";
 import { requestLocale } from "@/i18n/request";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
