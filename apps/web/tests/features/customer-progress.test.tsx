@@ -29,9 +29,9 @@ function timeline(): TimelineView {
   return {
     enquiry_id: "e1",
     events: [
-      { step: "reading", label: "Reading request", at: "2026-10-19T10:00:00Z", status: "done" },
-      { step: "identifying", label: "Identifying", at: "2026-10-19T10:01:00Z", status: "done" },
-      { step: "finding_parts", label: "Finding parts", at: "2026-10-19T10:02:00Z", status: "running" },
+      { step: "intake", label: "Reading request", at: "2026-10-19T10:00:00Z", status: "done" },
+      { step: "identify", label: "Identifying", at: "2026-10-19T10:01:00Z", status: "done" },
+      { step: "search", label: "Finding parts", at: "2026-10-19T10:02:00Z", status: "running" },
     ],
   };
 }
@@ -61,8 +61,8 @@ describe("CustomerProgress", () => {
     apiMock.mockResolvedValue({
       enquiry_id: "e1",
       events: [
-        { step: "reading", label: "Reading request", at: "t", status: "done" },
-        { step: "awaiting_review", label: "Waiting for review", at: "t", status: "waiting", detail: "Awaiting human review" },
+        { step: "intake", label: "Reading request", at: "t", status: "done" },
+        { step: "review", label: "Waiting for review", at: "t", status: "waiting", detail: "Awaiting human review" },
       ],
     } satisfies TimelineView);
     render(<CustomerProgress enquiryId="e1" />);

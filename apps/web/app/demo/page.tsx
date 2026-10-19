@@ -1,4 +1,4 @@
-import { ScanLine, Fingerprint, ShieldCheck, PackageCheck, ArrowUpRight } from "lucide-react";
+import { ScanLine, Fingerprint, ShieldCheck, PackageCheck, ArrowUpRight, Radio } from "lucide-react";
 import { type JSX } from "react";
 
 import { TiltCard } from "@/components/ui/TiltCard";
@@ -42,6 +42,22 @@ export default function DemoPage(): JSX.Element {
           </Reveal>
         ))}
       </div>
+
+      <Reveal delay={120}>
+        <a href="/demo/live" data-testid="live-demo-link" style={{ display: "block", marginTop: 20 }}>
+          <TiltCard className="pq-scenario-card" style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }} max={4}>
+            <div>
+              <div className="pq-scenario-top" style={{ marginBottom: 8 }}><Radio size={28} strokeWidth={1.3} aria-hidden="true" /></div>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: 700, margin: "0 0 6px" }}>Try the live, clickable journey</h2>
+              <p className="pq-muted" style={{ fontSize: "0.92rem", maxWidth: 560 }}>
+                Submit a real enquiry against the fixture backend, watch the pipeline progress, then switch
+                seats to the reviewer and approve it — all in one anonymous session.
+              </p>
+            </div>
+            <div className="pq-text-link">Open the live demo <ArrowUpRight size={16} /></div>
+          </TiltCard>
+        </a>
+      </Reveal>
     </div>
   );
 }

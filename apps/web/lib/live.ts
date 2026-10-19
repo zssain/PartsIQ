@@ -6,8 +6,8 @@
 // own synthetic session — it never grants a staff role, so staff/ops calls here surface an
 // honest permission error offline rather than fabricated data. Reads go straight through api<T>.
 
-import { api } from "@/lib/api";
-import type { EnquiryView } from "@/lib/contracts";
+import { api, setDemoToken } from "@/lib/api";
+import type { EnquiryView, ReplySlots, VerificationResult } from "@/lib/contracts";
 import type { DemoSession } from "@/lib/contracts";
 
 // Measured operations metrics from GET /v1/staff/metrics. Every field is nullable: a field the
@@ -60,6 +60,8 @@ export interface ProgressView {
 
 export interface CreateEnquiryRequest {
   text: string;
+  locale?: "en" | "ar";
+  destination_warehouse_id?: number;
 }
 
 export interface CreateEnquiryResult {
@@ -87,10 +89,16 @@ function idempotencyKey(): Record<string, string> {
 
 // Customer — create a new enquiry. 202 Accepted with the new enquiry id.
 export async function createEnquiry(request: CreateEnquiryRequest): Promise<CreateEnquiryResult> {
+  // EnquiryCreate requires text + locale + destination_warehouse_id; default the demo warehouse.
+  const body = {
+    text: request.text,
+    locale: request.locale ?? "en",
+    destination_warehouse_id: request.destination_warehouse_id ?? 1,
+  };
   return api<CreateEnquiryResult>("/v1/enquiries", {
     method: "POST",
     headers: idempotencyKey(),
-    body: JSON.stringify(request),
+    body: JSON.stringify(body),
   });
 }
 
@@ -141,4 +149,115 @@ export async function createDemoSession(): Promise<DemoSession> {
 // callers surface an honest empty state rather than fabricate numbers.
 export async function getMetrics(signal?: AbortSignal): Promise<OpsMetrics> {
   return api<OpsMetrics>("/v1/staff/metrics", { signal });
+}
+
+// ────────────────────────────────────────────────────────────────────────────────────────────
+// Reviewer side (F03 presentational role switch). In fixture mode the canonical /v1/staff review
+// surface is served under the caller's OWN demo session scope — so a reviewer only ever sees this
+// session's enquiries. A foreign id is a 404 ("not available"), never fabricated. These functions
+// mirror the review ReviewView / ApprovalResult / ReviewResult wire shapes from the backend spec.
+// ────────────────────────────────────────────────────────────────────────────────────────────
+
+// One warehouse allocation line for a fact item — the VERIFIED fulfilment split (database truth,
+// not a model opinion). `transfer_days` is an estimate the UI must label as not guaranteed.
+export interface FactAllocation {
+  warehouse_id: number | string;
+  quantity: number;
+  transfer_days: number;
+}
+
+// A single verified fact item: the part the database confirms, with its source reference and the
+// allocation plan. This is the "Database evidence" region's content — never the model's suggestion.
+export interface FactItem {
+  part_number: string;
+  name_en: string;
+  name_ar: string;
+  requested_quantity: number;
+  allocations: FactAllocation[];
+  source_reference: string;
+}
+
+export interface Facts {
+  items: FactItem[];
+}
+
+// The review workspace resource (GET /v1/staff/enquiries/{id}). `draft` holds the model's proposed
+// reply slots (a SUGGESTION); `facts` holds the verified database evidence; `verification` records
+// the deterministic gate. `enquiry.revision` is the optimistic-concurrency token for a decision.
+export interface ReviewView {
+  enquiry: EnquiryView;
+  facts: Facts | null;
+  draft: ReplySlots | null;
+  verification: VerificationResult | null;
+  assigned_to: string | null;
+}
+
+// Result of POST /v1/staff/enquiries/{id}/approve. `already_applied` is true when an idempotent
+// retry hit an already-committed decision (so a double-click publishes exactly once).
+export interface ApprovalResult {
+  decision_id: string;
+  message_id: string;
+  revision: number;
+  already_applied: boolean;
+}
+
+// Result of POST /v1/staff/enquiries/{id}/reject. `status` is the authoritative post-decision state.
+export interface ReviewResult {
+  decision_id: string;
+  revision: number;
+  status: EnquiryView["status"];
+}
+
+export interface InboxResult {
+  items: EnquiryView[];
+  next_cursor: string | null;
+}
+
+// Demo identity bootstrap (F04 isolation). Reads the one anonymous session token from
+// sessionStorage, generating + persisting it once with crypto.randomUUID, then registers it via
+// setDemoToken so every subsequent api<T> call carries X-Demo-Token. Returns the token. Safe to
+// call repeatedly; on the server (no window) it is a no-op that returns an empty string.
+const DEMO_TOKEN_KEY = "pq-demo-token";
+export function ensureDemoToken(): string {
+  if (typeof window === "undefined") return "";
+  let token = window.sessionStorage.getItem(DEMO_TOKEN_KEY);
+  if (!token) {
+    token = crypto.randomUUID();
+    window.sessionStorage.setItem(DEMO_TOKEN_KEY, token);
+  }
+  setDemoToken(token);
+  return token;
+}
+
+// Reviewer — the caller's own-session review queue (optionally filtered by status). Ownership is
+// enforced server-side; a demo session only ever sees its own enquiries.
+export async function listInbox(status?: string, signal?: AbortSignal): Promise<InboxResult> {
+  const query = status ? `?status=${encodeURIComponent(status)}` : "";
+  return api<InboxResult>(`/v1/staff/enquiries${query}`, { signal });
+}
+
+// Reviewer — the full review workspace for one enquiry (draft + verified facts + verification).
+// A foreign id resolves to a 404 which callers render as "not available".
+export async function getWorkspace(id: string, signal?: AbortSignal): Promise<ReviewView> {
+  return api<ReviewView>(`/v1/staff/enquiries/${id}`, { signal });
+}
+
+// Human decision — approve the current reviewed draft. Carries the expected revision (optimistic
+// concurrency: a 409 means the data changed under the reviewer) and a fresh draft_id; the mutation
+// is idempotency-keyed so a retry/double-click publishes exactly once.
+export async function approveReview(id: string, revision: number): Promise<ApprovalResult> {
+  return api<ApprovalResult>(`/v1/staff/enquiries/${id}/approve`, {
+    method: "POST",
+    headers: idempotencyKey(),
+    body: JSON.stringify({ enquiry_id: id, expected_revision: revision, draft_id: crypto.randomUUID() }),
+  });
+}
+
+// Human decision — reject with a required reason. Same optimistic-concurrency revision guard.
+export async function rejectReview(id: string, revision: number, reason: string): Promise<ReviewResult> {
+  return api<ReviewResult>(`/v1/staff/enquiries/${id}/reject`, {
+    method: "POST",
+    headers: idempotencyKey(),
+    body: JSON.stringify({ enquiry_id: id, expected_revision: revision, reason }),
+  });
 }

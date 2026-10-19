@@ -84,8 +84,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         CORSMiddleware,
         allow_origins=origins,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type", "Idempotency-Key", REQUEST_ID_HEADER],
+        allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=[
+            "Authorization",
+            "Content-Type",
+            "Idempotency-Key",
+            REQUEST_ID_HEADER,
+            # Anonymous fixture/demo identity headers (F03/F04). Without these the browser's CORS
+            # preflight for a demo request would be rejected.
+            "X-Demo-Token",
+            "X-Demo-Session-Id",
+            "X-Demo-Session-Generation",
+        ],
     )
 
     @app.middleware("http")

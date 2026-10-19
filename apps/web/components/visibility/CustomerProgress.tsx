@@ -13,14 +13,17 @@ import { getTimeline, type TimelineEvent, type TimelineView } from "@/lib/live";
 
 // The canonical customer-facing pipeline, in order. Server events are matched to these by `step`;
 // any step the server has not yet recorded stays "upcoming" (never fabricated as done).
+// Keys are the backend's canonical workflow step names (partsiq.core.contracts.WorkflowStep /
+// the timeline events); labels are the customer-facing wording. Keeping the domain keys here lets
+// each persisted event match its stage directly.
 const PIPELINE: { step: string; label: string }[] = [
-  { step: "reading", label: "Reading request" },
-  { step: "identifying", label: "Identifying" },
-  { step: "finding_parts", label: "Finding parts" },
-  { step: "planning", label: "Planning" },
-  { step: "drafting", label: "Drafting" },
-  { step: "checking", label: "Checking" },
-  { step: "awaiting_review", label: "Waiting for review" },
+  { step: "intake", label: "Reading request" },
+  { step: "identify", label: "Identifying" },
+  { step: "search", label: "Finding parts" },
+  { step: "plan", label: "Planning" },
+  { step: "draft", label: "Drafting" },
+  { step: "verify", label: "Checking" },
+  { step: "review", label: "Waiting for review" },
 ];
 
 const BASE_DELAY_MS = 2500;
@@ -175,7 +178,7 @@ export function CustomerProgress({ enquiryId }: { enquiryId: string }): JSX.Elem
               <span aria-hidden="true" data-testid={`stage-symbol-${p.step}`}>
                 {STAGE_SYMBOL[stage]}
               </span>
-              <span>{p.label}</span>
+              <span>{event?.label ?? p.label}</span>
               {event?.attempt && event.attempt > 1 ? (
                 <span className="pq-chip" data-testid={`retry-${p.step}`}>
                   retry {event.attempt}

@@ -648,6 +648,12 @@ class FixtureJourneyStore:
         record.decision_id = decision_id
         record.step = WorkflowStep.COMPLETE
         record.wait_reason = None
+        # The review gate is now resolved: mark it done so the customer progress no longer shows a
+        # pending "waiting for review", then record the approval+send.
+        for event in record.events:
+            if event.step == "review" and event.status == "waiting":
+                event.status = "done"
+                event.label = "Reviewed and approved"
         record.events.append(
             _ProgressEvent(step="complete", label="Approved and sent", at=now, status="done")
         )
