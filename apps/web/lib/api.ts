@@ -57,7 +57,11 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     headers.set("x-demo-token", demoToken); // anonymous fixture-mode identity
   }
 
-  const response = await fetch(`${baseUrl()}${path}`, { ...options, headers });
+  const base = baseUrl().replace(/\/$/, "");
+  // Callers support both legacy relative paths and canonical /v1 paths.
+  const suffix = base.endsWith("/v1") && (path === "/v1" || path.startsWith("/v1/"))
+    ? path.slice(3) : path;
+  const response = await fetch(`${base}${suffix}`, { ...options, headers });
   let requestId = response.headers.get("x-request-id");
 
   if (!response.ok) {
