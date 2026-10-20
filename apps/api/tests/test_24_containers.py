@@ -150,7 +150,10 @@ class ProductionCompose(unittest.TestCase):
             self.assertIn("limits", svc["deploy"]["resources"], f"{name} missing limits")
 
     def test_worker_has_pdf_tmpfs(self):
-        self.assertIn("/tmp/pdf", self.services["worker"]["tmpfs"])
+        # Chromium needs a writable /tmp on the read-only root (verified in the amd64 image).
+        mounts = [m.split(":")[0] for m in self.services["worker"]["tmpfs"]]
+        self.assertIn("/tmp", mounts)
+        self.assertEqual(self.services["worker"]["environment"]["TMPDIR"], "/tmp")
 
     def test_read_only_rootfs_where_possible(self):
         self.assertTrue(self.services["api"].get("read_only"))

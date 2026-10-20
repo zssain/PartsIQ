@@ -117,11 +117,12 @@ services:
     networks: [internal]
     command: ["python", "-m", "partsiq.jobs.main"]
     tmpfs:
-      - /tmp/pdf
+      # Read-only root filesystem: Chromium needs a writable /tmp (profile, shared memory files)
+      # and the export temp file lives there too. Verified: renders on a read-only root with this.
+      - /tmp:size=256m
     environment:
       <<: *app-env
-      # Read-only root filesystem: Chromium's profile and the export temp file live here.
-      TMPDIR: /tmp/pdf
+      TMPDIR: /tmp
       SUPABASE_URL: ${SUPABASE_URL}
       DATABASE_URL_WORKFLOW: ${DATABASE_URL_WORKFLOW}
       DATABASE_URL_WORKER: ${DATABASE_URL_WORKER}
