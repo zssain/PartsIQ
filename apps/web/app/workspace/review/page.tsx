@@ -6,14 +6,15 @@ import { Suspense, useState, type JSX } from "react";
 
 import { EnquiryTable } from "@/components/app/EnquiryTable";
 import { EmptyState, ErrorState, PageHeader, Pager, PermissionDenied, Skeleton } from "@/components/app/ui";
+import { useT, type TKey } from "@/lib/app-i18n";
 import { useLoad } from "@/lib/hooks";
 import { useSession } from "@/lib/session";
 import { ws } from "@/lib/workspace";
 
 const LIMIT = 20;
-const QUEUES: [string, string][] = [
-  ["awaiting_review", "Awaiting review"], ["needs_information", "Waiting for customer"], ["failed", "Exceptions"],
-  ["processing", "Processing"], ["approved", "Approved"], ["rejected", "Rejected"], ["", "All"],
+const QUEUES: [string, TKey][] = [
+  ["awaiting_review", "queue.tab.awaiting_review"], ["needs_information", "queue.tab.needs_information"], ["failed", "queue.tab.failed"],
+  ["processing", "queue.tab.processing"], ["approved", "queue.tab.approved"], ["rejected", "queue.tab.rejected"], ["", "common.all"],
 ];
 
 export default function ReviewQueuePage(): JSX.Element {
@@ -22,6 +23,7 @@ export default function ReviewQueuePage(): JSX.Element {
 
 function Queue(): JSX.Element {
   const { can, identity } = useSession();
+  const t = useT();
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -43,28 +45,28 @@ function Queue(): JSX.Element {
     router.push(`${pathname}?${merged}`);
   };
   const scopeNote = identity?.kind === "demo"
-    ? "Demo sandbox: every enquiry in your session is reviewable by you. With real accounts, reviewers see only enquiries assigned to them; administrators see all."
-    : identity?.roles.includes("admin") ? "You see every enquiry in the workspace." : "You see enquiries assigned to you.";
+    ? t("queue.scopeDemo")
+    : identity?.roles.includes("admin") ? t("queue.scopeAdmin") : t("queue.scopeReviewer");
   return (
     <>
-      <PageHeader title="Review queue" description={scopeNote} />
-      <div className="app-seg" role="group" aria-label="Queue" style={{ marginBottom: 12 }}>
-        {QUEUES.map(([value, label]) => <button key={value || "all"} type="button" aria-pressed={status === value} onClick={() => update({ status: value })}>{label}</button>)}
+      <PageHeader title={t("nav.review")} description={scopeNote} />
+      <div className="app-seg" role="group" aria-label={t("queue.aria")} style={{ marginBottom: 12 }}>
+        {QUEUES.map(([value, label]) => <button key={value || "all"} type="button" aria-pressed={status === value} onClick={() => update({ status: value })}>{t(label)}</button>)}
       </div>
       <form className="app-filters" role="search" onSubmit={(e) => { e.preventDefault(); update({ q: draft.trim() }); }}>
-        <label className="app-field"><span>Search</span><input className="app-input" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Text, part or id" maxLength={200} /></label>
-        <label className="app-field"><span>Assignment</span>
-          <select value={assigned} onChange={(e) => update({ assigned: e.target.value })}><option value="">Anyone</option><option value="me">Assigned to me</option><option value="none">Unassigned</option></select>
+        <label className="app-field"><span>{t("common.search")}</span><input className="app-input" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={t("queue.searchPlaceholder")} dir="auto" maxLength={200} /></label>
+        <label className="app-field"><span>{t("queue.assignment")}</span>
+          <select value={assigned} onChange={(e) => update({ assigned: e.target.value })}><option value="">{t("queue.anyone")}</option><option value="me">{t("queue.assignedToMe")}</option><option value="none">{t("common.unassigned")}</option></select>
         </label>
-        <label className="app-row app-small" style={{ alignSelf: "center" }}><input type="checkbox" checked={overdue} onChange={(e) => update({ overdue: e.target.checked ? "1" : "" })} />Overdue only</label>
-        <button className="app-btn" type="submit"><Search size={15} />Search</button>
+        <label className="app-row app-small" style={{ alignSelf: "center" }}><input type="checkbox" checked={overdue} onChange={(e) => update({ overdue: e.target.checked ? "1" : "" })} />{t("queue.overdueOnly")}</label>
+        <button className="app-btn" type="submit"><Search size={15} />{t("common.search")}</button>
       </form>
       {error ? <ErrorState error={error} onRetry={reload} /> : loading && !data ? <Skeleton lines={6} /> : data && (data.items.length ? (
         <>
           <EnquiryTable rows={data.items} review />
           <Pager cursor={cursor} total={data.total} limit={LIMIT} onChange={(next) => update({ cursor: next })} />
         </>
-      ) : <EmptyState title="Nothing in this queue" body="When an enquiry needs a decision it appears here." />)}
+      ) : <EmptyState title={t("queue.empty")} body={t("queue.emptyBody")} />)}
     </>
   );
 }

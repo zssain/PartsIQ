@@ -71,7 +71,9 @@ class Security(unittest.TestCase):
     def test_no_public_real_client_signup(self):
         login = _read("app/login/page.tsx")
         self.assertNotIn("signUp", login)             # no self-signup call
-        self.assertIn("There is no public signup", login)
+        # The invited-only notice is shown in both languages (copy lives in the dictionary).
+        self.assertIn("login.subtitle", login)
+        self.assertIn("There is no public signup", _read("lib/app-i18n.tsx"))
         # The email-link path must never create an account for an unknown address.
         self.assertIn("shouldCreateUser: false", login)
 

@@ -11,7 +11,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type JSX, type
 import { BrandLogo } from "@/components/BrandLogo";
 import { LocaleControl } from "@/components/ui/LocaleControl";
 import { ThemeControl } from "@/components/ui/ThemeControl";
-import { useLocale, useT, type TKey } from "@/lib/app-i18n";
+import { useLabel, useLocale, useT, type TKey } from "@/lib/app-i18n";
 import { useSections, useSession, type PreviewRole } from "@/lib/session";
 import type { Capability } from "@/lib/workspace";
 
@@ -41,7 +41,7 @@ const ADMIN_NAV: NavItem[] = [
 const CRUMB_LABELS: Record<string, TKey> = {
   enquiries: "nav.enquiries", new: "nav.new", machines: "nav.machines", review: "nav.review", catalogue: "nav.catalogue",
   admin: "nav.admin", users: "nav.users", imports: "nav.imports", analytics: "nav.analytics", jobs: "nav.jobs",
-  audit: "nav.audit", evaluation: "nav.evaluation", account: "nav.account",
+  audit: "nav.audit", evaluation: "nav.evaluation", account: "nav.account", runs: "nav.runs",
 };
 
 const CrumbContext = createContext<(label: string | null) => void>(() => undefined);
@@ -80,11 +80,11 @@ function Gate(): JSX.Element {
   const next = encodeURIComponent(pathname || "/workspace");
   return (
     <div className="app-entry">
-      <section className="app-entry-card" id="main-workspace" aria-label="Sign in or start the demo">
+      <section className="app-entry-card" id="main-workspace" aria-label={t("shell.entryAria")}>
         <BrandLogo />
         <h1>{t("entry.title")}</h1>
         {session.status === "expired" && <Alert tone="warn">{t("entry.expired")}</Alert>}
-        {session.status === "error" && <ErrorState error={new Error(session.error ?? "The API could not be reached.")} onRetry={() => session.refresh()} />}
+        {session.status === "error" && <ErrorState error={new Error(session.error ?? t("shell.apiUnreachable"))} onRetry={() => session.refresh()} />}
         <div className="app-grid">
           <section className="app-card">
             <h2 className="app-card-title"><Sparkles size={18} /> {t("entry.demo")}</h2>
@@ -97,7 +97,7 @@ function Gate(): JSX.Element {
             <button className="app-btn" onClick={() => router.push(`/login?next=${next}`)}>{t("entry.signin")}</button>
           </section>
         </div>
-        <p className="app-small app-muted">Independent portfolio project with a synthetic catalogue. No affiliation with any distributor is implied.</p>
+        <p className="app-small app-muted">{t("shell.disclaimer")}</p>
       </section>
     </div>
   );
@@ -107,6 +107,7 @@ function Shell({ children }: { children: ReactNode }): JSX.Element {
   const session = useSession();
   const { demo, showReview, showAdmin } = useSections();
   const t = useT();
+  const label = useLabel();
   const locale = useLocale();
   const pathname = usePathname() ?? "/workspace";
   const router = useRouter();
@@ -152,8 +153,8 @@ function Shell({ children }: { children: ReactNode }): JSX.Element {
     <CrumbContext.Provider value={setCrumb}>
       <div className="app" data-nav-open={open ? "true" : "false"} data-entry={identity.kind}>
         <a className="app-skip" href="#main-workspace">{t("shell.skip")}</a>
-        <aside className="app-rail" aria-label="Workspace navigation">
-          <Link className="app-brand" href="/" aria-label="PartsIQ home"><BrandLogo compact /><small>{t("nav.workspace")}</small></Link>
+        <aside className="app-rail" aria-label={t("shell.navAria")}>
+          <Link className="app-brand" href="/" aria-label={t("shell.home")}><BrandLogo compact /><small>{t("nav.workspace")}</small></Link>
           <p className="app-rail-label">{demo ? t("shell.customer") : t("nav.workspace")}</p>
           {nav(CUSTOMER_NAV)}
           {showReview && <><p className="app-rail-label">{t("shell.reviewer")}</p>{nav(REVIEW_NAV)}</>}
@@ -169,10 +170,10 @@ function Shell({ children }: { children: ReactNode }): JSX.Element {
         <div className="app-main">
           <header className="app-top">
             <button className="app-btn ghost small app-menu-btn" aria-label={open ? t("shell.close") : t("shell.menu")} aria-expanded={open} onClick={() => setOpen(!open)}>{open ? <X size={18} /> : <Menu size={18} />}</button>
-            <nav className="app-crumbs" aria-label="Breadcrumb">
+            <nav className="app-crumbs" aria-label={t("shell.breadcrumb")}>
               {crumbs.map((c, i) => (
                 <span key={c.href} className="app-row" style={{ gap: 6 }}>
-                  {i > 0 && <ChevronRight size={13} aria-hidden="true" />}
+                  {i > 0 && <ChevronRight size={13} aria-hidden="true" className="app-flip-rtl" />}
                   {i === crumbs.length - 1 ? <span aria-current="page">{c.label}</span> : <a href={c.href} onClick={(e) => { e.preventDefault(); router.push(c.href); }}>{c.label}</a>}
                 </span>
               ))}
@@ -188,7 +189,7 @@ function Shell({ children }: { children: ReactNode }): JSX.Element {
                   </label>
                 </>
               ) : (
-                <span className="app-mode app-hide-sm"><Activity size={14} />{identity.display_name ?? identity.email ?? t("shell.account")}{identity.roles.length ? ` · ${identity.roles.join(", ")}` : ""}</span>
+                <span className="app-mode app-hide-sm"><Activity size={14} />{identity.display_name ?? identity.email ?? t("shell.account")}{identity.roles.length ? ` · ${identity.roles.map((r) => label("role", r)).join(locale === "ar" ? "، " : ", ")}` : ""}</span>
               )}
               <LocaleControl initial={locale} />
               <ThemeControl />
@@ -196,18 +197,18 @@ function Shell({ children }: { children: ReactNode }): JSX.Element {
               <button className="app-btn small" onClick={async () => { await session.signOut(); router.push("/workspace"); }} data-testid="sign-out"><LogOut size={14} /><span className="app-hide-sm">{t("shell.signout")}</span></button>
             </div>
           </header>
-          <div className="app-content" id="main-workspace" tabIndex={-1} role="region" aria-label="Workspace content">
+          <div className="app-content" id="main-workspace" tabIndex={-1} role="region" aria-label={t("shell.content")}>
             {children}
             <footer className="app-small app-muted" style={{ marginTop: 40, display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "space-between" }}>
-              <span><FileClock size={12} /> Synthetic seed-42 catalogue · independent portfolio project</span>
-              <span>Compatibility is checked in code. Every recommendation needs human approval.</span>
+              <span><FileClock size={12} /> {t("shell.footCatalogue")}</span>
+              <span>{t("shell.footApproval")}</span>
             </footer>
           </div>
         </div>
         <ConfirmDialog
           open={confirmReset}
-          title="Reset this demo session?"
-          body="Your synthetic enquiries, runs and sandbox changes are discarded and a fresh session starts. This cannot be undone."
+          title={t("shell.resetTitle")}
+          body={t("shell.resetBody")}
           confirmLabel={t("shell.reset")}
           tone="danger"
           onCancel={() => setConfirmReset(false)}

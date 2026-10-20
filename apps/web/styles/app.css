@@ -99,6 +99,8 @@ body:has(.app) { background: var(--app-bg); }
 .app-nav a:hover { background: var(--app-rail-active); color: #fff; }
 .app-nav a[aria-current="page"] { background: var(--app-rail-active); color: #fff; box-shadow: inset 3px 0 0 var(--app-accent); }
 :root[dir="rtl"] .app-nav a[aria-current="page"] { box-shadow: inset -3px 0 0 var(--app-accent); }
+/* Directional icons (arrows, chevrons) point the other way in Arabic. */
+:root[dir="rtl"] .app-flip-rtl { transform: scaleX(-1); }
 .app-nav svg { flex-shrink: 0; opacity: 0.9; }
 .app-nav .app-count { margin-inline-start: auto; background: var(--app-accent); color: var(--app-accent-fg); border-radius: 999px; font-size: 11px; padding: 0 7px; font-weight: 600; }
 .app-rail-foot { margin-top: auto; padding: 12px 8px 0; display: grid; gap: 8px; border-top: 1px solid var(--app-rail-active); }
@@ -326,7 +328,10 @@ body:has(.app) { background: var(--app-bg); }
   .app-crumbs > span:not(:last-child) { display: none; }
   .app-crumbs > span:last-child svg { display: none; }
   .app-crumbs [aria-current="page"] { max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
-  .app-top-actions { flex-wrap: nowrap; gap: 6px; }
+  /* Phone width: let the controls wrap instead of pushing the page sideways (worse in RTL, where
+     the overflow also shifts the off-canvas menu). */
+  .app-top { flex-wrap: wrap; }
+  .app-top-actions { flex-wrap: wrap; gap: 6px; min-width: 0; max-width: 100%; }
 }
 @media (max-width: 520px) {
   .app-grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }

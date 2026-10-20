@@ -1,10 +1,10 @@
 "use client";
 
 import { AlertTriangle, CheckCircle2, Info, Inbox, Lock, RefreshCw, ShieldAlert, X, XCircle } from "lucide-react";
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type JSX, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type JSX, type ReactNode } from "react";
 
 import { ApiError } from "@/lib/api";
-import { useT, type TKey } from "@/lib/app-i18n";
+import { useLocale, useT, type AppLocale, type TKey } from "@/lib/app-i18n";
 import { errorMessage } from "@/lib/hooks";
 import type { EnquiryStatus, RunStatus } from "@/lib/workspace";
 
@@ -30,24 +30,26 @@ export function StatusBadge({ status }: { status: EnquiryStatus }): JSX.Element 
   return <span className={`app-badge ${STATUS_TONE[status] ?? ""}`} data-status={status}><span className="app-dot" aria-hidden="true" />{t(`status.${status}` as TKey)}</span>;
 }
 
-const RUN_LABEL: Record<RunStatus, [string, string]> = {
-  queued: ["Queued", "info"], running: ["Running", "info"], pausing: ["Pausing after current step", "warn"], paused: ["Paused", "warn"],
-  waiting_user: ["Waiting for customer", "warn"], waiting_consent: ["Waiting for consent", "warn"], blocked: ["Blocked", "danger"],
-  awaiting_review: ["Ready for human review", "accent"], completed: ["Completed", "ok"], cancelled: ["Cancelled", ""],
-  failed: ["Failed", "danger"], superseded: ["Superseded (stale)", ""], needs_staff: ["Handed to staff", "warn"],
+const RUN_TONE: Record<RunStatus, string> = {
+  queued: "info", running: "info", pausing: "warn", paused: "warn", waiting_user: "warn", waiting_consent: "warn", blocked: "danger",
+  awaiting_review: "accent", completed: "ok", cancelled: "", failed: "danger", superseded: "", needs_staff: "warn",
 };
 
 export function RunStatusBadge({ status }: { status: RunStatus }): JSX.Element {
-  const [label, tone] = RUN_LABEL[status] ?? [status, ""];
+  const t = useT();
+  const known = status in RUN_TONE;
+  const label = known ? t(`runStatus.${status}` as TKey) : status;
+  const tone = known ? RUN_TONE[status] : "";
   return <span className={`app-badge ${tone}`} data-run-status={status}><span className="app-dot" aria-hidden="true" />{label}</span>;
 }
 
 export function SourceBadge({ source }: { source: string | null | undefined }): JSX.Element | null {
+  const t = useT();
   if (!source) return null;
-  if (source === "live") return <span className="app-badge accent" title="Live model calls against the synthetic catalogue">Live AI · synthetic catalogue</span>;
-  if (source === "fixture") return <span className="app-badge outline" title="Deterministic replay; no model calls">Fixture replay · no model calls</span>;
-  if (source === "user") return <span className="app-badge warn">User</span>;
-  return <span className="app-badge outline">System</span>;
+  if (source === "live") return <span className="app-badge accent" title={t("source.liveTitle")}>{t("source.live")}</span>;
+  if (source === "fixture") return <span className="app-badge outline" title={t("source.fixtureTitle")}>{t("source.fixture")}</span>;
+  if (source === "user") return <span className="app-badge warn">{t("source.user")}</span>;
+  return <span className="app-badge outline">{t("source.system")}</span>;
 }
 
 export function EmptyState({ title, body, action, icon }: { title: string; body?: ReactNode; action?: ReactNode; icon?: ReactNode }): JSX.Element {
@@ -66,13 +68,13 @@ export function ErrorState({ error, onRetry, title }: { error: unknown; onRetry?
   const status = error instanceof ApiError ? error.status : 0;
   if (status === 403) return <PermissionDenied />;
   if (status === 404) {
-    return <EmptyState icon={<ShieldAlert size={28} aria-hidden="true" />} title="Not available" body="This item does not exist in your workspace, or you do not have access to it." />;
+    return <EmptyState icon={<ShieldAlert size={28} aria-hidden="true" />} title={t("error.notAvailable")} body={t("error.notAvailableBody")} />;
   }
   return (
     <div className="app-alert danger" role="alert">
       <XCircle size={18} aria-hidden="true" />
       <div>
-        <strong>{title ?? "Could not load this"}</strong>
+        <strong>{title ?? t("error.couldNotLoad")}</strong>
         <div className="app-small">{errorMessage(error)}</div>
         {onRetry && <button className="app-btn small" style={{ marginTop: 8 }} onClick={onRetry}><RefreshCw size={14} />{t("common.retry")}</button>}
       </div>
@@ -81,11 +83,12 @@ export function ErrorState({ error, onRetry, title }: { error: unknown; onRetry?
 }
 
 export function PermissionDenied({ detail }: { detail?: string }): JSX.Element {
+  const t = useT();
   return (
     <EmptyState
       icon={<Lock size={28} aria-hidden="true" />}
-      title="You don't have access to this"
-      body={detail ?? "Your account does not include the permission this screen needs. Ask an administrator if you need it."}
+      title={t("error.noAccess")}
+      body={detail ?? t("error.noAccessBody")}
     />
   );
 }
@@ -101,8 +104,9 @@ export function Alert({ tone = "info", children, title }: { tone?: "info" | "war
 }
 
 export function Skeleton({ lines = 3, height = 14 }: { lines?: number; height?: number }): JSX.Element {
+  const t = useT();
   return (
-    <div className="app-stack" aria-busy="true" aria-label="Loading">
+    <div className="app-stack" aria-busy="true" aria-label={t("common.loadingAria")}>
       {Array.from({ length: lines }).map((_, i) => <div key={i} className="app-skeleton" style={{ height, width: `${92 - i * 11}%` }} />)}
     </div>
   );
@@ -139,11 +143,12 @@ interface Toast { id: number; tone: "ok" | "danger" | "info"; text: string }
 const ToastContext = createContext<(tone: Toast["tone"], text: string) => void>(() => undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }): JSX.Element {
+  const t = useT();
   const [toasts, setToasts] = useState<Toast[]>([]);
   const push = useCallback((tone: Toast["tone"], text: string) => {
     const id = Date.now() + Math.random();
     setToasts((prev) => [...prev.slice(-3), { id, tone, text }]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 5000);
+    setTimeout(() => setToasts((prev) => prev.filter((item) => item.id !== id)), 5000);
   }, []);
   return (
     <ToastContext.Provider value={push}>
@@ -153,7 +158,7 @@ export function ToastProvider({ children }: { children: ReactNode }): JSX.Elemen
           <div key={toast.id} className={`app-toast ${toast.tone}`} role="status">
             {toast.tone === "danger" ? <XCircle size={16} /> : toast.tone === "ok" ? <CheckCircle2 size={16} /> : <Info size={16} />}
             <span style={{ flex: 1 }}>{toast.text}</span>
-            <button className="app-btn ghost small" aria-label="Dismiss" onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}><X size={14} /></button>
+            <button className="app-btn ghost small" aria-label={t("common.dismiss")} onClick={() => setToasts((prev) => prev.filter((item) => item.id !== toast.id))}><X size={14} /></button>
           </div>
         ))}
       </div>
@@ -167,10 +172,10 @@ export function useToast() {
 
 export function Pager({ cursor, total, limit, onChange }: { cursor: number; total: number; limit: number; onChange: (next: number) => void }): JSX.Element | null {
   const t = useT();
-  if (total <= limit) return total ? <div className="app-pager"><span>{total} result{total === 1 ? "" : "s"}</span></div> : null;
+  if (total <= limit) return total ? <div className="app-pager"><span>{total === 1 ? t("pager.one") : t("pager.many", { count: total })}</span></div> : null;
   return (
     <div className="app-pager">
-      <span>{cursor + 1}–{Math.min(cursor + limit, total)} of {total}</span>
+      <span>{t("pager.range", { from: cursor + 1, to: Math.min(cursor + limit, total), total })}</span>
       <span className="app-row">
         <button className="app-btn small" disabled={cursor === 0} onClick={() => onChange(Math.max(0, cursor - limit))}>{t("common.previous")}</button>
         <button className="app-btn small" disabled={cursor + limit >= total} onClick={() => onChange(cursor + limit)}>{t("common.next")}</button>
@@ -179,13 +184,32 @@ export function Pager({ cursor, total, limit, onChange }: { cursor: number; tota
   );
 }
 
-export function formatTime(iso: string | null | undefined): string {
+// Arabic UI: Arabic month names with Western digits (identifiers and numbers stay Latin).
+function intlLocale(locale?: AppLocale): string | undefined {
+  return locale === "ar" ? "ar-u-nu-latn" : undefined;
+}
+
+export function formatTime(iso: string | null | undefined, locale?: AppLocale): string {
   if (!iso) return "—";
   try {
-    return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
+    return new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
   } catch {
     return iso;
   }
+}
+
+export function formatClock(iso: string, locale?: AppLocale): string {
+  try {
+    return new Date(iso).toLocaleTimeString(intlLocale(locale));
+  } catch {
+    return iso;
+  }
+}
+
+/** Date formatters bound to the workspace language. */
+export function useDates(): { time: (iso: string | null | undefined) => string; clock: (iso: string) => string } {
+  const locale = useLocale();
+  return useMemo(() => ({ time: (iso: string | null | undefined) => formatTime(iso, locale), clock: (iso: string) => formatClock(iso, locale) }), [locale]);
 }
 
 export function Ident({ children }: { children: ReactNode }): JSX.Element {

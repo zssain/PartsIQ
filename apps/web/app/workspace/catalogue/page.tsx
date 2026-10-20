@@ -4,7 +4,8 @@ import { ArrowRightLeft, Boxes, Search, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type JSX } from "react";
 
-import { EmptyState, ErrorState, Ident, PageHeader, Pager, PermissionDenied, Skeleton, formatTime } from "@/components/app/ui";
+import { EmptyState, ErrorState, Ident, PageHeader, Pager, PermissionDenied, Skeleton, useDates } from "@/components/app/ui";
+import { useT, useTx } from "@/lib/app-i18n";
 import { useLoad } from "@/lib/hooks";
 import { useSession } from "@/lib/session";
 import { ws } from "@/lib/workspace";
@@ -17,6 +18,9 @@ export default function CataloguePage(): JSX.Element {
 
 function Catalogue(): JSX.Element {
   const { can, identity } = useSession();
+  const t = useT();
+  const tx = useTx();
+  const { time } = useDates();
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -39,54 +43,56 @@ function Catalogue(): JSX.Element {
   };
   return (
     <>
-      <PageHeader title="Catalogue" description={<>The active published catalogue version{data?.version ? <> · <strong>{data.version.label}</strong> published {formatTime(data.version.published_at)}</> : null}. {identity?.kind === "demo" ? "Imports you publish in the demo change only your sandbox copy." : ""} All data is synthetic.</>} />
+      <PageHeader title={t("nav.catalogue")} description={<>{t("cat.descActive")}{data?.version ? <> · {tx("cat.descPublished", { label: <strong><bdi>{data.version.label}</bdi></strong>, time: time(data.version.published_at) })}</> : null}. {identity?.kind === "demo" ? t("cat.descDemo") : ""} {t("cat.descSynthetic")}</>} />
       <form className="app-filters" role="search" onSubmit={(e) => { e.preventDefault(); update({ q: draft.trim() }); }}>
-        <label className="app-field"><span>Search</span><input className="app-input" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Part number, name (EN/AR) or alias" maxLength={200} /></label>
-        <label className="app-field"><span>Category</span><select value={category} onChange={(e) => update({ category: e.target.value })}><option value="">All</option>{data?.categories.map((c) => <option key={c} value={c}>{c}</option>)}</select></label>
-        <label className="app-field"><span>Fits model</span><select value={model} onChange={(e) => update({ model: e.target.value })}><option value="">Any</option>{data?.models.map((m) => <option key={m} value={m}>{m}</option>)}</select></label>
-        <button className="app-btn" type="submit"><Search size={15} />Search</button>
+        <label className="app-field"><span>{t("common.search")}</span><input className="app-input" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={t("cat.searchPlaceholder")} dir="auto" maxLength={200} /></label>
+        <label className="app-field"><span>{t("cat.category")}</span><select value={category} onChange={(e) => update({ category: e.target.value })}><option value="">{t("common.all")}</option>{data?.categories.map((c) => <option key={c} value={c}>{c}</option>)}</select></label>
+        <label className="app-field"><span>{t("cat.fitsModel")}</span><select value={model} onChange={(e) => update({ model: e.target.value })}><option value="">{t("common.any")}</option>{data?.models.map((m) => <option key={m} value={m}>{m}</option>)}</select></label>
+        <button className="app-btn" type="submit"><Search size={15} />{t("common.search")}</button>
       </form>
       <div className={part ? "app-split" : undefined}>
         <section>
           {error ? <ErrorState error={error} onRetry={reload} /> : loading && !data ? <Skeleton lines={6} /> : data && (data.items.length ? (
             <>
               <div className="app-table-wrap"><table className="app-table" data-testid="catalogue-table">
-                <thead><tr><th>Part</th><th>Name</th><th>Category</th><th>Aliases</th></tr></thead>
+                <thead><tr><th>{t("cat.thPart")}</th><th>{t("cat.thName")}</th><th>{t("cat.category")}</th><th>{t("cat.thAliases")}</th></tr></thead>
                 <tbody>{data.items.map((p) => (
                   <tr key={p.id} className="clickable" onClick={() => update({ part: p.part_number })} aria-selected={part === p.part_number}>
-                    <td><button className="app-btn ghost small" onClick={(e) => { e.stopPropagation(); update({ part: p.part_number }); }}><Ident>{p.part_number}</Ident></button>{!p.is_active && <span className="app-badge">inactive</span>}</td>
-                    <td>{p.name_en}<div className="app-small app-muted" dir="rtl">{p.name_ar}</div></td>
+                    <td><button className="app-btn ghost small" onClick={(e) => { e.stopPropagation(); update({ part: p.part_number }); }}><Ident>{p.part_number}</Ident></button>{!p.is_active && <span className="app-badge">{t("cat.inactive")}</span>}</td>
+                    <td><bdi dir="ltr">{p.name_en}</bdi><div className="app-small app-muted" dir="rtl">{p.name_ar}</div></td>
                     <td className="app-small">{p.category}</td>
-                    <td className="app-small app-muted">{p.aliases.join(", ") || "—"}</td>
+                    <td className="app-small app-muted" dir="auto">{p.aliases.join(", ") || "—"}</td>
                   </tr>
                 ))}</tbody>
               </table></div>
               <Pager cursor={cursor} total={data.total} limit={LIMIT} onChange={(next) => update({ cursor: next })} />
             </>
-          ) : <EmptyState icon={<Boxes size={28} />} title="No parts match" body="Try another term or clear the filters." />)}
+          ) : <EmptyState icon={<Boxes size={28} />} title={t("cat.empty")} body={t("cat.emptyBody")} />)}
         </section>
         {part && (
           <aside className="app-card app-stack" data-testid="part-detail">
-            <div className="app-row" style={{ justifyContent: "space-between" }}><h2 className="app-card-title" style={{ margin: 0 }}><Ident>{part}</Ident></h2><button className="app-btn ghost small" aria-label="Close detail" onClick={() => update({ part: null })}><X size={16} /></button></div>
+            <div className="app-row" style={{ justifyContent: "space-between" }}><h2 className="app-card-title" style={{ margin: 0 }}><Ident>{part}</Ident></h2><button className="app-btn ghost small" aria-label={t("cat.closeDetail")} onClick={() => update({ part: null })}><X size={16} /></button></div>
             {detail.error ? <ErrorState error={detail.error} /> : !detail.data ? <Skeleton lines={5} /> : (
               <>
-                <div>{detail.data.name_en} <span dir="rtl" className="app-muted">· {detail.data.name_ar}</span></div>
-                <p className="app-small app-muted">{detail.data.description_en}</p>
-                <dl className="app-kv app-small"><dt>Category</dt><dd>{detail.data.category}</dd><dt>Unit</dt><dd>{detail.data.unit_of_measure}</dd><dt>Version</dt><dd className="app-mono">{detail.data.catalogue_version_id.slice(0, 8)}</dd></dl>
-                <h3 className="app-card-title">Fits (with source)</h3>
-                {detail.data.compatibility.length ? <ul className="app-small" style={{ margin: 0, paddingInlineStart: 18 }}>{detail.data.compatibility.map((c, i) => <li key={i}>{c.brand} {c.model_code} config {c.config_code} × {c.quantity_per_unit} — <span className="app-mono">{c.source_reference}</span></li>)}</ul> : <p className="app-small app-muted">No fitment rows.</p>}
+                <div><bdi dir="ltr">{detail.data.name_en}</bdi> <span dir="rtl" className="app-muted">· {detail.data.name_ar}</span></div>
+                <p className="app-small app-muted" dir="ltr">{detail.data.description_en}</p>
+                <dl className="app-kv app-small"><dt>{t("cat.category")}</dt><dd><bdi>{detail.data.category}</bdi></dd><dt>{t("cat.unit")}</dt><dd><bdi>{detail.data.unit_of_measure}</bdi></dd><dt>{t("cat.version")}</dt><dd><Ident>{detail.data.catalogue_version_id.slice(0, 8)}</Ident></dd></dl>
+                <h3 className="app-card-title">{t("cat.fits")}</h3>
+                {detail.data.compatibility.length ? <ul className="app-small" style={{ margin: 0, paddingInlineStart: 18 }}>{detail.data.compatibility.map((c, i) => <li key={i}>{tx("cat.fitRow", { brand: <bdi>{c.brand}</bdi>, model: <Ident>{c.model_code}</Ident>, config: <Ident>{c.config_code}</Ident>, qty: c.quantity_per_unit })}<div className="app-muted"><Ident>{c.source_reference}</Ident></div></li>)}</ul> : <p className="app-small app-muted">{t("cat.noFitment")}</p>}
                 {(detail.data.supersedes.length > 0 || detail.data.superseded_by.length > 0) && (
-                  <><h3 className="app-card-title"><ArrowRightLeft size={14} />Supersession</h3>
+                  <><h3 className="app-card-title"><ArrowRightLeft size={14} />{t("cat.supersession")}</h3>
                     <ul className="app-small" style={{ margin: 0, paddingInlineStart: 18 }}>
-                      {detail.data.supersedes.map((s) => <li key={s.old}>Replaces <Ident>{s.old}</Ident> ({s.effective_date}{s.reason ? `, ${s.reason}` : ""})</li>)}
-                      {detail.data.superseded_by.map((s) => <li key={s.new}>Replaced by <Ident>{s.new}</Ident> ({s.effective_date})</li>)}
+                      {detail.data.supersedes.map((s) => <li key={s.old}>{s.reason
+                        ? tx("cat.replacesReason", { old: <Ident>{s.old}</Ident>, date: <bdi>{s.effective_date}</bdi>, reason: <bdi dir="auto">{s.reason}</bdi> })
+                        : tx("cat.replaces", { old: <Ident>{s.old}</Ident>, date: <bdi>{s.effective_date}</bdi> })}</li>)}
+                      {detail.data.superseded_by.map((s) => <li key={s.new}>{tx("cat.replacedBy", { new: <Ident>{s.new}</Ident>, date: <bdi>{s.effective_date}</bdi> })}</li>)}
                     </ul>
-                    <p className="app-small app-muted">A successor is offered only where it has its own fitment row.</p></>
+                    <p className="app-small app-muted">{t("cat.successorNote")}</p></>
                 )}
-                <h3 className="app-card-title">Aliases</h3>
-                <p className="app-small">{detail.data.aliases.map((a) => `${a.alias} (${a.language})`).join(", ") || "—"}</p>
-                <h3 className="app-card-title">Stock (synthetic)</h3>
-                <ul className="app-small" style={{ margin: 0, paddingInlineStart: 18 }}>{detail.data.stock.map((s) => <li key={s.warehouse_code}>{s.warehouse_name}: {s.available}</li>)}</ul>
+                <h3 className="app-card-title">{t("cat.thAliases")}</h3>
+                <p className="app-small" dir="auto">{detail.data.aliases.map((a) => `${a.alias} (${a.language})`).join(", ") || "—"}</p>
+                <h3 className="app-card-title">{t("cat.stock")}</h3>
+                <ul className="app-small" style={{ margin: 0, paddingInlineStart: 18 }}>{detail.data.stock.map((s) => <li key={s.warehouse_code}><bdi>{s.warehouse_name}</bdi>: {s.available}</li>)}</ul>
               </>
             )}
           </aside>

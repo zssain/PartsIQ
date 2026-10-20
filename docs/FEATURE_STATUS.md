@@ -24,7 +24,7 @@ holding synthetic data only. "Disposable" is a throwaway local Supabase Postgres
 | Semantic search (BGE-M3) | Encoder port exists | No: torch / sentence-transformers not installed (B) | No | — | **Host capacity:** BGE-M3 (568 M params) needs about 2.3 GB for fp32 weights alone. The EC2 t3.small has 2 GB shared with the API and web. Not loaded, by rule. Needs a ≥4 GB instance (paid; not provisioned). Lexical + alias search stays. |
 | Snowflake + Postgres mirror | Adapter code exists | No: connector not installed (B), credentials absent (D) | No | — | Owner: Snowflake account and key pair plus a confirmed free credit allowance. Not started, to avoid billable compute. |
 | GitHub CI | Yes | Yes | Yes, both workflows green on PR #2 | `ci` (legacy + foundations, frontend, rls-integration, evals) and `ci-partsiq` | None |
-| Arabic page bodies | See F07 below | — | — | — | — |
+| Arabic page bodies | Yes (703 keys, EN/AR parity enforced by test) | Yes | Yes, browser walkthrough as customer, reviewer and admin | `tests/features/app-i18n.test.tsx`; typed text in the new-enquiry box, reject reason and note survive EN↔ع switching | None for UI copy. The marketing header/footer around `/login` stays English (out of scope) |
 
 **OpenAI Standard tier prices, per 1M tokens** (official pricing page, checked 2026-10-20;
 recorded in `apps/api/partsiq/ai/prices.json`):
@@ -55,7 +55,7 @@ Test keys: **R** `apps/api/tests/test_workspace_runtime.py`, **A** `test_account
 | F04 | Demo isolation | all | per-session workspace | demo | R, W | Working |
 | F05 | Demo reset | Shell "Reset demo" | `/v1/demo/sessions/{id}/reset` | demo | R | Working |
 | F06 | Responsive layouts | all workspace screens | — | — | W (mobile) | Working |
-| F07 | Arabic and English interface | locale control, RTL | — | — | W (RTL), V f07 | Partial: shell/nav/statuses translated; page body copy English |
+| F07 | Arabic and English interface | locale control, RTL, every workspace screen + login | — | — | V app-i18n (key parity), browser walkthrough (41 Arabic screenshots), W | Working: all UI copy in both languages; identifiers isolated LTR; unsent input survives switching. Server-provided text (agent summaries, part names, API error details) stays in its source language |
 | F08 | Light and dark themes | theme control | — | — | V f08, W | Working |
 | F09 | Bilingual chat | enquiry detail conversation | `POST /v1/enquiries`, `/messages` | owner | R, W | Working |
 | F10 | Structured extraction | enquiry detail items | `/extraction` | owner | R | Working (fixture extractor); live BLOCKED |
