@@ -1,9 +1,9 @@
 # Releasing the workspace build to the current EC2 host
 
-Current production (verified 2026-10-20): EC2 t3.small `3.111.33.177`, Caddy (auto-HTTPS)
+Current production (deployed 2026-10-20, database mode, live AI for invited accounts): EC2 t3.small `3.111.33.177`, Caddy (auto-HTTPS)
 for `partsiq.duckdns.org`, systemd `partsiq` (uvicorn :8000, `~/partsiq`, env
 `~/partsiq/.env.runtime`) and `partsiq-web` (Next standalone :3000, `~/partsiq-web`).
-`DATA_SOURCE=fixture`, `AI_MODE=fixture`, state in process memory.
+`DATA_SOURCE=fixture` (Snowflake paused), `AI_MODE=live` ($3 allowance to 2026-11-20; the public demo stays fixture), database mode with Redis and the `partsiq-worker` unit. Measured DB round trip from the host: 260 ms; API start about 55 s.
 
 This build runs in one of two modes, chosen only by the environment:
 

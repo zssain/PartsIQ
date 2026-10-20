@@ -199,15 +199,17 @@ class OpsMixin:
 
     def dependency_status(self) -> list[dict[str, Any]]:
         status = self.execution_status()
+        durable = getattr(self, "_store", None) is not None
+        worker = durable and getattr(self.executor, "nameplates", None) is not None
         return [
-            {"name": "Workflow engine (LangGraph)", "state": "available", "detail": "In-process; checkpoints in memory for this deployment."},
+            {"name": "Workflow engine (LangGraph)", "state": "available", "detail": "Checkpoints in PostgreSQL; interrupted runs resume after a restart." if durable else "In-process; checkpoints in memory for this deployment."},
             {"name": "Catalogue", "state": "available", "detail": f"Synthetic {self.settings.data_source} catalogue (seed 42)."},
-            {"name": "Live AI provider", "state": "available" if status["live_available"] else "unavailable", "detail": status["live_unavailable_reason"] or "Configured with a confirmed allowance."},
+            {"name": "Live AI provider", "state": "available" if status["live_available"] else "unavailable", "detail": (status["live_unavailable_reason"] or "Configured with a confirmed allowance (invited accounts only; the public demo uses fixture AI).")},
             {"name": "Supabase Auth (accounts)", "state": "configured" if status["accounts_enabled"] else "not configured", "detail": "Invited-account sign-in." if status["accounts_enabled"] else "SUPABASE_URL is not set on this server."},
             {"name": "Account directory", "state": "configured" if self.directory is not None else "not configured", "detail": "Supabase admin API (service role, server-side)." if self.directory is not None else "SUPABASE_SERVICE_ROLE_KEY is not set; user administration is unavailable."},
-            {"name": "PostgreSQL persistence", "state": "configured" if self.settings.database_url_api else "not configured", "detail": "Operational state is held in process memory in this deployment." if not self.settings.database_url_api else "Runtime role DSN configured."},
-            {"name": "Redis / worker", "state": "not configured", "detail": "Runs execute in the API process; there is no external queue in this deployment."},
-            {"name": "PDF rendering", "state": "unavailable", "detail": "Chromium renderer is not installed in this deployment."},
+            {"name": "PostgreSQL persistence", "state": "available" if durable else "not configured", "detail": "Account workspace, runs, jobs and the AI allowance ledger persist in PostgreSQL. Demo sandboxes stay in memory." if durable else "Operational state is held in process memory in this deployment."},
+            {"name": "Redis / worker", "state": "configured" if worker else "not configured", "detail": "Background worker reads nameplate photos and renders PDFs; PostgreSQL jobs with Redis wake-ups." if worker else "Runs execute in the API process; there is no external queue in this deployment."},
+            {"name": "PDF rendering", "state": "configured" if worker else "unavailable", "detail": "Chromium in the background worker (approved revisions only)." if worker else "Needs database mode and the background worker."},
         ]
 
     async def retry_failed(self, actor: ActorContext, job_id: UUID, expected_revision: int, key: UUID) -> JobView:

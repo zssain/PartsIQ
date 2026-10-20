@@ -3,7 +3,7 @@
 #          && sudo systemctl enable --now partsiq-worker
 # Needs: DATABASE_URL_WORKER (or DATABASE_URL_API), SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and
 # REDIS_URL in the env file; Chromium installed once with
-#   ~/.local/bin/uv run --all-packages playwright install --with-deps --only-shell chromium
+#   sudo .venv/bin/playwright install-deps chromium && .venv/bin/playwright install --only-shell chromium
 [Unit]
 Description=PartsIQ background worker (nameplate reading, PDF export)
 After=network-online.target redis-server.service
@@ -13,7 +13,7 @@ Wants=network-online.target
 User=ubuntu
 WorkingDirectory=/home/ubuntu/partsiq
 EnvironmentFile=/home/ubuntu/partsiq/.env.runtime
-ExecStart=/home/ubuntu/.local/bin/uv run --all-packages --frozen python -m partsiq.jobs.main
+ExecStart=/home/ubuntu/partsiq/.venv/bin/python -m partsiq.jobs.main
 # SIGTERM drains: the current job finishes, no new job is claimed.
 KillSignal=SIGTERM
 TimeoutStopSec=90

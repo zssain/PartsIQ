@@ -25,6 +25,7 @@ import logging
 import signal
 import sys
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -201,7 +202,7 @@ async def handle_nameplate(lease: JobLease, *, storage: SupabaseStorage, store: 
         # Same durable allowance ledger as the API: reserve the worst case BEFORE the call. An
         # exhausted or expired allowance fails the job (staff can retry) - never a paid overrun.
         ledger = PostgresBudgetLedger(store.pool, CreditAllowance(
-            amount_usd=settings.ai_confirmed_allowance_usd, expires_at=settings._parse_utc(settings.ai_allowance_expires_at), paid_budget_usd=0))
+            amount_usd=Decimal(settings.ai_confirmed_allowance_usd), expires_at=settings._parse_utc(settings.ai_allowance_expires_at), paid_budget_usd=Decimal("0")))
         await ledger.ensure()
         worst = estimate_cost_usd(model, 3000, MAX_OUTPUT_TOKENS)
         reservation = await ledger.reserve(worst, datetime.now(UTC), model=model, stage="nameplate", enquiry_id=lease.enquiry_id)
