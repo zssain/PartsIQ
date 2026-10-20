@@ -90,12 +90,13 @@ async def search_enquiries(
     q: str | None = Query(default=None, max_length=200),
     mode: Literal["guided", "collaboration"] | None = None,
     assigned: Literal["me", "none"] | None = None,
+    overdue: bool = False,
     cursor: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
     actor: ActorContext = Depends(require_actor),
     service: Any = Depends(runtime),
 ) -> dict[str, Any]:
-    return await service.search_enquiries(actor, scope=scope, status=status, query=q, cursor=cursor, limit=limit, mode=mode, assigned=assigned)
+    return await service.search_enquiries(actor, scope=scope, status=status, query=q, cursor=cursor, limit=limit, mode=mode, assigned=assigned, overdue=overdue)
 
 
 @router.get("/warehouses", summary="Supported destination warehouses")
@@ -160,22 +161,41 @@ async def run_command(run_id: UUID, request: Request, actor: ActorContext = Depe
 
 
 @router.post("/enquiries/{enquiry_id}/attachments", status_code=201, summary="Upload a nameplate photo (validated: type, magic bytes, size, pixels)")
-async def upload_attachment(enquiry_id: UUID, request: Request, actor: ActorContext = Depends(require_actor), service: Any = Depends(runtime), _key: UUID = Depends(idempotency_key)) -> dict[str, Any]:
+async def upload_attachment(enquiry_id: UUID, request: Request, actor: ActorContext = Depends(require_actor), service: Any = Depends(runtime), key: UUID = Depends(idempotency_key)) -> dict[str, Any]:
+    replay = await _upload_replay(service, actor, key)
+    if replay is not None:
+        return replay
     media_type = (request.headers.get("content-type") or "").split(";")[0].strip().lower()
     declared = int(request.headers.get("content-length") or 0)
     if declared > service.limits.max_upload_bytes:
         raise PartsIQError("PAYLOAD_TOO_LARGE", detail="The image is larger than the upload limit.")
     data = await request.body()
     attachment = await service.accept_upload(actor, enquiry_id, data=data, media_type=media_type, fixture_key=None)
-    return {"id": str(attachment.id), "status": attachment.status, "width": attachment.width, "height": attachment.height}
+    return await _upload_record(service, actor, key, attachment)
 
 
 @router.post("/enquiries/{enquiry_id}/attachments/sample", status_code=201, summary="Attach the committed synthetic nameplate sample (demo)")
-async def attach_sample(enquiry_id: UUID, actor: ActorContext = Depends(require_actor), service: Any = Depends(runtime), _key: UUID = Depends(idempotency_key)) -> dict[str, Any]:
+async def attach_sample(enquiry_id: UUID, actor: ActorContext = Depends(require_actor), service: Any = Depends(runtime), key: UUID = Depends(idempotency_key)) -> dict[str, Any]:
+    replay = await _upload_replay(service, actor, key)
+    if replay is not None:
+        return replay
     if not _SAMPLE_PLATE.exists():
         raise PartsIQError("DEPENDENCY_UNAVAILABLE", internal_detail="sample nameplate fixture missing")
     attachment = await service.accept_upload(actor, enquiry_id, data=_SAMPLE_PLATE.read_bytes(), media_type="image/png", fixture_key=_SAMPLE_PLATE.name)
-    return {"id": str(attachment.id), "status": attachment.status, "width": attachment.width, "height": attachment.height}
+    return await _upload_record(service, actor, key, attachment)
+
+
+async def _upload_replay(service: Any, actor: ActorContext, key: UUID) -> dict[str, Any] | None:
+    ws = await service.workspace(actor)
+    stored = ws.idempotency.get(("upload", key))
+    return stored[1] if stored else None
+
+
+async def _upload_record(service: Any, actor: ActorContext, key: UUID, attachment: Any) -> dict[str, Any]:
+    ws = await service.workspace(actor)
+    view = {"id": str(attachment.id), "status": attachment.status, "width": attachment.width, "height": attachment.height}
+    ws.idempotency[("upload", key)] = ("upload", view)
+    return view
 
 
 # ----------------------------------------------------------------------------- catalogue

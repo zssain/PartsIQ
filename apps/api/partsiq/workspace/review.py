@@ -194,7 +194,7 @@ class ReviewMixin:
 
                 validate_slots(request.edited_slots)
                 record.draft_slots = request.edited_slots
-                record.draft_rendered = domain.render(record, request.edited_slots)
+                record.draft_rendered = domain.render(record, request.edited_slots, ws.catalogue)
                 record.draft_source = "staff"
             # Approval-time stock refresh + deterministic re-verification (existing rule).
             result: VerificationResult = domain.verify(record, ws.catalogue)
@@ -372,7 +372,7 @@ class ReviewMixin:
             self._decision_guard(ws, record, edit.expected_revision)
             validate_slots(edit.slots)
             record.draft_slots = edit.slots
-            record.draft_rendered = domain.render(record, edit.slots)
+            record.draft_rendered = domain.render(record, edit.slots, ws.catalogue)
             record.draft_source = "staff"
             record.draft_id = uuid4()
             ws.append_audit(actor_type="user", actor_id=str(actor.user_id), action="draft.edited", entity_type="enquiry", entity_id=str(record.id), request_id=actor.request_id, enquiry_id=record.id, revision=record.revision, payload={})

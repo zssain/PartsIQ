@@ -15,7 +15,7 @@ export default async function ScenarioPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="pq-container" style={{ paddingTop: 32, paddingBottom: 48 }}>
-      <a href="/demo" className="pq-chip" style={{ display: "inline-block", marginBottom: 16 }}>← All scenarios</a>
+      <a href="/demo/scenarios" className="pq-chip" style={{ display: "inline-block", marginBottom: 16 }}>← All scenarios</a>
       <h1 style={{ fontSize: "clamp(1.6rem, 3.5vw, 2.4rem)", fontWeight: 800, marginBottom: 6 }}>
         <span aria-hidden="true">{scenario.icon}</span> {scenario.title}
       </h1>

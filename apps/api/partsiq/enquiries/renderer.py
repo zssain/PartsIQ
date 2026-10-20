@@ -68,7 +68,7 @@ def _ltr(text: str) -> str:
     return f'<bdi dir="ltr">{escape(text)}</bdi>'
 
 
-def _item_block(item: VerifiedItem, locale: Locale, labels: dict[str, str]) -> str:
+def _item_block(item: VerifiedItem, locale: Locale, labels: dict[str, str], warehouse_names: dict[int, str] | None = None) -> str:
     """Compose one item's code-owned fact lines (identifier, name, qty, allocations, shortage)."""
     name = escape(item.name_ar if locale == "ar" else item.name_en)
     lines = [
@@ -79,9 +79,11 @@ def _item_block(item: VerifiedItem, locale: Locale, labels: dict[str, str]) -> s
         lines.append('    <ul class="allocations">')
         for allocation in item.allocations:
             unit = labels["day"] if allocation.transfer_days == 1 else labels["days"]
+            # A catalogue warehouse name (code-owned data) reads better than a numeric id.
+            where = (warehouse_names or {}).get(allocation.warehouse_id)
+            label = escape(where) if where else f'{escape(labels["warehouse"])} {_ltr(str(allocation.warehouse_id))}'
             lines.append(
-                f'      <li>{escape(labels["warehouse"])} '
-                f'{_ltr(str(allocation.warehouse_id))}: {_ltr(_num(allocation.quantity))} — '
+                f'      <li>{label}: {_ltr(_num(allocation.quantity))} — '
                 f'{escape(labels["estimate"])} {_ltr(str(allocation.transfer_days))} '
                 f'{escape(unit)} ({escape(labels["not_guaranteed"])})</li>'
             )
@@ -95,7 +97,7 @@ def _item_block(item: VerifiedItem, locale: Locale, labels: dict[str, str]) -> s
     return "\n".join(lines)
 
 
-def render_reply(slots: ReplySlots, facts: VerifiedFacts, locale: Locale) -> str:
+def render_reply(slots: ReplySlots, facts: VerifiedFacts, locale: Locale, *, warehouse_names: dict[int, str] | None = None) -> str:
     """Assemble the final customer message: model prose + code-owned fact lines, all escaped.
 
     The greeting/explanation/closing come from the validated slots (escaped); every number and
@@ -104,7 +106,7 @@ def render_reply(slots: ReplySlots, facts: VerifiedFacts, locale: Locale) -> str
     """
     labels = _LABELS[locale]
     direction = "rtl" if locale == "ar" else "ltr"
-    facts_html = "\n".join(_item_block(item, locale, labels) for item in facts.items)
+    facts_html = "\n".join(_item_block(item, locale, labels, warehouse_names) for item in facts.items)
     return (
         f'<div class="reply" dir="{direction}" lang="{locale}">\n'
         f'  <p class="greeting">{escape(slots.greeting)}</p>\n'

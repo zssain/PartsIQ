@@ -1,20 +1,7 @@
-import type { JSX } from "react";
+import { redirect } from "next/navigation";
 
-import { Chat } from "@/components/chat/Chat";
-import { CustomerProgress } from "@/components/visibility/CustomerProgress";
-import { FixtureBanner } from "@/components/visibility/FixtureBanner";
-
-// Dynamic chat route. In Next 16 route params are async. The persisted-timeline progress panel is
-// mounted above the chat so the customer sees each real pipeline step as it happens; the fixture
-// banner labels the synthetic mode honestly.
-export default async function ChatPage({ params }: { params: Promise<{ id: string }> }): Promise<JSX.Element> {
+// Kept so existing links land on the current enquiry screen.
+export default async function LegacyChat({ params }: { params: Promise<{ id: string }> }): Promise<never> {
   const { id } = await params;
-  return (
-    <main>
-      <h1>Your enquiry</h1>
-      <FixtureBanner />
-      <CustomerProgress enquiryId={id} />
-      <Chat enquiryId={id} />
-    </main>
-  );
+  redirect(`/workspace/enquiries/${encodeURIComponent(id)}`);
 }

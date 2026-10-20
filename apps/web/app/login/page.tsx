@@ -1,48 +1,107 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, type JSX } from "react";
+import { KeyRound, LogIn, Mail, Sparkles } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState, type JSX } from "react";
 
 import { BrandLogo } from "@/components/BrandLogo";
-import { signInStaff } from "@/lib/auth";
+import { Alert, Skeleton } from "@/components/app/ui";
+import { accountsConfigured } from "@/lib/session";
 
-// Invited-staff sign-in only. There is deliberately NO real-client self-signup here
-// (CONSTRAINTS rule: public real-client signup disabled). The public demo uses anonymous
-// sign-in from the landing page instead.
+// Invited accounts only (customers, reviewers, administrators). There is deliberately no public
+// signup: accounts are created by an administrator invitation (Supabase sends a one-time link).
 export default function LoginPage(): JSX.Element {
+  return <Suspense fallback={<div className="app-entry"><Skeleton lines={3} /></div>}><Login /></Suspense>;
+}
+
+function safeNext(value: string | null): string {
+  // Only same-site workspace paths are honoured (no open redirect).
+  return value && value.startsWith("/workspace") && !value.startsWith("//") ? value : "/workspace";
+}
+
+function Login(): JSX.Element {
   const router = useRouter();
+  const params = useSearchParams();
+  const next = safeNext(params.get("next"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [mode, setMode] = useState<"password" | "link" | "set">("password");
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const configured = accountsConfigured();
 
-  async function onSubmit(event: React.FormEvent) {
+  useEffect(() => {
+    if (!configured) return;
+    // Invitation / recovery links land here with a session in the URL; ask for a password.
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
+    if (/type=(invite|recovery)/.test(hash) || params.get("invited") === "1") setMode("set");
+  }, [configured, params]);
+
+  const finish = () => {
+    try { window.localStorage.setItem("pq-entry", "account"); } catch { /* optional */ }
+    router.replace(next);
+  };
+
+  async function submit(event: React.FormEvent) {
     event.preventDefault();
-    setError(null);
+    setError(null); setInfo(null); setBusy(true);
     try {
-      await signInStaff(email, password);
-      router.push("/staff/inbox");
-    } catch {
-      setError("Sign in failed. Check your invited staff credentials.");
+      const { browserClient } = await import("@/lib/auth");
+      const auth = browserClient().auth;
+      if (mode === "password") {
+        const { error: err } = await auth.signInWithPassword({ email, password });
+        if (err) throw err;
+        finish();
+      } else if (mode === "link") {
+        const redirect = `${window.location.origin}/login?next=${encodeURIComponent(next)}`;
+        const { error: err } = await auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: redirect } });
+        if (err) throw err;
+        setInfo("If this email belongs to an invited account, a sign-in link is on its way.");
+      } else {
+        if (newPassword.length < 10) throw new Error("Use at least 10 characters.");
+        const { error: err } = await auth.updateUser({ password: newPassword });
+        if (err) throw err;
+        finish();
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Sign-in failed.";
+      setError(mode === "password" ? "Sign-in failed. Check the email and password of your invited account." : message);
+    } finally {
+      setBusy(false);
     }
   }
 
   return (
-    <section className="pq-login">
-      <BrandLogo />
-      <h1>Staff sign in</h1>
-      <p>Invited staff only. Customers use “Start demo” on the home page — there is no public signup.</p>
-      <form onSubmit={onSubmit}>
-        <label>
-          Email
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </label>
-        <label>
-          Password
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </label>
-        <button className="pq-btn pq-btn-primary" type="submit">Sign in</button>
-      </form>
-      {error ? <p role="alert">{error}</p> : null}
-    </section>
+    <div className="app-entry">
+      <main className="app-entry-card" style={{ maxWidth: 460 }}>
+        <BrandLogo />
+        <h1>{mode === "set" ? "Set your password" : "Sign in"}</h1>
+        <p className="app-muted">Invited customers, reviewers and administrators. There is no public signup.</p>
+        {!configured ? (
+          <>
+            <Alert tone="warn" title="Account sign-in is not configured on this deployment">Supabase Auth settings are not set for this build, so no invited account can sign in here. The public demo works without an account.</Alert>
+            <a className="app-btn primary" href="/demo"><Sparkles size={15} />Try the demo instead</a>
+          </>
+        ) : (
+          <form className="app-card app-stack" onSubmit={submit}>
+            {mode !== "set" && (
+              <div className="app-seg" role="group" aria-label="Sign-in method">
+                <button type="button" aria-pressed={mode === "password"} onClick={() => setMode("password")}><KeyRound size={14} /> Password</button>
+                <button type="button" aria-pressed={mode === "link"} onClick={() => setMode("link")}><Mail size={14} /> Email me a link</button>
+              </div>
+            )}
+            {mode !== "set" && <label className="app-field"><span>Email</span><input className="app-input" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required data-testid="login-email" /></label>}
+            {mode === "password" && <label className="app-field"><span>Password</span><input className="app-input" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required data-testid="login-password" /></label>}
+            {mode === "set" && <label className="app-field"><span>New password</span><input className="app-input" type="password" autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={10} /><small>At least 10 characters.</small></label>}
+            {error && <Alert tone="danger">{error}</Alert>}
+            {info && <Alert tone="ok">{info}</Alert>}
+            <button className="app-btn primary" type="submit" disabled={busy} data-testid="login-submit"><LogIn size={15} />{busy ? "Please wait…" : mode === "link" ? "Send link" : mode === "set" ? "Save password" : "Sign in"}</button>
+          </form>
+        )}
+        <a className="app-small" href="/">← Back to the overview</a>
+      </main>
+    </div>
   );
 }

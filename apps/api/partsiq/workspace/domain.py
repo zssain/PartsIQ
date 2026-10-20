@@ -608,10 +608,13 @@ def fixture_slots(locale: Locale, facts: VerifiedFacts) -> ReplySlots:
     )
 
 
-def render(record: EnquiryRecord, slots: ReplySlots) -> str:
+def render(record: EnquiryRecord, slots: ReplySlots, catalogue: CatalogueContext | None = None) -> str:
     if record.facts is None:
         raise PartsIQError("CONFLICT", internal_detail="no facts to render")
-    return render_reply(slots, record.facts, record.locale)
+    names = None
+    if catalogue is not None:
+        names = {catalogue.warehouse_id(code): catalogue.warehouse_name(catalogue.warehouse_id(code)) for code in catalogue.warehouse_codes}
+    return render_reply(slots, record.facts, record.locale, warehouse_names=names)
 
 
 def new_id() -> UUID:

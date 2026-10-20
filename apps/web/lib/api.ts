@@ -47,7 +47,7 @@ export function setDemoToken(token: string | null): void {
 
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers);
-  if (!headers.has("content-type") && options.body) {
+  if (!headers.has("content-type") && options.body && typeof options.body === "string") {
     headers.set("content-type", "application/json");
   }
   const token = await tokenProvider();
@@ -65,6 +65,10 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   let requestId = response.headers.get("x-request-id");
 
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== "undefined") {
+      // Let the session layer show "session expired" and stop protected polling.
+      window.dispatchEvent(new CustomEvent("pq:unauthorized", { detail: { path } }));
+    }
     let code = "DEPENDENCY_UNAVAILABLE";
     let message = response.statusText || "Request failed";
     try {

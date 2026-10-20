@@ -38,16 +38,19 @@ async def create_enquiry(
     container: AppContainer = Depends(get_container),
     key: UUID = Depends(idempotency_key),
     mode: Literal["guided", "collaboration"] = Query(default="guided"),
+    defer: bool = Query(default=False),
 ) -> EnquiryView:
     # The execution mode is chosen before the run starts (ADR 0002); it rides a request-scoped
     # context variable so the existing intake contract (EnquiryCreate) is unchanged.
-    from partsiq.workspace.runtime import requested_mode
+    from partsiq.workspace.runtime import requested_defer, requested_mode
 
     token = requested_mode.set(mode)
+    defer_token = requested_defer.set(defer)
     try:
         return await facade.create(actor, command, key, container=container)
     finally:
         requested_mode.reset(token)
+        requested_defer.reset(defer_token)
 
 
 @router.get(

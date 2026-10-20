@@ -73,6 +73,8 @@ logger = logging.getLogger("partsiq.workspace")
 
 #: Execution mode requested by the HTTP create route (query ``mode``), read by create_enquiry_atomic.
 requested_mode: contextvars.ContextVar[str] = contextvars.ContextVar("requested_mode", default="guided")
+#: When true the enquiry is committed without starting a run (client attaches a photo first).
+requested_defer: contextvars.ContextVar[bool] = contextvars.ContextVar("requested_defer", default=False)
 
 ACCOUNT_KEY = "account"
 DEMO_MAX_ENQUIRIES = 60
@@ -296,6 +298,10 @@ class WorkspaceRuntime:
             )
             ws.enquiries[enquiry_id] = record
             ws.append_audit(actor_type="user", actor_id=str(actor.user_id), action="enquiry.created", entity_type="enquiry", entity_id=str(enquiry_id), request_id=actor.request_id, enquiry_id=enquiry_id, revision=1, payload={"mode": mode})
+            if requested_defer.get():
+                record.status = "received"
+                record.wait_reason = "Waiting for the attachment before processing starts."
+                return self.view(record)
             run = self._start_run(ws, record, actor, mode)
         await self._settle_if_synchronous(ws, run)
         return self.view(record)
@@ -469,7 +475,13 @@ class WorkspaceRuntime:
             record.attachments.append(attachment)
             record.nameplate = None
             ws.append_audit(actor_type="user", actor_id=str(actor.user_id), action="attachment.validated", entity_type="attachment", entity_id=str(attachment.id), request_id=actor.request_id, enquiry_id=record.id, revision=record.revision, payload={"bytes": len(data)})
-            return attachment
+            run = None
+            if record.current_run_id is not None:
+                # A photo added after processing started is new factual input: new revision.
+                run = self._new_revision(ws, record, actor, "Attached a nameplate photo.", kind="customer")
+        if run is not None:
+            await self._settle_if_synchronous(ws, run)
+        return attachment
 
     # ================================================================== runs
 
@@ -954,7 +966,7 @@ class WorkspaceRuntime:
             "items": len(r.items), "pending_question": r.pending_question,
         }
 
-    async def search_enquiries(self, actor: ActorContext, *, scope: str, status: str | None, query: str | None, cursor: int, limit: int, mode: str | None = None, assigned: str | None = None) -> dict[str, Any]:
+    async def search_enquiries(self, actor: ActorContext, *, scope: str, status: str | None, query: str | None, cursor: int, limit: int, mode: str | None = None, assigned: str | None = None, overdue: bool = False) -> dict[str, Any]:
         ws = await self.workspace(actor)
         if scope == "review":
             require_capability(actor, "review.queue")
@@ -966,6 +978,9 @@ class WorkspaceRuntime:
             rows = [r for r in rows if r.status in wanted]
         if mode:
             rows = [r for r in rows if r.mode == mode]
+        if overdue:
+            now = utcnow()
+            rows = [r for r in rows if r.due_at and r.due_at < now and r.status in ("awaiting_review", "processing", "failed")]
         if assigned == "me":
             rows = [r for r in rows if r.assigned_to == actor.user_id]
         elif assigned == "none":

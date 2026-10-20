@@ -299,7 +299,7 @@ class Pipeline:
         record.evidence = evidence
         slots, usage = await self.language.draft(facts, record.locale)
         record.draft_slots = slots
-        record.draft_rendered = domain.render(record, slots)
+        record.draft_rendered = domain.render(record, slots, self.catalogue)
         record.draft_id = uuid4()
         record.draft_source = self.language.source
         return StepReport(
