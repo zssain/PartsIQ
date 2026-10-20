@@ -65,3 +65,25 @@ def test_runner_asks_the_worker_only_for_stored_photos_in_database_mode() -> Non
         store = None
     assert asyncio.run(executor._nameplate_reading(_Mem(), stored)) is None  # type: ignore[arg-type]
     assert len(dispatcher.calls) == 1
+
+
+def test_strict_schemas_satisfy_openai_structured_output_rules() -> None:
+    # Found by the live smoke test: OpenAI strict mode rejected Pydantic's schema (fields with
+    # defaults missing from `required`) and could not compile Decimal's lookahead pattern.
+    from partsiq.ai.client import _SCHEMAS, strict_json_schema
+
+    def walk(node):
+        if isinstance(node, dict):
+            if node.get("type") == "object" or "properties" in node:
+                assert node["additionalProperties"] is False
+                assert sorted(node["required"]) == sorted(node.get("properties", {}))
+            assert "default" not in node
+            assert "(?" not in str(node.get("pattern", ""))
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+
+    for cls in _SCHEMAS.values():
+        walk(strict_json_schema(cls.model_json_schema()))

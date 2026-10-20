@@ -338,7 +338,9 @@ class WorkspaceRuntime:
     def _start_run(self, ws: Workspace, record: EnquiryRecord, actor: ActorContext, mode: str, *, source: str | None = None, carried_from: UUID | None = None) -> RunRecord:
         if source is None:
             ok, _reason = live_available(self.settings)
-            source = "live" if ok and self._live_client is not None else "fixture"
+            # Live model calls are for invited accounts only: anonymous public-demo sandboxes always
+            # run fixture execution so visitors can never spend the owner's confirmed allowance.
+            source = "live" if ok and self._live_client is not None and ws.kind == "account" else "fixture"
         now = utcnow()
         for existing_id in record.run_ids:
             existing = ws.runs.get(existing_id)

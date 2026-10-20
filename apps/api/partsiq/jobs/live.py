@@ -192,8 +192,22 @@ async def handle_nameplate(lease: JobLease, *, storage: SupabaseStorage, store: 
         from partsiq.ai.client import build_openai_client
         from partsiq.ai.vision import read_nameplate
 
+        from partsiq.ai.budget import estimate_cost_usd
+        from partsiq.ai.ledger_pg import PostgresBudgetLedger
+        from partsiq.ai.vision import MAX_OUTPUT_TOKENS
+        from partsiq.core.contracts import CreditAllowance
+
+        model = settings.openai_vision_model or "gpt-4o"
+        # Same durable allowance ledger as the API: reserve the worst case BEFORE the call. An
+        # exhausted or expired allowance fails the job (staff can retry) - never a paid overrun.
+        ledger = PostgresBudgetLedger(store.pool, CreditAllowance(
+            amount_usd=settings.ai_confirmed_allowance_usd, expires_at=settings._parse_utc(settings.ai_allowance_expires_at), paid_budget_usd=0))
+        await ledger.ensure()
+        worst = estimate_cost_usd(model, 3000, MAX_OUTPUT_TOKENS)
+        reservation = await ledger.reserve(worst, datetime.now(UTC), model=model, stage="nameplate", enquiry_id=lease.enquiry_id)
         client = build_openai_client(api_key=settings.openai_api_key, allow_live=True)
-        result = await read_nameplate(lease, image, client=client, model=settings.openai_vision_model or "gpt-4o", allow_live=True)
+        result = await read_nameplate(lease, image, client=client, model=model, allow_live=True)
+        await ledger.settle(reservation, worst)  # usage is not surfaced by the vision call: record the worst case
         reading = {"model_text": result.model_text, "serial_text": result.serial_text, "issues": list(result.issues), "source": "live"}
     else:
         ids = _fixture_plates().get(hashlib.sha256(image).hexdigest())

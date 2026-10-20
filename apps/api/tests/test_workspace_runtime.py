@@ -560,3 +560,14 @@ def test_labelled_evaluation_runs_the_real_pipeline_with_a_denominator(client: T
     assert run["total"] >= 8 and run["passed"] + run["failed"] == run["total"]
     a = client.get("/v1/admin/analytics", headers=H()).json()
     assert a["accuracy"]["total"] == run["total"] and a["accuracy"]["dataset"] == "evals/cases.json"
+
+
+def test_public_demo_never_uses_live_ai_even_when_live_is_configured() -> None:
+    # Live AI configured with a confirmed allowance: anonymous demo runs must still be fixture,
+    # so a public visitor can never spend the owner's credit.
+    with _client(ai_mode="live", openai_api_key="sk-test-not-used", openai_text_model="gpt-4o-mini",
+                 ai_confirmed_allowance_usd="3", ai_allowance_expires_at="2099-01-01T00:00:00Z") as c:
+        eid = create(c, RESOLVES)
+        run = c.get(f"/v1/runs/{detail(c, eid)['run']['id']}", headers=H()).json()
+        assert run["execution_source"] == "fixture"
+        assert run["usage"]["estimated_usd"] is None
