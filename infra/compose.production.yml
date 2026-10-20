@@ -23,8 +23,13 @@ x-logging: &logging
 # resolved from the validated env file; fixture/live selection is explicit (never auto-fallback).
 x-app-env: &app-env
   APP_ENV: ${APP_ENV:-prod}
-  DATA_SOURCE: ${DATA_SOURCE:-snowflake}
-  AI_MODE: ${AI_MODE:-live}
+  # Safe defaults: fixture data and fixture AI unless the env file opts in. Live AI is further
+  # refused by Settings unless a confirmed, unexpired allowance is set below.
+  DATA_SOURCE: ${DATA_SOURCE:-fixture}
+  AI_MODE: ${AI_MODE:-fixture}
+  AI_CONFIRMED_ALLOWANCE_USD: ${AI_CONFIRMED_ALLOWANCE_USD:-0}
+  AI_ALLOWANCE_EXPIRES_AT: ${AI_ALLOWANCE_EXPIRES_AT:-}
+  JOB_LEASE_SECONDS: ${JOB_LEASE_SECONDS:-120}
   REAL_ONBOARDING_ENABLED: ${REAL_ONBOARDING_ENABLED:-false}
   REDIS_URL: ${REDIS_URL}
   ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
@@ -80,9 +85,18 @@ services:
     environment:
       <<: *app-env
       DATABASE_URL_API: ${DATABASE_URL_API}
+      # LangGraph checkpoints (falls back to DATABASE_URL_API when unset).
+      DATABASE_URL_WORKFLOW: ${DATABASE_URL_WORKFLOW:-}
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_JWT_ISSUER: ${SUPABASE_JWT_ISSUER}
       SUPABASE_JWT_AUDIENCE: ${SUPABASE_JWT_AUDIENCE}
+      # Server-only: account directory (roles, invitations) and private Storage for nameplate
+      # photos. Never a NEXT_PUBLIC_* value.
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      # Runs execute in the API process; live calls are still gated by the allowance above.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_TEXT_MODEL: ${OPENAI_TEXT_MODEL:-gpt-4o-mini}
+      OPENAI_VISION_MODEL: ${OPENAI_VISION_MODEL:-gpt-4o}
     depends_on: [redis]
     logging: *logging
     healthcheck:
@@ -106,6 +120,9 @@ services:
       - /tmp/pdf
     environment:
       <<: *app-env
+      # Read-only root filesystem: Chromium's profile and the export temp file live here.
+      TMPDIR: /tmp/pdf
+      SUPABASE_URL: ${SUPABASE_URL}
       DATABASE_URL_WORKFLOW: ${DATABASE_URL_WORKFLOW}
       DATABASE_URL_WORKER: ${DATABASE_URL_WORKER}
       DATABASE_URL_SEARCH: ${DATABASE_URL_SEARCH}
@@ -135,9 +152,11 @@ services:
     restart: unless-stopped
     read_only: true
     networks: [internal]
+    # Sweep-only: re-dispatches stranded/expired jobs, never runs one (no Chromium here).
     command: ["python", "-m", "partsiq.jobs.main", "--sweeper"]
     environment:
       <<: *app-env
+      SUPABASE_URL: ${SUPABASE_URL}
       DATABASE_URL_WORKER: ${DATABASE_URL_WORKER}
       DATABASE_URL_WORKFLOW: ${DATABASE_URL_WORKFLOW}
     depends_on: [redis]

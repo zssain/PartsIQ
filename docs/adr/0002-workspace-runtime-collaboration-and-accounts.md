@@ -54,18 +54,59 @@ execution modes, three experiences and two entry paths.
 9. **Contracts.** `ReviewView.draft_id` and the `IdentityView` capability fields are additive.
    Approval must name the exact draft (409 on change).
 
-## Persistence (honest scope)
+## Persistence (updated 2026-10-20)
 
-The runtime holds operational state in process memory in the current deployment, and
-LangGraph checkpoints use InMemorySaver. The durable schema for runs, exchanges, commands and
-pending actions is the additive migration `20261020000100_agent_collaboration.sql`, validated
-against PostgreSQL 16. A PostgreSQL adapter for the runtime is **not wired yet**. An API
-restart therefore clears demo and account workspace data. This is the main remaining step
-toward durable production use.
+**Account workspace: PostgreSQL is the source of truth when `DATABASE_URL_API` is set.**
+`partsiq/persistence/workspace_store.py` loads every aggregate at startup. The workspace lock
+(`PersistingLock`) is the unit of work. When a critical section exits cleanly, changed rows are
+flushed in one batched transaction **before** the caller reports success. If the section raised
+or the flush failed, the cache is reloaded from PostgreSQL. Database mode never falls back to
+memory: if a required table is missing or another API instance holds the writer lock (advisory
+lock 710071), startup fails.
+
+- LangGraph uses `AsyncPostgresSaver` with a contract-aware serializer. Each guided step
+  commits its result *inside* the node, before the checkpoint that advances past it, and a
+  replay skips a step whose `step_completed` exchange already exists. A crash therefore
+  never repeats committed work.
+- Interrupted runs resume on startup (`resume_interrupted`).
+- Demo sandboxes stay in memory on purpose: anonymous, per-session and disposable.
+- Additive migration `20261020000200_workspace_persistence.sql` holds the runtime state the
+  003 schema did not cover. No applied migration was edited.
+
+**Background work.** `partsiq/jobs/live.py` implements the existing worker ports over the
+`jobs` table:
+
+- `SKIP LOCKED` claims with a fresh fencing token, renewed leases, and completion fenced on
+  token, revision and demo generation.
+- Redis is only a wake-up channel. A lost push or a Redis outage is covered by the sweeper and
+  by direct PostgreSQL polling.
+- The API stays the single writer of the account workspace. The worker records its result on
+  the job row and the API applies it. For a nameplate, the guided step awaits the reading
+  outside the workspace lock, with a bound. Jobs are deduplicated per attachment or revision.
+- Nameplate photos and PDFs live in private Storage buckets; downloads are 60-second signed
+  URLs.
+
+**AI allowance.** In database mode `ai/ledger_pg.py` replaces the in-memory ledger. One atomic
+`UPDATE … WHERE reserved + consumed + estimate <= cap` per reservation means concurrent
+processes cannot exceed the confirmed cap, and recorded spend survives a restart.
+
+**Evidence:**
+
+- `apps/api/tests/integration/restart_recovery.py`: 20/20 on a disposable Supabase.
+- `apps/api/tests/integration/worker_e2e.py`: 24/24 against the dev Supabase with local Redis,
+  including worker SIGKILL mid-export and a Redis outage.
+- `tests/integration/*`: RLS, budget races and append-only checks in CI on `supabase/postgres`.
+
+**Known limits:**
+
+- Exactly one API instance per database (the writer lock).
+- Latency is dominated by the database round trip. The owner's project is in Tokyo and EC2 in
+  Mumbai: a fixture guided run took 17.2 s from a client about 235 ms away.
 
 ## Consequences
 
 The public demo now exercises real rules and both modes without credentials. Real accounts
 work wherever Supabase Auth is configured. The legacy `FixtureJourneyStore` remains importable
-for its contract tests but no longer serves traffic. Rollback is to revert the three
-implementation commits; no applied migration was edited.
+for its contract tests but no longer serves traffic. Rollback is to revert the implementation
+commits. No applied migration was edited, and the `20261020000200` migration is additive, so
+the old code ignores its new columns.

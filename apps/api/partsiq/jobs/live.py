@@ -23,6 +23,7 @@ import html
 import json
 import logging
 import signal
+import sys
 from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid4
@@ -391,7 +392,12 @@ async def store_result_after(store: PostgresJobStore, job_id: UUID, data: dict) 
 # ----------------------------------------------------------------------------- loop
 
 
-async def run_worker(settings: Any, *, stop: asyncio.Event | None = None, once: bool = False) -> None:
+async def run_worker(settings: Any, *, stop: asyncio.Event | None = None, once: bool = False, sweep_only: bool = False) -> None:
+    """Claim and run jobs, sweeping stranded ones every 10 s.
+
+    ``sweep_only`` (the compose ``--sweeper`` service) only re-dispatches expired/stranded jobs and
+    never runs one, so a small container never launches Chromium.
+    """
     import asyncpg
 
     from partsiq.jobs.repository import claim_job, heartbeat
@@ -409,8 +415,16 @@ async def run_worker(settings: Any, *, stop: asyncio.Event | None = None, once: 
     stop = stop or asyncio.Event()
     worker_id = f"worker-{uuid4().hex[:8]}"
     last_sweep = 0.0
-    logger.info("worker %s started", worker_id)
+    logger.info("worker %s started%s", worker_id, " (sweep only)" if sweep_only else "")
     try:
+        while sweep_only and not stop.is_set():
+            await sweep_once(datetime.now(UTC), store=store, queue=queue)
+            if once:
+                return
+            try:
+                await asyncio.wait_for(stop.wait(), timeout=10)
+            except TimeoutError:
+                pass
         while not stop.is_set():
             loop_time = asyncio.get_running_loop().time()
             if loop_time - last_sweep > 10:
@@ -475,7 +489,7 @@ def main() -> None:
         loop = asyncio.get_running_loop()
         for sig in (signal.SIGTERM, signal.SIGINT):
             loop.add_signal_handler(sig, stop.set)  # drain: finish the current job, claim no new one
-        await run_worker(load_settings(), stop=stop)
+        await run_worker(load_settings(), stop=stop, sweep_only="--sweeper" in sys.argv[1:])
 
     asyncio.run(_run())
 

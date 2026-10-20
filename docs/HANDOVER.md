@@ -402,3 +402,34 @@ Not verified / blocked (exact action needed):
 - Not installed: BGE-M3 semantic search, live vision OCR, Chromium PDF export, Redis worker, Snowflake.
 - GitHub Actions workflow setup is still broken (setup-uv SHA, pnpm version); suites pass locally.
 - Workspace page-body copy is English (shell/nav/status strings are bilingual; RTL verified).
+
+## 2026-10-20 (later): database mode, worker, CI, invitation-only accounts
+
+What changed (branch `feat/complete-workspace`, PR #2):
+
+- **Database mode.** With `DATABASE_URL_API` set, the account workspace, LangGraph checkpoints,
+  jobs and the AI allowance ledger persist in PostgreSQL. A failure refuses startup instead of
+  falling back to memory. See ADR 0002 "Persistence" and `docs/FEATURE_STATUS.md`.
+- **Worker.** `python -m partsiq.jobs.main`: PostgreSQL jobs, Redis wake-ups, sweeper; the
+  `--sweeper` flag runs sweep-only. Nameplate jobs store photos in the private bucket. Export
+  jobs render the approved snapshot with Chromium into the `exports` bucket.
+  EC2 unit: `infra/ec2/partsiq-worker.service`.
+- **Accounts are invitation-only in the API**, even though public signup is still enabled in
+  the Supabase project.
+- **CI is green** on both workflows. The integration job now runs real RLS, budget-race and
+  append-only tests on `supabase/postgres`. Lint runs for the first time.
+- `infra/ec2/bootstrap.sh` permission check fixed for Linux. It refused every valid env file.
+
+How to verify locally (values are read from `.env.prod.local`, never printed):
+
+- `apps/api/tests/integration/restart_recovery.py` (disposable stack): 20 checks.
+- `apps/api/tests/integration/worker_e2e.py` (dev Supabase + local Redis on 6390): 24 checks.
+  It creates synthetic rows only and gives its test user a temporary admin role, then removes
+  the role.
+
+Owner inputs still needed (nothing else blocks):
+
+1. Free/promotional OpenAI credit **amount and expiry**, to enable a bounded live smoke test.
+2. Supabase dashboard: add the redirect URLs and turn off public signup (DEPLOY_WORKSPACE.md).
+3. The email address of the first administrator to invite.
+4. Go-ahead to deploy (EC2: Redis, Chromium and the worker unit; optional database mode).
