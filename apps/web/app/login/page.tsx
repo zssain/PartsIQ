@@ -34,9 +34,24 @@ function Login(): JSX.Element {
 
   useEffect(() => {
     if (!configured) return;
-    // Invitation / recovery links land here with a session in the URL; ask for a password.
-    const hash = typeof window !== "undefined" ? window.location.hash : "";
-    if (/type=(invite|recovery)/.test(hash) || params.get("invited") === "1") setMode("set");
+    // Invitation / recovery links land here with a one-time session in the URL fragment. The SSR
+    // client uses PKCE and ignores implicit fragments, so establish that session explicitly, remove
+    // the tokens from the address bar, then ask the user to choose a password.
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const access = hash.get("access_token");
+    const refresh = hash.get("refresh_token");
+    if (access && refresh && /invite|recovery|magiclink/.test(hash.get("type") ?? "")) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+      import("@/lib/auth").then(async ({ browserClient }) => {
+        const { error: err } = await browserClient().auth.setSession({ access_token: access, refresh_token: refresh });
+        if (err) setError("This invitation link has expired or was already used. Ask an administrator for a new one.");
+        else if (hash.get("type") === "magiclink") finish();
+        else setMode("set");
+      });
+    } else if (params.get("invited") === "1") {
+      setMode("set");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configured, params]);
 
   const finish = () => {
@@ -75,7 +90,7 @@ function Login(): JSX.Element {
 
   return (
     <div className="app-entry">
-      <main className="app-entry-card" style={{ maxWidth: 460 }}>
+      <section className="app-entry-card" style={{ maxWidth: 460 }} aria-label="Sign in">
         <BrandLogo />
         <h1>{mode === "set" ? "Set your password" : "Sign in"}</h1>
         <p className="app-muted">Invited customers, reviewers and administrators. There is no public signup.</p>
@@ -101,7 +116,7 @@ function Login(): JSX.Element {
           </form>
         )}
         <a className="app-small" href="/">← Back to the overview</a>
-      </main>
+      </section>
     </div>
   );
 }

@@ -1,0 +1,6 @@
+[
+  {"email": "customer@example.test", "display_name": "Demo Customer", "roles": []},
+  {"email": "reviewer@example.test", "display_name": "Demo Reviewer", "roles": ["reviewer"]},
+  {"email": "catalogue@example.test", "display_name": "Catalogue Admin", "roles": ["catalogue_admin"]},
+  {"email": "admin@example.test", "display_name": "Workspace Admin", "roles": ["admin"]}
+]

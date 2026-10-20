@@ -38,3 +38,7 @@ data/*.json
 .DS_Store
 Thumbs.db
 *.swp
+
+# Real account provisioning specs (tools/provision_accounts.py) never go to git
+accounts*.json
+!docs/examples/accounts.example.json

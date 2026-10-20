@@ -79,7 +79,7 @@ function Gate(): JSX.Element {
   const next = encodeURIComponent(pathname || "/workspace");
   return (
     <div className="app-entry">
-      <main className="app-entry-card" id="main-workspace">
+      <section className="app-entry-card" id="main-workspace" aria-label="Sign in or start the demo">
         <BrandLogo />
         <h1>{t("entry.title")}</h1>
         {session.status === "expired" && <Alert tone="warn">{t("entry.expired")}</Alert>}
@@ -97,7 +97,7 @@ function Gate(): JSX.Element {
           </section>
         </div>
         <p className="app-small app-muted">Independent portfolio project with a synthetic catalogue. No affiliation with any distributor is implied.</p>
-      </main>
+      </section>
     </div>
   );
 }
@@ -195,13 +195,13 @@ function Shell({ children }: { children: ReactNode }): JSX.Element {
               <button className="app-btn small" onClick={async () => { await session.signOut(); router.push("/workspace"); }} data-testid="sign-out"><LogOut size={14} /><span className="app-hide-sm">{t("shell.signout")}</span></button>
             </div>
           </header>
-          <main className="app-content" id="main-workspace" tabIndex={-1}>
+          <div className="app-content" id="main-workspace" tabIndex={-1} role="region" aria-label="Workspace content">
             {children}
             <footer className="app-small app-muted" style={{ marginTop: 40, display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "space-between" }}>
               <span><FileClock size={12} /> Synthetic seed-42 catalogue · independent portfolio project</span>
               <span>Compatibility is checked in code. Every recommendation needs human approval.</span>
             </footer>
-          </main>
+          </div>
         </div>
         <ConfirmDialog
           open={confirmReset}
