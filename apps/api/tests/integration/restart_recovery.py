@@ -63,9 +63,9 @@ def user(email: str, roles: list[str]) -> str:
     password = secrets.token_urlsafe(18)
     found = [u for u in httpx.get(f"{SB}/auth/v1/admin/users", headers=admin, params={"per_page": 200}).json().get("users", []) if u.get("email") == email]
     if found:
-        httpx.put(f"{SB}/auth/v1/admin/users/{found[0]['id']}", headers=admin, json={"password": password, "app_metadata": {"partsiq_roles": roles}}).raise_for_status()
+        httpx.put(f"{SB}/auth/v1/admin/users/{found[0]['id']}", headers=admin, json={"password": password, "app_metadata": {"partsiq_roles": roles, "partsiq_invited": True}}).raise_for_status()
     else:
-        httpx.post(f"{SB}/auth/v1/admin/users", headers=admin, json={"email": email, "password": password, "email_confirm": True, "app_metadata": {"partsiq_roles": roles}}).raise_for_status()
+        httpx.post(f"{SB}/auth/v1/admin/users", headers=admin, json={"email": email, "password": password, "email_confirm": True, "app_metadata": {"partsiq_roles": roles, "partsiq_invited": True}}).raise_for_status()
     token = httpx.post(f"{SB}/auth/v1/token", params={"grant_type": "password"}, headers={"apikey": ANON}, json={"email": email, "password": password})
     token.raise_for_status()
     return token.json()["access_token"]

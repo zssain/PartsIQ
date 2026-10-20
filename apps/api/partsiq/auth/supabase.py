@@ -28,6 +28,7 @@ from .tokens import TokenVerifier, jwks_from_keyset
 
 _TIMEOUT = httpx.Timeout(5.0, connect=3.0)
 ROLE_KEY = "partsiq_roles"
+INVITED_KEY = "partsiq_invited"
 _ALLOWED_ROLES = ("reviewer", "catalogue_admin", "admin")
 
 
@@ -63,7 +64,14 @@ class SupabaseDirectory:
             headers={"apikey": self._key, "Authorization": f"Bearer {self._key}"},
         )
 
-    async def roles_for(self, user_id: str) -> list[str]:
+    async def access_for(self, user_id: str) -> tuple[bool, list[str]]:
+        """``(invited, staff roles)`` for a verified user, read from the admin API (never claims).
+
+        Invited means the account was created by an administrator: Supabase sets ``invited_at``
+        on ``/invite``, and accounts provisioned another way carry ``app_metadata.partsiq_invited``
+        or a staff role. ``app_metadata`` is writable only with the service role, so a user who
+        self-registered (if public signup is left enabled on the project) is never invited.
+        """
         cached = self._cache.get(user_id)
         if cached and time.monotonic() - cached[0] < self._ttl:
             return cached[1]
@@ -71,16 +79,21 @@ class SupabaseDirectory:
             async with self._client() as client:
                 response = await client.get(f"{self._base}/admin/users/{user_id}")
                 if response.status_code == 404:
-                    roles: list[str] = []
+                    access: tuple[bool, list[str]] = (False, [])
                 else:
                     response.raise_for_status()
-                    meta = (response.json().get("app_metadata") or {})
+                    user = response.json()
+                    meta = user.get("app_metadata") or {}
                     roles = [r for r in _ALLOWED_ROLES if r in (meta.get(ROLE_KEY) or [])]
+                    access = (bool(user.get("invited_at") or meta.get(INVITED_KEY) is True or roles), roles)
         except httpx.HTTPError as exc:
-            # Fail closed: an unreachable directory grants NO staff role.
+            # Fail closed: an unreachable directory grants NO access and NO staff role.
             raise PartsIQError("DEPENDENCY_UNAVAILABLE", internal_detail=f"role lookup failed: {type(exc).__name__}") from exc
-        self._cache[user_id] = (time.monotonic(), roles)
-        return roles
+        self._cache[user_id] = (time.monotonic(), access)
+        return access
+
+    async def roles_for(self, user_id: str) -> list[str]:
+        return (await self.access_for(user_id))[1]
 
     def _member(self, user: dict[str, Any]) -> Any:
         from partsiq.workspace.records import MemberRecord
@@ -121,9 +134,8 @@ class SupabaseDirectory:
                     raise PartsIQError("VALIDATION_FAILED", detail="Supabase rejected the invitation (check the email address or whether it is already registered).")
                 response.raise_for_status()
                 user = response.json()
-                if roles:
-                    await self._put_roles(client, user["id"], roles, user.get("app_metadata") or {})
-                    user.setdefault("app_metadata", {})[ROLE_KEY] = roles
+                await self._put_roles(client, user["id"], roles, {**(user.get("app_metadata") or {}), INVITED_KEY: True})
+                user.setdefault("app_metadata", {}).update({ROLE_KEY: roles, INVITED_KEY: True})
         except httpx.HTTPError as exc:
             raise PartsIQError("DEPENDENCY_UNAVAILABLE", internal_detail=f"invite failed: {type(exc).__name__}") from exc
         return self._member(user)
@@ -166,9 +178,14 @@ class AccountVerifier:
             raise PartsIQError("UNAUTHENTICATED", internal_detail="expected a Bearer token")
         verified = await self._verifier.verify(token.strip())
         claims = verified.claims
+        if claims.get("is_anonymous"):
+            raise PartsIQError("FORBIDDEN", detail="Anonymous sign-ins cannot use the account workspace.")
         roles: list[str] = []
-        if self._directory is not None and not claims.get("is_anonymous"):
-            roles = await self._directory.roles_for(str(verified.subject))
+        if self._directory is not None:
+            invited, roles = await self._directory.access_for(str(verified.subject))
+            if not invited:
+                # Accounts are invitation-only, even if public signup is left on in Supabase.
+                raise PartsIQError("FORBIDDEN", detail="This account has not been invited to PartsIQ. Ask an administrator for an invitation.")
         request_id = getattr(request.state, "request_id", None)
         profile = claims.get("user_metadata") or {}
         return AccountActorContext(

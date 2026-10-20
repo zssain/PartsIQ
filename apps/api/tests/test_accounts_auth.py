@@ -79,7 +79,7 @@ async def test_roles_come_from_the_directory_not_the_token() -> None:
 
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.headers["authorization"] == "Bearer service-role"
-        return httpx.Response(200, json={"id": user_id, "app_metadata": {"partsiq_roles": ["reviewer", "superuser"]}})
+        return httpx.Response(200, json={"id": user_id, "invited_at": "2026-10-20T00:00:00Z", "app_metadata": {"partsiq_roles": ["reviewer", "superuser"]}})
 
     directory = _directory(handler)
 
@@ -93,6 +93,46 @@ async def test_roles_come_from_the_directory_not_the_token() -> None:
     assert isinstance(actor, AccountActorContext) and actor_kind(actor) == "account"
     assert actor.roles == ["reviewer"]  # forged claim and unknown role ignored
     assert actor.email == "r@example.test"
+
+
+async def _account_with(user: dict) -> AccountVerifier:
+    async def loader():
+        return {}
+
+    directory = _directory(lambda request: httpx.Response(200, json=user))
+    return AccountVerifier(verifier=TokenVerifier(issuer=ISS, audience="authenticated", jwks_loader=loader, hs256_secret="s" * 32), directory=directory)
+
+
+async def test_self_registered_accounts_are_refused_even_with_public_signup_on() -> None:
+    user_id = str(uuid4())
+    # A user who signed up publicly: no invited_at, no server-set marker, no role. A forged
+    # app_metadata claim in the token must not help (claims are never trusted for access).
+    account = await _account_with({"id": user_id, "app_metadata": {}, "invited_at": None})
+    token = _token("s" * 32, "HS256", user_id, app_metadata={"partsiq_invited": True, "partsiq_roles": ["admin"]})
+    with pytest.raises(PartsIQError) as exc:
+        await account(SimpleNamespace(headers={"authorization": f"Bearer {token}"}, state=SimpleNamespace()))
+    assert exc.value.code == "FORBIDDEN"
+
+
+@pytest.mark.parametrize("user", [
+    {"invited_at": "2026-10-20T00:00:00Z", "app_metadata": {}},          # created by /invite
+    {"invited_at": None, "app_metadata": {"partsiq_invited": True}},     # provisioned by an admin
+    {"invited_at": None, "app_metadata": {"partsiq_roles": ["reviewer"]}},  # staff role implies it
+])
+async def test_invited_accounts_are_admitted(user: dict) -> None:
+    user_id = str(uuid4())
+    account = await _account_with({"id": user_id, **user})
+    actor = await account(SimpleNamespace(headers={"authorization": f"Bearer {_token('s' * 32, 'HS256', user_id)}"}, state=SimpleNamespace()))
+    assert str(actor.user_id) == user_id
+
+
+async def test_anonymous_supabase_sessions_cannot_use_the_account_workspace() -> None:
+    user_id = str(uuid4())
+    account = await _account_with({"id": user_id, "app_metadata": {"partsiq_invited": True}})
+    token = _token("s" * 32, "HS256", user_id, is_anonymous=True)
+    with pytest.raises(PartsIQError) as exc:
+        await account(SimpleNamespace(headers={"authorization": f"Bearer {token}"}, state=SimpleNamespace()))
+    assert exc.value.code == "FORBIDDEN"
 
 
 async def test_directory_outage_fails_closed() -> None:

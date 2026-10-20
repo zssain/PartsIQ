@@ -84,10 +84,10 @@ def token(roles: list[str]) -> tuple[str, str]:
     found = [u for u in users if u.get("email") == EMAIL]
     if found:
         uid = found[0]["id"]
-        meta = {**(found[0].get("app_metadata") or {}), "partsiq_roles": roles}
+        meta = {**(found[0].get("app_metadata") or {}), "partsiq_roles": roles, "partsiq_invited": True}
         httpx.put(f"{SB}/auth/v1/admin/users/{uid}", headers=admin, json={"password": password, "app_metadata": meta, "ban_duration": "none"}, timeout=20).raise_for_status()
     else:
-        created = httpx.post(f"{SB}/auth/v1/admin/users", headers=admin, json={"email": EMAIL, "password": password, "email_confirm": True, "app_metadata": {"partsiq_roles": roles}}, timeout=20)
+        created = httpx.post(f"{SB}/auth/v1/admin/users", headers=admin, json={"email": EMAIL, "password": password, "email_confirm": True, "app_metadata": {"partsiq_roles": roles, "partsiq_invited": True}}, timeout=20)
         created.raise_for_status()
         uid = created.json()["id"]
     got = httpx.post(f"{SB}/auth/v1/token", params={"grant_type": "password"}, headers={"apikey": ANON}, json={"email": EMAIL, "password": password}, timeout=20)
@@ -134,6 +134,19 @@ def main() -> int:
     api = start_api()
     worker = None
     try:
+        # 0. Invitation-only: an account that was NOT invited (what a public signup produces) is
+        #    refused by the API even though Supabase issues it a valid session.
+        admin_h = {"apikey": SERVICE} if SERVICE.startswith("sb_") else {"apikey": SERVICE, "Authorization": f"Bearer {SERVICE}"}
+        stray_email, stray_pw = f"partsiq-uninvited-{uuid4().hex[:8]}@example.test", secrets.token_urlsafe(24)
+        stray = httpx.post(f"{SB}/auth/v1/admin/users", headers=admin_h, json={"email": stray_email, "password": stray_pw, "email_confirm": True}, timeout=20)
+        try:
+            stray_tok = httpx.post(f"{SB}/auth/v1/token", params={"grant_type": "password"}, headers={"apikey": ANON}, json={"email": stray_email, "password": stray_pw}, timeout=20).json()["access_token"]
+            refused = c.get(f"{API}/v1/workspace/enquiries", headers=H(stray_tok))
+            check("a valid Supabase session for an UNinvited account is refused (403)", refused.status_code == 403, f"{refused.status_code}")
+        finally:
+            if stray.status_code < 300:
+                httpx.delete(f"{SB}/auth/v1/admin/users/{stray.json()['id']}", headers=admin_h, timeout=20)
+
         # 1. Enquiry + nameplate photo while NO worker runs: the job is durable and waits.
         created = c.post(f"{API}/v1/enquiries?mode=guided", headers=H(tok, True), json={"text": "Need 2 air filters for the machine on the attached nameplate. Deliver to Jeddah.", "locale": "en", "destination_warehouse_id": 1})
         check("enquiry created (database mode)", created.status_code == 202, f"{created.status_code} {created.text[:160]}")
