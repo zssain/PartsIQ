@@ -121,11 +121,16 @@ def require_staff_role(actor: ActorContext, *, admin_only: bool = False) -> None
     the refusal reveals nothing about any specific enquiry. ``admin_only`` requires the ``admin``
     role (assignment is admin-only, F42); otherwise either ``reviewer`` or ``admin`` is accepted.
     """
+    # Capability model (ADR 0002): an account needs the reviewer/admin role exactly as before; a
+    # public-demo visitor holds these capabilities only over its own disposable sandbox (every
+    # store method re-scopes to the caller's workspace), never over shared data.
+    from partsiq.auth.actors import has_capability
+
     if admin_only:
-        if "admin" not in actor.roles:
+        if not has_capability(actor, "admin.assign"):
             raise PartsIQError("FORBIDDEN", internal_detail="this action is admin-only")
         return
-    if not any(role in actor.roles for role in REVIEWER_ROLES):
+    if not has_capability(actor, "review.queue"):
         raise PartsIQError("FORBIDDEN", internal_detail="a reviewer or admin role is required")
 
 
@@ -164,7 +169,13 @@ def resolve_review_source(
     ``require_staff_review`` store (clean 503 until wired) is returned. Real RBAC is never weakened;
     the fixture branch only ever exposes own-session demo data.
     """
-    if getattr(container, "is_fixture", False) and getattr(container, "journey", None) is not None:
+    runtime = getattr(container, "runtime", None)
+    if runtime is not None and source is None:
+        # Workspace runtime: capability + scope checks happen inside every method (demo sandbox
+        # owner, assigned reviewer, or admin); the role gate below would wrongly refuse a demo
+        # sandbox, whose actor has no roles by design.
+        return runtime  # type: ignore[return-value]
+    if getattr(container, "is_fixture", False) and getattr(container, "journey", None) is not None and source is None:
         return container.journey  # type: ignore[return-value]
     require_staff_role(actor, admin_only=admin_only)
     return source or require_staff_review(container)

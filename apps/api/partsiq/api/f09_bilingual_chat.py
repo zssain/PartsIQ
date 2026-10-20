@@ -8,7 +8,9 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from typing import Literal
+
+from fastapi import APIRouter, Depends, Query
 
 from partsiq.core.contracts import ActorContext, EnquiryCreate, EnquiryView
 from partsiq.core.dependencies import (
@@ -35,8 +37,17 @@ async def create_enquiry(
     actor: ActorContext = Depends(require_actor),
     container: AppContainer = Depends(get_container),
     key: UUID = Depends(idempotency_key),
+    mode: Literal["guided", "collaboration"] = Query(default="guided"),
 ) -> EnquiryView:
-    return await facade.create(actor, command, key, container=container)
+    # The execution mode is chosen before the run starts (ADR 0002); it rides a request-scoped
+    # context variable so the existing intake contract (EnquiryCreate) is unchanged.
+    from partsiq.workspace.runtime import requested_mode
+
+    token = requested_mode.set(mode)
+    try:
+        return await facade.create(actor, command, key, container=container)
+    finally:
+        requested_mode.reset(token)
 
 
 @router.get(

@@ -28,7 +28,7 @@ from typing import Any
 from uuid import UUID
 
 import jwt
-from jwt.algorithms import RSAAlgorithm
+from jwt.algorithms import ECAlgorithm, RSAAlgorithm
 
 from partsiq.core.errors import PartsIQError
 
@@ -36,7 +36,7 @@ from partsiq.core.errors import PartsIQError
 # the live Supabase JWKS endpoint behind a bounded-timeout HTTP fetch.
 JwksLoader = Callable[[], Awaitable[dict[str, str]]]
 
-DEFAULT_ALGORITHMS: tuple[str, ...] = ("RS256",)
+DEFAULT_ALGORITHMS: tuple[str, ...] = ("RS256", "ES256")
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +62,7 @@ class TokenVerifier:
         audience: str,
         jwks_loader: JwksLoader,
         algorithms: tuple[str, ...] = DEFAULT_ALGORITHMS,
+        hs256_secret: str | None = None,
     ) -> None:
         if not issuer:
             raise ValueError("supabase_jwt_issuer must be configured for token verification")
@@ -71,6 +72,10 @@ class TokenVerifier:
         self._audience = audience
         self._jwks_loader = jwks_loader
         self._algorithms = algorithms
+        # Legacy Supabase projects sign with a shared secret. It is accepted ONLY when the server
+        # holds that secret, and an HS256 token is then never checked against a JWKS public key
+        # (no HS/RS confusion): the algorithm decides the key source, and both are pinned.
+        self._hs256_secret = hs256_secret
         self._jwks: dict[str, str] = {}
 
     async def _key_for(self, kid: str) -> Any:
@@ -81,6 +86,8 @@ class TokenVerifier:
         jwk = self._jwks.get(kid)
         if jwk is None:
             raise PartsIQError("UNAUTHENTICATED", internal_detail="unknown signing key id")
+        if '"EC"' in jwk:
+            return ECAlgorithm.from_jwk(jwk)
         return RSAAlgorithm.from_jwk(jwk)
 
     async def verify(self, token: str) -> VerifiedToken:
@@ -91,15 +98,20 @@ class TokenVerifier:
 
         # Reject any algorithm not explicitly allowed: 'none', or an HS/RS confusion where
         # the attacker signs with a symmetric key but claims an asymmetric alg.
-        if header.get("alg") not in self._algorithms:
+        alg = header.get("alg")
+        if alg == "HS256" and self._hs256_secret:
+            key: Any = self._hs256_secret
+            algorithms = ["HS256"]
+        elif alg in self._algorithms and alg != "HS256":
+            key = await self._key_for(str(header.get("kid", "")))
+            algorithms = [alg]
+        else:
             raise PartsIQError("UNAUTHENTICATED", internal_detail="disallowed algorithm")
-
-        key = await self._key_for(str(header.get("kid", "")))
         try:
             claims = jwt.decode(
                 token,
                 key,
-                algorithms=list(self._algorithms),
+                algorithms=algorithms,
                 audience=self._audience,
                 issuer=self._issuer,
                 options={"require": ["exp", "sub", "aud", "iss"]},

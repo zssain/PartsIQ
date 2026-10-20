@@ -83,6 +83,11 @@ class AppContainer:
     #: journey deterministically to the human-review pause. ``None`` in DB mode (the worker
     #: drives the Postgres-checkpointed graph there).
     workflow_graph: object | None = None
+    #: The workspace runtime (ADR 0002): tenant-scoped state, both run modes, review + admin
+    #: ports. Present whenever the app serves the fixture data source; ``None`` otherwise.
+    runtime: object | None = None
+    #: Server-side Supabase Auth admin directory for invited accounts (None when not configured).
+    directory: object | None = None
 
     @property
     def is_fixture(self) -> bool:
@@ -155,30 +160,43 @@ def _demo_subject(token: str) -> UUID:
 
 
 class DemoActorVerifier:
-    """Resolve an anonymous demo :class:`ActorContext` from request headers (fixture mode).
+    """Resolve an anonymous demo actor from request headers (public recruiter demo).
 
-    A demo caller presents ``X-Demo-Token`` (any opaque string; the browser generates one per
-    anonymous session) and optionally the active session id/generation headers. The actor
-    carries NO staff roles — role switching in the demo UI is presentational only, and
-    :func:`partsiq.auth.access.require_access` still validates the session against the store.
+    A demo caller presents ``X-Demo-Token`` (an opaque random string the browser generates once
+    per tab). The actor ALWAYS carries an empty role list; its authority is its own disposable
+    session workspace (:mod:`partsiq.auth.actors`). The session is resolved SERVER-side: without
+    session headers the caller's current session is used (created on first use, rotated after
+    expiry); headers that name another or an older generation are passed through unchanged so the
+    workspace lookup reports their data as absent (404) instead of silently re-scoping them.
     """
 
+    def __init__(self, demo_store: object | None = None) -> None:
+        self._store = demo_store
+
     async def __call__(self, request: Request) -> ActorContext:
+        from partsiq.auth.actors import DemoActorContext
+
         token = request.headers.get(DEMO_TOKEN_HEADER)
-        if not token or not token.strip():
+        if not token or not token.strip() or len(token) > 200:
             raise PartsIQError(
                 "UNAUTHENTICATED",
-                internal_detail=f"fixture mode requires a {DEMO_TOKEN_HEADER} header",
+                internal_detail=f"demo access requires a {DEMO_TOKEN_HEADER} header",
             )
         request_id = getattr(request.state, "request_id", None)
         if not isinstance(request_id, UUID):
             request_id = uuid4()
-        return ActorContext(
-            user_id=_demo_subject(token.strip()),
+        subject = _demo_subject(token.strip())
+        session_id = _optional_uuid(request, DEMO_SESSION_HEADER)
+        generation = _optional_int(request, DEMO_GENERATION_HEADER)
+        if session_id is None and self._store is not None and hasattr(self._store, "resolve_session"):
+            current = await self._store.resolve_session(subject)
+            session_id, generation = current.id, current.generation
+        return DemoActorContext(
+            user_id=subject,
             request_id=request_id,
             roles=[],
-            session_id=_optional_uuid(request, DEMO_SESSION_HEADER),
-            session_generation=_optional_int(request, DEMO_GENERATION_HEADER),
+            session_id=session_id,
+            session_generation=generation,
         )
 
 
@@ -807,8 +825,28 @@ def load_fixture_scenarios() -> ScenarioList:
 # An always-allow rate limiter and an in-memory idempotency store so the fixture intake path
 # exercises the real domain code (rate-limit + idempotency ordering) without Redis/Postgres.
 class _AllowAllRateLimiter:
-    async def incr(self, key: str, ttl_seconds: int) -> int:  # noqa: ARG002 - signature match
-        return 1
+    """Fixed-window in-process counter (the Redis limiter's contract without Redis).
+
+    Named for history; it now really counts so the public demo cannot flood the API process.
+    """
+
+    def __init__(self) -> None:
+        import time as _time
+
+        self._time = _time
+        self._windows: dict[str, tuple[float, int]] = {}
+
+    async def incr(self, key: str, ttl_seconds: int) -> int:
+        now = self._time.monotonic()
+        start, count = self._windows.get(key, (now, 0))
+        if now - start >= ttl_seconds:
+            start, count = now, 0
+        count += 1
+        self._windows[key] = (start, count)
+        if len(self._windows) > 20000:
+            cutoff = now - 3600
+            self._windows = {k: v for k, v in self._windows.items() if v[0] >= cutoff}
+        return count
 
 
 class _InMemoryIdempotencyStore:
@@ -856,24 +894,38 @@ def build_container(settings: Settings) -> AppContainer:
             {snapshot.version_id: list(snapshot.records)}
         )
         container.demo_store = InMemoryDemoStore(settings)
-        # The authoritative LangGraph engine with deterministic fixture handlers; the journey
-        # store drives it to the human-review pause so fixture progress is REAL execution state.
+        # The authoritative LangGraph graph (deterministic fixture handlers) kept for the
+        # workflow-graph contract tests; live traffic runs through the workspace runtime below.
         container.workflow_graph = build_graph(build_fixture_handlers(), memory_checkpointer())
-        container.journey = FixtureJourneyStore(
-            workflow_graph=container.workflow_graph,
-            catalogue_version_id=snapshot.version_id,
-            catalogue=container.catalogue,
-        )
         container.fixture_adapters = FixtureAdapters(
             rate_limiter=_AllowAllRateLimiter(),
             idempotency=_InMemoryIdempotencyStore(),
         )
+        from partsiq.workspace.service import WorkspaceService, wire
+
+        live_client = None
+        if settings.ai_mode == "live" and settings.openai_api_key:
+            from partsiq.ai.client import build_openai_client
+
+            live_client = build_openai_client(api_key=settings.openai_api_key, allow_live=True)
+        if settings.supabase_url and settings.supabase_service_role_key:
+            from partsiq.auth.supabase import SupabaseDirectory
+
+            container.directory = SupabaseDirectory(settings)
+        service = WorkspaceService(
+            settings=settings,
+            snapshot_factory=lambda: snapshot,
+            demo_store=container.demo_store,
+            directory=container.directory,
+            live_client=live_client,
+        )
+        wire(container, service)
     return container
 
 
-def build_fixture_verifier() -> DemoActorVerifier:
+def build_fixture_verifier(demo_store: object | None = None) -> DemoActorVerifier:
     """The anonymous-demo actor verifier wired onto ``app.state.actor_verifier`` in fixture mode."""
-    return DemoActorVerifier()
+    return DemoActorVerifier(demo_store)
 
 
 # Convenience accessors other routers import. They return the concrete fixture adapters,

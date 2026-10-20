@@ -84,6 +84,11 @@ ALLOWED_TRANSITIONS: frozenset[tuple[WorkflowStep, WorkflowStep]] = frozenset(
         (WorkflowStep.SEARCH, WorkflowStep.PLAN),
         (WorkflowStep.SEARCH, WorkflowStep.CHOOSE),
         (WorkflowStep.SEARCH, WorkflowStep.NEEDS_STAFF),
+        (WorkflowStep.PLAN, WorkflowStep.CLARIFY),
+        # Workspace runtime (ADR 0002): an ambiguous/mismatched compatible set asks the customer
+        # rather than auto-choosing; a fixture nameplate read goes straight to confirmation.
+        (WorkflowStep.SEARCH, WorkflowStep.CLARIFY),
+        (WorkflowStep.INTAKE, WorkflowStep.CONFIRM),
         # choose: candidate chosen -> plan.
         (WorkflowStep.CHOOSE, WorkflowStep.PLAN),
         # plan: complete/short plan -> draft; missing/stale inventory -> needs_staff.
@@ -131,6 +136,10 @@ def next_step(state: EnquiryState) -> WorkflowStep:
     """
     # 0. Safety valve: an unexpected loop is handed to staff rather than cycling forever.
     if state.step_count >= MAX_STEPS:
+        return WorkflowStep.NEEDS_STAFF
+    # 0b. A step recorded an outcome only a person can resolve (no compatible part for any
+    # item, or a failed verification gate): hand to staff instead of looping.
+    if state.phase == "needs_staff":
         return WorkflowStep.NEEDS_STAFF
 
     # 1. Nothing extracted yet -> intake.

@@ -76,7 +76,7 @@ def _make_node(handler):
     return node
 
 
-def build_graph(handlers: GraphHandlers, checkpointer: Any):
+def build_graph(handlers: GraphHandlers, checkpointer: Any, *, interrupt_before: list[str] | None = None):
     """Compile the workflow graph against a checkpointer (Postgres in prod, memory in tests).
 
     Every required node handler must be present; the readiness gate refuses to run a graph with a
@@ -104,4 +104,8 @@ def build_graph(handlers: GraphHandlers, checkpointer: Any):
     builder.set_conditional_entry_point(route_step, route_map)
     for name in node_handlers:
         builder.add_conditional_edges(name, route_step, route_map)
+    # ``interrupt_before`` (optional) pauses before the named nodes so a caller can drive the
+    # graph one node per call and apply pause/cancel at a safe boundary (workspace runner).
+    if interrupt_before:
+        return builder.compile(checkpointer=checkpointer, interrupt_before=interrupt_before)
     return builder.compile(checkpointer=checkpointer)

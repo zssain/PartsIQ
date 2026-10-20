@@ -28,7 +28,9 @@ from partsiq.features._ops_ports import require_store
 
 def require_admin(actor: ActorContext) -> None:
     """Refuse a non-admin caller with FORBIDDEN (403) for the admin-only sync read."""
-    if "admin" not in actor.roles:
+    from partsiq.auth.actors import has_capability
+
+    if not has_capability(actor, "analytics.read"):
         raise PartsIQError("FORBIDDEN", internal_detail="analytics sync is admin-only")
 
 

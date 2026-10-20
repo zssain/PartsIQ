@@ -60,8 +60,15 @@ async def _lifespan(app: FastAPI):
     # Wire the actor verifier so ``require_actor`` can resolve a trusted actor. Fixture mode
     # resolves an anonymous demo actor from an ``X-Demo-Token`` header; DB mode wires the real
     # Supabase JWT verifier (owner work; left unset here so protected routes refuse cleanly).
-    if settings.data_source == "fixture" and getattr(app.state, "actor_verifier", None) is None:
-        app.state.actor_verifier = build_fixture_verifier()
+    if getattr(app.state, "actor_verifier", None) is None:
+        from .auth.supabase import CompositeVerifier, build_account_verifier
+
+        account = build_account_verifier(settings, container.directory)
+        demo = None
+        if settings.data_source == "fixture" and settings.demo_enabled:
+            demo = build_fixture_verifier(container.demo_store)
+        if account is not None or demo is not None:
+            app.state.actor_verifier = CompositeVerifier(account=account, demo=demo)
     try:
         yield
     finally:

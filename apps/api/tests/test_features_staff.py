@@ -148,8 +148,9 @@ def test_demo_reviewer_sees_only_own_session_and_never_a_foreign_enquiry(client:
             kwargs["json"] = body
         resp = getattr(client, method)(path, **kwargs)
         assert resp.status_code == 404, f"{method.upper()} {path} -> {resp.status_code}"
-    # Secondary staff actions NOT part of the demo review loop (assignment, internal notes,
-    # deadline, audit) stay role-gated: a demo caller is refused (403), never a 200.
+    # Secondary staff actions (assignment, internal notes, deadline, audit) work inside the demo
+    # visitor's OWN sandbox (ADR 0002); for a foreign enquiry they are NOT_FOUND like the review
+    # surface above — never a 200 and never a 403 that would confirm the id exists.
     refused = (
         ("put", f"/v1/staff/enquiries/{foreign_id}/assignment", _mutate_headers(),
          {"expected_revision": 1, "assignee_id": None}),
@@ -163,7 +164,7 @@ def test_demo_reviewer_sees_only_own_session_and_never_a_foreign_enquiry(client:
         if body is not None:
             kwargs["json"] = body
         resp = getattr(client, method)(path, **kwargs)
-        assert resp.status_code == 403, f"{method.upper()} {path} -> {resp.status_code}"
+        assert resp.status_code == 404, f"{method.upper()} {path} -> {resp.status_code}"
 
 
 def test_staff_route_without_a_token_is_unauthenticated(client: TestClient) -> None:
@@ -171,7 +172,7 @@ def test_staff_route_without_a_token_is_unauthenticated(client: TestClient) -> N
 
 
 def test_published_reply_for_demo_owner_is_not_a_leak(client: TestClient) -> None:
-    """F47 is owner-access; offline the publication store is unwired, so a clean 503 (never a 200)."""
+    """F47 is owner-access: an unapproved enquiry returns the EMPTY published view, never a reply."""
     created = client.post(
         "/v1/enquiries",
         headers=_mutate_headers(),
@@ -179,8 +180,11 @@ def test_published_reply_for_demo_owner_is_not_a_leak(client: TestClient) -> Non
     )
     enquiry_id = created.json()["id"]
     resp = client.get(f"/v1/enquiries/{enquiry_id}/published-reply", headers=DEMO)
-    assert resp.status_code != 200
-    assert resp.status_code == 503  # no approved recommendation exists offline; never fabricated
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["message"] is None and body["decision_id"] is None  # nothing approved, nothing shown
+    # A different demo session cannot read it at all (no existence leak).
+    assert client.get(f"/v1/enquiries/{enquiry_id}/published-reply", headers={"X-Demo-Token": "someone-else"}).status_code == 404
 
 
 # --------------------------------------------------------------------------- fakes

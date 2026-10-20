@@ -270,6 +270,17 @@ class IdentityView(Contract):
     roles:list[str]
     is_anonymous:bool
     demo_session_id:UUID | None
+    # Additive (ADR 0002): what the SERVER authorises, so navigation mirrors real permissions.
+    kind:Literal['demo','account'] = 'account'
+    display_name:str | None = None
+    email:str | None = None
+    capabilities:list[str] = Field(default_factory=list)
+    demo_session_generation:int | None = None
+    demo_expires_at:datetime | None = None
+    data_source:str | None = None
+    ai_mode:str | None = None
+    live_available:bool = False
+    collaboration_enabled:bool = False
 
 class MachineSave(Contract):
     label:str = Field(min_length=1,max_length=120)

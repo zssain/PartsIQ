@@ -87,6 +87,33 @@ class Settings(BaseSettings):
     langfuse_secret_key: str = ""
     langfuse_base_url: str = ""
 
+    # --- workspace runtime (ADR 0002) -----------------------------------
+    # Public recruiter demo: anonymous X-Demo-Token callers get an isolated, disposable,
+    # session-scoped synthetic workspace. Turning this off leaves only invited accounts.
+    demo_enabled: bool = True
+    # Upper bound on concurrently held demo workspaces (oldest evicted) so a public demo on a
+    # small VM cannot grow memory without limit.
+    demo_max_workspaces: int = 400
+    # Legacy Supabase projects sign access tokens with a shared HS256 secret instead of the
+    # asymmetric JWKS. Server-side only; empty means only JWKS (RS256/ES256) tokens verify.
+    supabase_jwt_secret: str = ""
+    # Agent-collaboration mode and its server-enforced run limits. Defaults are deliberately
+    # conservative for the owner's confirmed free allowance (docs/RUN_LIMITS.md).
+    collaboration_enabled: bool = True
+    run_max_agent_turns: int = 14
+    run_max_tool_calls: int = 16
+    run_max_output_tokens_per_turn: int = 600
+    run_max_output_tokens: int = 6000
+    run_max_usd: Decimal = Decimal("0.05")
+    run_max_wall_seconds: int = 180
+    run_max_retries: int = 1
+    run_max_concurrent_per_scope: int = 3
+    run_max_message_bytes: int = 4096
+    run_max_instruction_chars: int = 500
+    # Fixture replay pacing between workflow steps so a viewer can watch (and pause) a run.
+    # The delay is real wall-clock time; nothing is reported done before it executes.
+    fixture_step_delay_ms: int = 600
+
     next_public_api_origin: str = "http://localhost:8000"
     next_public_supabase_url: str = ""
     next_public_supabase_anon_key: str = ""
