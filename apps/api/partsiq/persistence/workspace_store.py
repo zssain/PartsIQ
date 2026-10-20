@@ -711,10 +711,21 @@ class PostgresIntakeIdempotency:
     ``reserve`` keeps the FIRST result for a key (a replay never overwrites it).
     """
 
-    def __init__(self, store: PostgresWorkspaceStore) -> None:
+    def __init__(self, store: PostgresWorkspaceStore, memory: Any = None) -> None:
         self._store = store
+        # Anonymous demo actors are not auth.users (no profile row can reference them) and their
+        # sandboxes are in memory by design, so their keys stay in the in-memory store.
+        self._memory = memory
+
+    @staticmethod
+    def _is_demo(actor: Any) -> bool:
+        from partsiq.auth.actors import actor_kind
+
+        return actor_kind(actor) == "demo"
 
     async def lookup(self, actor: Any, key: UUID) -> tuple[str, str] | None:
+        if self._is_demo(actor):
+            return await self._memory.lookup(actor, key) if self._memory is not None else None
         async with self._store.pool.acquire() as conn:
             row = await conn.fetchrow("SELECT request_sha256, response FROM idempotency_records WHERE actor_id=$1 AND operation='intake' AND key=$2", actor.user_id, key)
         if row is None:
@@ -722,6 +733,10 @@ class PostgresIntakeIdempotency:
         return row["request_sha256"], row["response"]["result"]
 
     async def reserve(self, actor: Any, key: UUID, request_hash: str, result: str) -> None:
+        if self._is_demo(actor):
+            if self._memory is not None:
+                await self._memory.reserve(actor, key, request_hash, result)
+            return
         await self._store.ensure_profile(actor.user_id, getattr(actor, "email", None))
         async with self._store.pool.acquire() as conn:
             await conn.execute(

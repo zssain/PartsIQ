@@ -87,3 +87,32 @@ def test_strict_schemas_satisfy_openai_structured_output_rules() -> None:
 
     for cls in _SCHEMAS.values():
         walk(strict_json_schema(cls.model_json_schema()))
+
+
+def test_demo_intake_idempotency_never_touches_postgres_in_database_mode() -> None:
+    # Production regression: demo actors are not auth.users, so routing their intake keys to
+    # PostgreSQL broke every public-demo enquiry with a profile foreign-key violation (500).
+    from partsiq.auth.actors import DemoActorContext
+    from partsiq.persistence.workspace_store import PostgresIntakeIdempotency
+
+    class Memory:
+        def __init__(self):
+            self.rows = {}
+
+        async def lookup(self, actor, key):
+            return self.rows.get((actor.user_id, key))
+
+        async def reserve(self, actor, key, request_hash, result):
+            self.rows.setdefault((actor.user_id, key), (request_hash, result))
+
+    class NoDatabase:
+        pool = None  # any PostgreSQL access would raise
+
+        async def ensure_profile(self, *a, **k):
+            raise AssertionError("demo actor reached PostgreSQL")
+
+    store = PostgresIntakeIdempotency(NoDatabase(), memory=Memory())  # type: ignore[arg-type]
+    demo = DemoActorContext(user_id=uuid4(), request_id=uuid4(), roles=[], session_id=uuid4(), session_generation=1)
+    key = uuid4()
+    asyncio.run(store.reserve(demo, key, "h", "r1"))
+    assert asyncio.run(store.lookup(demo, key)) == ("h", "r1")

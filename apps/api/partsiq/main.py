@@ -66,7 +66,7 @@ async def _lifespan(app: FastAPI):
         await store.open()
         resumed = await runtime.attach_database(store, checkpoint_dsn=settings.database_url_workflow or settings.database_url_api)
         if container.fixture_adapters is not None:
-            container.fixture_adapters.idempotency = PostgresIntakeIdempotency(store)  # type: ignore[assignment]
+            container.fixture_adapters.idempotency = PostgresIntakeIdempotency(store, memory=container.fixture_adapters.idempotency)  # type: ignore[assignment]
         if getattr(runtime, "_ledger", None) is not None:
             # Live AI in database mode: the confirmed allowance is tracked in PostgreSQL so a
             # restart can never forget spend and exceed the cap.
