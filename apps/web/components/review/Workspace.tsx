@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type JSX } from "react";
+import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 
 import { api } from "@/lib/api";
 import type { CandidateView, ReviewView } from "@/lib/contracts";
@@ -23,17 +23,25 @@ export function Workspace({ enquiryId }: { enquiryId: string }): JSX.Element {
   const [data, setData] = useState<WorkspacePayload | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    try {
-      setData(await api<WorkspacePayload>(`/v1/staff/enquiries/${enquiryId}/workspace`));
-      setLoadError(null);
-    } catch {
-      setLoadError("Could not load the workspace.");
-    }
+  // Results are applied only if the request is still current (no update after unmount/reload).
+  const generation = useRef(0);
+  const load = useCallback(() => {
+    const mine = ++generation.current;
+    return api<WorkspacePayload>(`/v1/staff/enquiries/${enquiryId}/workspace`).then(
+      (payload) => {
+        if (mine !== generation.current) return;
+        setData(payload);
+        setLoadError(null);
+      },
+      () => {
+        if (mine === generation.current) setLoadError("Could not load the workspace.");
+      },
+    );
   }, [enquiryId]);
 
   useEffect(() => {
     void load();
+    return () => { generation.current += 1; };
   }, [load]);
 
   if (loadError) {

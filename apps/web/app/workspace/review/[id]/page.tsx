@@ -3,7 +3,7 @@
 import { Activity, Bot, CheckCircle2, ClipboardCheck, Database, Gavel, History, StickyNote, UserCheck, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type JSX } from "react";
+import { useCallback, useMemo, useState, type JSX } from "react";
 
 import { useCrumb } from "@/components/app/AppShell";
 import { Alert, ConfirmDialog, ErrorState, Ident, PageHeader, PermissionDenied, RunStatusBadge, Skeleton, SourceBadge, StatusBadge, formatTime, useToast } from "@/components/app/ui";
@@ -58,7 +58,6 @@ function Review({ d, reload }: { d: ReviewDetail; reload: () => void }): JSX.Ele
   const { can } = useSession();
   const [reason, setReason] = useState("");
   const [note, setNote] = useState("");
-  const [conflict, setConflict] = useState<string | null>(null);
   const [confirmApprove, setConfirmApprove] = useState(false);
   const decided = d.decision;
   const approveFn = useCallback(async (key: string) => ws.approve(d.id, { expected_revision: d.revision, draft_id: d.draft?.id ?? "" }, key), [d.id, d.revision, d.draft?.id]);
@@ -70,10 +69,9 @@ function Review({ d, reload }: { d: ReviewDetail; reload: () => void }): JSX.Ele
   const addNote = useIdempotentAction(noteFn);
   const assign = useIdempotentAction(assignFn);
 
-  useEffect(() => {
-    const err = approve.error ?? reject.error;
-    if (err instanceof ApiError && err.status === 409) setConflict(err.message);
-  }, [approve.error, reject.error]);
+  // A 409 means the enquiry changed underneath the reviewer: derived from the action errors.
+  const decisionError = approve.error ?? reject.error;
+  const conflict = decisionError instanceof ApiError && decisionError.status === 409 ? decisionError.message : null;
 
   const failed = new Set((d.verification?.failures ?? []).map((f) => FAILURE_RULE[f.code] ?? f.code));
   const ready = d.can_decide && d.verification?.passed && d.draft;
@@ -91,7 +89,7 @@ function Review({ d, reload }: { d: ReviewDetail; reload: () => void }): JSX.Ele
       />
       {conflict && (
         <Alert tone="warn" title="This enquiry changed while you were reviewing">
-          {conflict} Your reason and notes are kept. <button className="app-btn small" onClick={() => { setConflict(null); approve.reset(); reject.reset(); reload(); }}>Reload latest</button>
+          {conflict} Your reason and notes are kept. <button className="app-btn small" onClick={() => { approve.reset(); reject.reset(); reload(); }}>Reload latest</button>
         </Alert>
       )}
       {!d.catalogue_current && <Alert tone="warn" title="Catalogue changed">The draft was built against an earlier catalogue version; approval will be refused until a new run re-checks it.</Alert>}

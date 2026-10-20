@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   Activity, BarChart3, BookOpen, Boxes, ChevronRight, ClipboardCheck, Cog, FileClock, FlaskConical, GitBranch,
   Inbox, LayoutDashboard, LogIn, LogOut, Menu, PlusCircle, RotateCcw, ScrollText, ShieldCheck, Sparkles, Upload, User, Users, Wrench, X,
@@ -152,7 +153,7 @@ function Shell({ children }: { children: ReactNode }): JSX.Element {
       <div className="app" data-nav-open={open ? "true" : "false"} data-entry={identity.kind}>
         <a className="app-skip" href="#main-workspace">{t("shell.skip")}</a>
         <aside className="app-rail" aria-label="Workspace navigation">
-          <a className="app-brand" href="/" aria-label="PartsIQ home"><BrandLogo compact /><small>{t("nav.workspace")}</small></a>
+          <Link className="app-brand" href="/" aria-label="PartsIQ home"><BrandLogo compact /><small>{t("nav.workspace")}</small></Link>
           <p className="app-rail-label">{demo ? t("shell.customer") : t("nav.workspace")}</p>
           {nav(CUSTOMER_NAV)}
           {showReview && <><p className="app-rail-label">{t("shell.reviewer")}</p>{nav(REVIEW_NAV)}</>}
@@ -160,7 +161,7 @@ function Shell({ children }: { children: ReactNode }): JSX.Element {
           <p className="app-rail-label">{t("nav.account")}</p>
           {nav([{ href: "/workspace/account", label: "nav.account", icon: User }])}
           <div className="app-rail-foot">
-            <a href="/demo/scenarios"><GitBranch size={14} />{t("nav.scenarios")}</a>
+            <Link href="/demo/scenarios"><GitBranch size={14} />{t("nav.scenarios")}</Link>
             <a href="/architecture"><BookOpen size={14} />{t("nav.how")}</a>
           </div>
         </aside>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ScanLine, Fingerprint, ShieldCheck, PackageCheck, ArrowUpRight, Radio } from "lucide-react";
 import { type JSX } from "react";
 
@@ -45,7 +46,7 @@ export default function DemoPage(): JSX.Element {
       </div>
 
       <Reveal delay={120}>
-        <a href="/demo" data-testid="live-demo-link" style={{ display: "block", marginTop: 20 }}>
+        <Link href="/demo" data-testid="live-demo-link" style={{ display: "block", marginTop: 20 }}>
           <TiltCard className="pq-scenario-card" style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }} max={4}>
             <div>
               <div className="pq-scenario-top" style={{ marginBottom: 8 }}><Radio size={28} strokeWidth={1.3} aria-hidden="true" /></div>
@@ -57,7 +58,7 @@ export default function DemoPage(): JSX.Element {
             </div>
             <div className="pq-text-link">Try the demo <ArrowUpRight size={16} /></div>
           </TiltCard>
-        </a>
+        </Link>
       </Reveal>
     </div>
   );

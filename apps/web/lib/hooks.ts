@@ -127,13 +127,19 @@ export function useRunEvents(runId: string | null) {
   const seen = useRef(new Set<number>());
   const [nudge, setNudge] = useState(0);
 
-  useEffect(() => {
-    cursor.current = 0;
-    seen.current = new Set();
+  // A different run: drop the previous run's state while rendering (React's "adjust state when a
+  // prop changes" pattern), and its cursor/dedupe refs in the effect below.
+  const [shownRunId, setShownRunId] = useState(runId);
+  if (shownRunId !== runId) {
+    setShownRunId(runId);
     setEvents([]);
     setRun(null);
     setStopped(false);
     setError(null);
+  }
+  useEffect(() => {
+    cursor.current = 0;
+    seen.current = new Set();
   }, [runId]);
 
   useEffect(() => {
@@ -164,6 +170,7 @@ export function useRunEvents(runId: string | null) {
         cursor.current = Math.max(cursor.current, page.next_after);
         setRun(page.run);
         setError(null);
+        setStopped(false);
         const terminal = TERMINAL_RUN.includes(page.run.status) || ["waiting_user", "waiting_consent", "blocked", "paused"].includes(page.run.status);
         if (fresh.length) {
           delay = 600;
@@ -189,7 +196,6 @@ export function useRunEvents(runId: string | null) {
         schedule(delay);
       }
     };
-    setStopped(false);
     tick();
     const onVisible = () => {
       if (!document.hidden && timer) {
@@ -207,7 +213,10 @@ export function useRunEvents(runId: string | null) {
   }, [runId, status, nudge]);
 
   /** Resume polling after the user acts (a command changes what will happen next). */
-  const wake = useCallback(() => setNudge((n) => n + 1), []);
+  const wake = useCallback(() => {
+    setStopped(false);
+    setNudge((n) => n + 1);
+  }, []);
   return { events, run, error, stopped, wake };
 }
 

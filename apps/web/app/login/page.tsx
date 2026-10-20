@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { KeyRound, LogIn, Mail, Sparkles } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState, type JSX } from "react";
@@ -97,7 +98,7 @@ function Login(): JSX.Element {
         {!configured ? (
           <>
             <Alert tone="warn" title="Account sign-in is not configured on this deployment">Supabase Auth settings are not set for this build, so no invited account can sign in here. The public demo works without an account.</Alert>
-            <a className="app-btn primary" href="/demo"><Sparkles size={15} />Try the demo instead</a>
+            <Link className="app-btn primary" href="/demo"><Sparkles size={15} />Try the demo instead</Link>
           </>
         ) : (
           <form className="app-card app-stack" onSubmit={submit}>
@@ -115,7 +116,7 @@ function Login(): JSX.Element {
             <button className="app-btn primary" type="submit" disabled={busy} data-testid="login-submit"><LogIn size={15} />{busy ? "Please wait…" : mode === "link" ? "Send link" : mode === "set" ? "Save password" : "Sign in"}</button>
           </form>
         )}
-        <a className="app-small" href="/">← Back to the overview</a>
+        <Link className="app-small" href="/">← Back to the overview</Link>
       </section>
     </div>
   );

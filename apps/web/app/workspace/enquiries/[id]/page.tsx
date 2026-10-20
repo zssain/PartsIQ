@@ -150,7 +150,7 @@ function Detail({ d, runView, refresh }: { d: EnquiryDetail; runView: EnquiryDet
           {d.status === "approved" && d.is_owner && can("enquiry.create") && (
             <section className="app-card sunken app-stack">
               <h2 className="app-card-title"><Repeat size={16} />Order this again</h2>
-              <p className="app-small app-muted">Creates a new enquiry from the same request. Compatibility and stock are checked again against today's catalogue — the earlier answer is not reused.</p>
+              <p className="app-small app-muted">Creates a new enquiry from the same request. Compatibility and stock are checked again against today&apos;s catalogue — the earlier answer is not reused.</p>
               <div><button className="app-btn small" disabled={repeat.pending} data-testid="repeat-enquiry" onClick={async () => { const r = await repeat.run(); if (r) { toast("ok", "New enquiry created from this one."); router.push(`/workspace/enquiries/${r.id}`); } }}><Repeat size={14} />Repeat this enquiry</button></div>
               {repeat.error && <Alert tone="danger">{errorMessage(repeat.error)}</Alert>}
             </section>

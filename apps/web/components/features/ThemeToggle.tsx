@@ -30,6 +30,7 @@ export function ThemeToggle(props: {
   useEffect(() => {
     // Client-only initialization so SSR stays deterministic (no hydration mismatch).
     const initial = resolve_theme({ saved: readSavedTheme(), prefersDark: systemPrefersDark() }).theme;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- saved theme and prefers-color-scheme exist only in the browser; read once after hydration so SSR stays deterministic
     setTheme(initial);
     applyTheme(initial);
   }, []);

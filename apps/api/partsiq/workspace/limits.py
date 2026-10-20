@@ -89,13 +89,13 @@ class RunBudget:
     blocks rather than spilling into paid usage.
     """
 
-    def __init__(self, *, ledger: InMemoryBudgetLedger | None, model: str, limits: RunLimits, usage: Any) -> None:
+    def __init__(self, *, ledger: Any, model: str, limits: RunLimits, usage: Any) -> None:
         self._ledger = ledger
         self._model = model
         self._limits = limits
         self._usage = usage  # RunUsage (mutated as calls settle)
 
-    def reserve(self, stage: str, max_output_tokens: int) -> Any:
+    async def reserve(self, stage: str, max_output_tokens: int) -> Any:
         if self._ledger is None:
             raise PartsIQError("CREDIT_UNAVAILABLE", internal_detail="no confirmed allowance ledger")
         cap = min(max_output_tokens, self._limits.max_output_tokens_per_turn * 2)
@@ -105,14 +105,19 @@ class RunBudget:
         if self._usage.estimated_usd + worst > self._limits.max_usd:
             raise LimitReached("run_allowance", "The run reached its share of the AI allowance.")
         try:
-            return self._ledger.reserve(worst, datetime.now(timezone.utc))
+            if isinstance(self._ledger, InMemoryBudgetLedger):
+                return self._ledger.reserve(worst, datetime.now(timezone.utc))
+            # Durable ledger (database mode): one atomic statement across all processes.
+            return await self._ledger.reserve(worst, datetime.now(timezone.utc), model=self._model, stage=stage)
         except PartsIQError as exc:
             raise LimitReached("allowance_exhausted", "The confirmed AI allowance is exhausted or expired.") from exc
 
-    def settle(self, reservation: Any, input_tokens: int, output_tokens: int) -> Decimal:
+    async def settle(self, reservation: Any, input_tokens: int, output_tokens: int) -> Decimal:
         actual = estimate_cost_usd(self._model, input_tokens, output_tokens)
-        if self._ledger is not None:
+        if isinstance(self._ledger, InMemoryBudgetLedger):
             self._ledger.settle(reservation, actual)
+        elif self._ledger is not None:
+            await self._ledger.settle(reservation, actual, input_tokens=input_tokens, output_tokens=output_tokens)
         self._usage.input_tokens += input_tokens
         self._usage.output_tokens += output_tokens
         self._usage.estimated_usd += actual

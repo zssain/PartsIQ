@@ -43,6 +43,7 @@ export default function NewEnquiryPage(): JSX.Element {
   useEffect(() => {
     try {
       const saved = JSON.parse(window.localStorage.getItem(DRAFT_KEY) ?? "null");
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restores the unsent draft from localStorage, readable only after hydration (a lazy initializer would mismatch the server render)
       if (saved?.text) setText(saved.text);
     } catch { /* storage optional */ }
   }, []);

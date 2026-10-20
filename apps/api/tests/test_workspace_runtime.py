@@ -291,7 +291,7 @@ def test_run_budget_blocks_instead_of_spending_without_allowance() -> None:
     limits = RunLimits.from_settings(Settings(app_env="test"))
     budget = RunBudget(ledger=None, model="gpt-4.1-mini", limits=limits, usage=RunUsage())
     with pytest.raises(PartsIQError) as exc:
-        budget.reserve("intake", 100)
+        asyncio.run(budget.reserve("intake", 100))
     assert exc.value.code == "CREDIT_UNAVAILABLE"
     from datetime import datetime, timedelta, timezone
     from decimal import Decimal
@@ -302,7 +302,7 @@ def test_run_budget_blocks_instead_of_spending_without_allowance() -> None:
     ledger = InMemoryBudgetLedger(allowance=CreditAllowance(amount_usd=Decimal("0.0001"), expires_at=datetime.now(timezone.utc) + timedelta(days=1), paid_budget_usd=Decimal("0")))
     tight = RunBudget(ledger=ledger, model="gpt-4.1-mini", limits=limits, usage=RunUsage())
     with pytest.raises(LimitReached) as limit:
-        tight.reserve("intake", 400)
+        asyncio.run(tight.reserve("intake", 400))
     assert limit.value.reason in ("allowance_exhausted", "run_allowance")
 
 

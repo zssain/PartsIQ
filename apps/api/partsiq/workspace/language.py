@@ -54,9 +54,9 @@ class FixtureLanguage:
 class Allowance(Protocol):
     """Run-scoped budget gate (implemented by :class:`partsiq.workspace.limits.RunBudget`)."""
 
-    def reserve(self, stage: str, max_output_tokens: int) -> Any: ...
+    async def reserve(self, stage: str, max_output_tokens: int) -> Any: ...
 
-    def settle(self, reservation: Any, input_tokens: int, output_tokens: int) -> Decimal: ...
+    async def settle(self, reservation: Any, input_tokens: int, output_tokens: int) -> Decimal: ...
 
 
 class LiveLanguage:
@@ -74,7 +74,7 @@ class LiveLanguage:
         from partsiq.ai.prompts import INTAKE_SYSTEM_PROMPT
         from partsiq.core.contracts import AIRequest, IntakeResult
 
-        reservation = self._allowance.reserve("intake", 800)
+        reservation = await self._allowance.reserve("intake", 800)
         request = AIRequest(
             request_key=enquiry_id,
             enquiry_id=enquiry_id,
@@ -87,7 +87,7 @@ class LiveLanguage:
             max_output_tokens=800,
         )
         result = await call_structured(request, client=self._client, allow_live=True)
-        cost = self._allowance.settle(reservation, result.input_tokens, result.output_tokens)
+        cost = await self._allowance.settle(reservation, result.input_tokens, result.output_tokens)
         parsed = IntakeResult.model_validate_json(result.output_json)
         # The model proposes structure only; quoted part numbers and the configuration code are
         # still read by code from the customer's own text so the model cannot inject identifiers.
@@ -111,7 +111,7 @@ class LiveLanguage:
         from partsiq.ai.client import call_structured
         from partsiq.core.contracts import AIRequest
 
-        reservation = self._allowance.reserve("reply", MAX_OUTPUT_TOKENS)
+        reservation = await self._allowance.reserve("reply", MAX_OUTPUT_TOKENS)
         request = AIRequest(
             request_key=facts.enquiry_id,
             enquiry_id=facts.enquiry_id,
@@ -124,7 +124,7 @@ class LiveLanguage:
             max_output_tokens=MAX_OUTPUT_TOKENS,
         )
         result = await call_structured(request, client=self._client, allow_live=True)
-        cost = self._allowance.settle(reservation, result.input_tokens, result.output_tokens)
+        cost = await self._allowance.settle(reservation, result.input_tokens, result.output_tokens)
         slots = ReplySlots.model_validate_json(result.output_json)
         validate_slots(slots)
         return slots, CallUsage(result.input_tokens, result.output_tokens, cost)

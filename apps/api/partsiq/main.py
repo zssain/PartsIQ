@@ -67,6 +67,14 @@ async def _lifespan(app: FastAPI):
         resumed = await runtime.attach_database(store, checkpoint_dsn=settings.database_url_workflow or settings.database_url_api)
         if container.fixture_adapters is not None:
             container.fixture_adapters.idempotency = PostgresIntakeIdempotency(store)  # type: ignore[assignment]
+        if getattr(runtime, "_ledger", None) is not None:
+            # Live AI in database mode: the confirmed allowance is tracked in PostgreSQL so a
+            # restart can never forget spend and exceed the cap.
+            from .ai.ledger_pg import PostgresBudgetLedger
+
+            ledger = PostgresBudgetLedger(store.pool, runtime._ledger.allowance)
+            await ledger.ensure()
+            runtime._ledger = ledger
         if settings.supabase_url and settings.supabase_service_role_key:
             # Nameplate photos go to private Storage and are read by the background worker;
             # Redis is only the wake-up channel (the worker's sweeper covers a Redis outage).

@@ -43,13 +43,51 @@ requires_live = pytest.mark.skipif(_live_dsn() is None, reason="no disposable Su
 
 @requires_live
 class TestLiveSecurityScenarios:
-    """Foreign sessions, reset races, expired JWT, upload bombs, Redis down, worker crash,
-    stale lease, API timeout and simultaneous approvals — against a disposable local stack.
-    BLOCKED here (no live Supabase); each would instantiate the existing gateway/worker/
-    orchestrator entry points without new business logic."""
+    """Database-level guarantees on a DISPOSABLE migrated database.
 
-    def test_placeholder_requires_live_stack(self):  # pragma: no cover - skipped offline
-        raise AssertionError("live security scenarios must run against a disposable local Supabase")
+    The process-level scenarios (API/worker SIGKILL, Redis down, stale lease, signed downloads,
+    approve-once across restarts) need Supabase Auth + Storage and run in
+    apps/api/tests/integration/{restart_recovery,worker_e2e}.py against a disposable stack.
+    """
+
+    @staticmethod
+    def _run(sql: str, *params):
+        import psycopg
+
+        with psycopg.connect(_live_dsn(), autocommit=True) as conn:
+            return conn.execute(sql, params).fetchall() if sql.lstrip().upper().startswith("SELECT") or "RETURNING" in sql.upper() else conn.execute(sql, params)
+
+    def test_audit_log_is_append_only(self):
+        import psycopg
+
+        row = self._run("INSERT INTO audit_log(actor_type, actor_id, action, entity_type, entity_id) VALUES ('system','ci','ci.check','test','x') RETURNING id")
+        audit_id = row[0][0]
+        for sql in ("UPDATE audit_log SET action='tampered' WHERE id=%s", "DELETE FROM audit_log WHERE id=%s"):
+            with pytest.raises(psycopg.errors.InsufficientPrivilege, match="append-only"):
+                self._run(sql, audit_id)
+        assert self._run("SELECT action FROM audit_log WHERE id=%s", audit_id)[0][0] == "ci.check"
+
+    def test_run_commands_and_exchanges_are_append_only(self):
+        import psycopg
+
+        for sql in ("DELETE FROM run_commands", "UPDATE run_commands SET type=type", "DELETE FROM agent_exchanges"):
+            # Must be refused by the append-only trigger itself, not by any other error.
+            with pytest.raises(psycopg.errors.RaiseException, match="append-only"):
+                self._run(sql)
+
+    def test_a_running_job_must_hold_a_lease(self):
+        import psycopg
+
+        with pytest.raises(psycopg.errors.CheckViolation):
+            self._run("INSERT INTO jobs(kind, status, payload, dedupe_key) VALUES ('nameplate','running','{}'::jsonb, %s)", f"ci-{os.getpid()}-{id(self)}")
+
+    def test_job_dedupe_key_prevents_double_dispatch(self):
+        import psycopg
+
+        key = f"ci-dedupe-{os.getpid()}-{id(self)}"
+        self._run("INSERT INTO jobs(kind, payload, dedupe_key) VALUES ('export_pdf','{}'::jsonb, %s)", key)
+        with pytest.raises(psycopg.errors.UniqueViolation):
+            self._run("INSERT INTO jobs(kind, payload, dedupe_key) VALUES ('export_pdf','{}'::jsonb, %s)", key)
 
 
 if __name__ == "__main__":

@@ -39,10 +39,11 @@ async def actor_pool(database_url: str):
 
     Proves two different verified actors can share one pooled connection without
     leaking each other's transaction-local app.actor_id (CONSTRAINTS.md rule 11).
+    The database must already be migrated (CI applies supabase/migrations first).
     """
     from psycopg_pool import AsyncConnectionPool
 
-    pool = AsyncConnectionPool(conninfo=database_url, max_size=2, open=False)
+    pool = AsyncConnectionPool(conninfo=database_url, min_size=1, max_size=2, open=False)
     await pool.open()
     try:
         yield pool

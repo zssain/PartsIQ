@@ -3,7 +3,7 @@
 import { ArrowLeft, Bot, Users, Workflow, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type JSX } from "react";
+import { useCallback, useState, type JSX } from "react";
 
 import { useCrumb } from "@/components/app/AppShell";
 import { ExchangeFeed } from "@/components/app/ExchangeFeed";
@@ -15,15 +15,14 @@ export default function RunPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const { events, run, error, stopped, wake } = useRunEvents(id);
   const [firstSeq, setFirstSeq] = useState(0);
-  const seeded = useRef(false);
+  const [seededFirst, setSeededFirst] = useState(false);
   useCrumb(run ? `${run.mode === "collaboration" ? "Collaboration" : "Guided"} run · rev ${run.revision}` : null);
-  useEffect(() => {
-    // Mark only events that arrive after the first load as "new" (no animation for history).
-    if (!seeded.current && events.length) {
-      seeded.current = true;
-      setFirstSeq(events[events.length - 1].seq);
-    }
-  }, [events]);
+  // Mark only events that arrive after the first load as "new" (no animation for history).
+  // Set while rendering, once, when the first page arrives.
+  if (!seededFirst && events.length) {
+    setSeededFirst(true);
+    setFirstSeq(events[events.length - 1].seq);
+  }
   const changed = useCallback(() => wake(), [wake]);
 
   if (error && !run) return <ErrorState error={error} onRetry={wake} />;

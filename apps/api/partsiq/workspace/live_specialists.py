@@ -81,7 +81,7 @@ class LiveSpecialist:
         if self._client is None:
             raise PartsIQError("CREDIT_UNAVAILABLE", internal_detail="no live client")
         cap = self._limits.max_output_tokens_per_turn
-        reservation = self._budget.reserve(self.name, cap)
+        reservation = await self._budget.reserve(self.name, cap)
         untrusted = json.dumps({"message": message, "board": board}, ensure_ascii=False, default=str)[:12000]
         try:
             response = await self._client.chat.completions.create(
@@ -96,7 +96,7 @@ class LiveSpecialist:
         except Exception as exc:  # noqa: BLE001 - classify without leaking provider detail
             raise PartsIQError("DEPENDENCY_UNAVAILABLE", internal_detail=f"provider error {type(exc).__name__}") from exc
         usage = getattr(response, "usage", None)
-        self._budget.settle(reservation, int(getattr(usage, "prompt_tokens", 0) or 0), int(getattr(usage, "completion_tokens", 0) or 0))
+        await self._budget.settle(reservation, int(getattr(usage, "prompt_tokens", 0) or 0), int(getattr(usage, "completion_tokens", 0) or 0))
         content = response.choices[0].message.content or "{}"
         try:
             parsed = json.loads(content)

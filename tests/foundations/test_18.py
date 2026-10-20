@@ -71,7 +71,9 @@ class Security(unittest.TestCase):
     def test_no_public_real_client_signup(self):
         login = _read("app/login/page.tsx")
         self.assertNotIn("signUp", login)             # no self-signup call
-        self.assertIn("Invited staff", login)
+        self.assertIn("There is no public signup", login)
+        # The email-link path must never create an account for an unknown address.
+        self.assertIn("shouldCreateUser: false", login)
 
 
 class Landing(unittest.TestCase):

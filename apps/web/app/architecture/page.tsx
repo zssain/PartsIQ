@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { type JSX } from "react";
 
 import { TiltCard } from "@/components/ui/TiltCard";
@@ -93,8 +94,8 @@ export default function ArchitecturePage(): JSX.Element {
 
       <Reveal>
         <div style={{ display: "flex", gap: 12, marginTop: 40, flexWrap: "wrap" }}>
-          <a href="/demo" className="pq-btn pq-btn-primary">See it run on four scenarios →</a>
-          <a href="/" className="pq-btn pq-btn-ghost">Back home</a>
+          <Link href="/demo" className="pq-btn pq-btn-primary">See it run on four scenarios →</Link>
+          <Link href="/" className="pq-btn pq-btn-ghost">Back home</Link>
         </div>
       </Reveal>
     </div>

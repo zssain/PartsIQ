@@ -50,7 +50,7 @@ class AllowancePort:
         ledger = self._s._ledger
         if ledger is None:
             return None, Decimal("0"), Decimal("0"), self._s.settings.openai_text_model or None
-        snap = ledger.snapshot()
+        snap = await ledger.refresh() if hasattr(ledger, "refresh") else ledger.snapshot()
         return ledger.allowance, Decimal(snap["consumed_usd"]), Decimal(snap["reserved_usd"]), self._s.settings.openai_text_model or None
 
     async def persist(self, actor: ActorContext, allowance: CreditAllowance, model: str) -> tuple[Decimal, Decimal]:
