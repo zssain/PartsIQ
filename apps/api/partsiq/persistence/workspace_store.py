@@ -388,7 +388,16 @@ class PostgresWorkspaceStore:
         self._snapshot_watermarks(ws)
 
     def _snapshot_watermarks(self, ws: Any) -> None:
-        ws.persisted = {
+        ws.persisted = self._marks(ws)
+        for rid, e in ws.enquiries.items():
+            self._hashes[("enquiry", rid)] = digest(self._enquiry_state(e))
+        for rid, r in ws.runs.items():
+            self._hashes[("run", rid)] = digest(self._run_row(r))
+
+    def _marks(self, ws: Any) -> dict[str, Any]:
+        """What is persisted once the current flush commits — captured BEFORE any await so a row
+        appended concurrently (e.g. a run emitting an exchange) is never marked written by mistake."""
+        return {
             "audit": ws.audit_seq,
             "idempotency": set(ws.idempotency.keys()),
             "notes": {nid.id for notes in ws.notes.values() for nid in notes},
@@ -397,11 +406,13 @@ class PostgresWorkspaceStore:
             "imports": {bid: digest((b.state, b.issues, b.preview, b.version_id, b.content_sha256)) for bid, b in ws.imports.items()},
             "corrections": {cid: digest(c) for cid, c in ws.corrections.items()},
             "evaluations": set(ws.evaluations.keys()),
+            "messages": {m.id for e in ws.enquiries.values() for m in e.messages},
+            "items": {i.id: digest((asdict(i), e.revision)) for e in ws.enquiries.values() for i in e.items},
+            "exchanges": {x.id: x.status for xs in ws.exchanges.values() for x in xs},
+            "pending": {pa.id: digest((pa.status, pa.resolution, pa.resolved_by)) for pa in ws.pending.values()},
+            "decisions": {d.id for e in ws.enquiries.values() for d in e.decisions},
+            "profiles": (getattr(ws, "persisted", None) or {}).get("profiles", set()) | {e.owner_id for e in ws.enquiries.values()} | {r.created_by for r in ws.runs.values()},
         }
-        for rid, e in ws.enquiries.items():
-            self._hashes[("enquiry", rid)] = digest(self._enquiry_state(e))
-        for rid, r in ws.runs.items():
-            self._hashes[("run", rid)] = digest((self._run_row(r), [(x.id, x.status) for x in ws.exchanges.get(rid, [])], [(p.id, p.status) for p in ws.pending.values() if p.run_id == rid]))
 
     # ------------------------------------------------------------------ flush
 
@@ -430,173 +441,183 @@ class PostgresWorkspaceStore:
         return json.loads(dumps({f.name: getattr(r, f.name) for f in fields(r) if f.name not in ("in_flight", "active_since", "usage", "pending_spec")} | {"usage": asdict(r.usage)}))
 
     async def flush(self, ws: Any) -> None:
-        dirty_enquiries = []
-        for rid, e in ws.enquiries.items():
+        """Write every changed row in ONE transaction using batched statements (few round trips).
+
+        Row-level change tracking (messages, items, exchanges, pending actions, decisions, logs)
+        keeps a flush to a handful of pipelined ``executemany`` calls even when the database is
+        far away, so a workflow step costs O(1) round trips rather than O(rows).
+        """
+        p = getattr(ws, "persisted", None) or {}
+        msg_ids: set = p.get("messages", set())
+        item_h: dict = p.get("items", {})
+        ex_h: dict = p.get("exchanges", {})
+        pend_h: dict = p.get("pending", {})
+        dec_ids: set = p.get("decisions", set())
+        profiles: set = p.get("profiles", set())
+        enq_rows, msg_rows, item_rows, cur_rows, dirty_enq = [], [], [], [], []
+        for e in ws.enquiries.values():
             h = digest(self._enquiry_state(e))
-            if self._hashes.get(("enquiry", rid)) != h:
-                dirty_enquiries.append((e, h))
-        dirty_runs = []
-        for rid, r in ws.runs.items():
-            h = digest((self._run_row(r), [(x.id, x.status) for x in ws.exchanges.get(rid, [])], [(p.id, p.status) for p in ws.pending.values() if p.run_id == rid]))
-            if self._hashes.get(("run", rid)) != h:
+            if self._hashes.get(("enquiry", e.id)) != h:
+                dirty_enq.append((e, h))
+                enq_rows.append(self._enquiry_params(e))
+                cur_rows.append((e.id, e.current_run_id if e.current_run_id in ws.runs else None))
+            for m in e.messages:
+                if m.kind != "recommendation" and m.id not in msg_ids:
+                    msg_rows.append((m.id, e.id, m.revision, m.kind, m.body[:12000], e.owner_id if m.kind == "customer" else None, m.created_at))
+            for i in e.items:
+                ih = digest((asdict(i), e.revision))
+                if item_h.get(i.id) != ih:
+                    item_rows.append(self._item_params(e, i))
+        run_rows, ex_rows, pend_rows, dirty_runs = [], [], [], []
+        for r in sorted(ws.runs.values(), key=lambda r: r.created_at):
+            h = digest(self._run_row(r))
+            if self._hashes.get(("run", r.id)) != h:
                 dirty_runs.append((r, h))
-        persisted = getattr(ws, "persisted", None) or {}
+                run_rows.append(self._run_params(ws, r))
+            for x in ws.exchanges.get(r.id, []):
+                if ex_h.get(x.id) != x.status:
+                    ex_rows.append((x.id, r.id, x.seq, x.sender, x.recipient, x.kind, x.summary[:600], json.loads(dumps(x.payload)), list(x.evidence_refs)[:12], x.source, x.correlation_id, x.reply_to, x.status, x.created_at))
+        for pa in ws.pending.values():
+            ph = digest((pa.status, pa.resolution, pa.resolved_by))
+            if pend_h.get(pa.id) != ph and pa.run_id in ws.runs:
+                pend_rows.append((pa.id, pa.run_id, pa.enquiry_id, pa.revision, pa.kind, pa.requested_by, pa.code, pa.item_id, pa.prompt[:1000], json.loads(dumps(pa.options)), pa.allowed_resolutions, pa.status, pa.exchange_id, pa.resolved_by if pa.status == "resolved" else None, pa.resolved_at if pa.status == "resolved" else None, (pa.resolution or None) and pa.resolution[:300], pa.created_at))
+        new_decisions = [(e, d) for e in ws.enquiries.values() for d in e.decisions if d.id not in dec_ids]
+        people = {e.owner_id for e, _ in dirty_enq} | {r.created_by for r, _ in dirty_runs} | {e.assigned_to for e, _ in dirty_enq if e.assigned_to} | {d.actor_id for _, d in new_decisions}
+        people = {x for x in people if x and x not in profiles}
+        logs_dirty = self._logs_dirty(ws, p)
+        marks = self._marks(ws)  # synchronous: reflects exactly the rows collected above
+        logs = self._log_rows(ws, p) if logs_dirty else None
+        if not (enq_rows or msg_rows or item_rows or run_rows or ex_rows or pend_rows or new_decisions or logs_dirty):
+            return
         async with self.pool.acquire() as conn:
             async with conn.transaction():
-                owners = {e.owner_id for e, _ in dirty_enquiries} | {r.created_by for r, _ in dirty_runs}
-                for owner in owners:
-                    await conn.execute("INSERT INTO profiles(id, display_name) VALUES ($1,'Account') ON CONFLICT (id) DO NOTHING", owner)
-                for e, _ in dirty_enquiries:
-                    await self._write_enquiry(conn, e)
-                for r, _ in sorted(dirty_runs, key=lambda x: x[0].created_at):
-                    await self._write_run(conn, ws, r)
-                for e, _ in dirty_enquiries:
-                    await conn.execute("UPDATE enquiries SET current_run_id=$2 WHERE id=$1", e.id, e.current_run_id if e.current_run_id in ws.runs else None)
-                    await self._write_decisions(conn, e)
-                await self._write_logs(conn, ws, persisted)
-        for e, h in dirty_enquiries:
+                if people:
+                    await conn.executemany("INSERT INTO profiles(id, display_name) VALUES ($1,'Account') ON CONFLICT (id) DO NOTHING", [(x,) for x in people])
+                if enq_rows:
+                    await conn.executemany(_ENQUIRY_SQL, enq_rows)
+                if item_rows:
+                    await conn.executemany(_ITEM_SQL, item_rows)
+                if msg_rows:
+                    await conn.executemany("INSERT INTO messages(id,enquiry_id,revision,kind,body,author_id,idempotency_key,created_at) VALUES ($1,$2,$3,$4,$5,$6,$1,$7) ON CONFLICT (id) DO NOTHING", msg_rows)
+                if run_rows:
+                    await conn.executemany(_RUN_SQL, run_rows)
+                if ex_rows:
+                    await conn.executemany(_EXCHANGE_SQL, ex_rows)
+                if pend_rows:
+                    await conn.executemany(_PENDING_SQL, pend_rows)
+                if cur_rows:
+                    await conn.executemany("UPDATE enquiries SET current_run_id=$2 WHERE id=$1", cur_rows)
+                for e, d in new_decisions:
+                    await self._write_decision(conn, e, d)
+                if logs is not None:
+                    await self._write_logs(conn, ws, p, logs)
+        for e, h in dirty_enq:
             self._hashes[("enquiry", e.id)] = h
         for r, h in dirty_runs:
             self._hashes[("run", r.id)] = h
-        self._snapshot_watermarks(ws)
+        ws.persisted = marks
 
-    async def _write_enquiry(self, conn: Any, e: Any) -> None:
+    @staticmethod
+    def _logs_dirty(ws: Any, p: dict[str, Any]) -> bool:
+        return (
+            any(a.seq > p.get("audit", 0) for a in ws.audit[-50:])
+            or set(ws.commands.keys()) != p.get("commands", set())
+            or set(ws.idempotency.keys()) != p.get("idempotency", set())
+            or {n.id for notes in ws.notes.values() for n in notes} != p.get("notes", set())
+            or {mid: digest(m) for mid, m in ws.machines.items()} != p.get("machines", {})
+            or {bid: digest((b.state, b.issues, b.preview, b.version_id, b.content_sha256)) for bid, b in ws.imports.items()} != p.get("imports", {})
+            or {cid: digest(c) for cid, c in ws.corrections.items()} != p.get("corrections", {})
+            or set(ws.evaluations.keys()) != p.get("evaluations", set())
+        )
+
+    def _enquiry_params(self, e: Any) -> tuple:
         first = e.messages[0].body if e.messages else ""
         config = next((i.configuration_id for i in e.items if i.configuration_id), None)
-        await conn.execute(
-            """INSERT INTO enquiries(id,channel,raw_text,detected_language,extracted,configuration_id,status,created_at,updated_at,owner_id,revision,
-                 catalogue_version_id,destination_warehouse_id,assigned_to,priority,due_at,idempotency_key,locale,run_mode,workspace_state)
-               VALUES ($1,'chat',$2,$3,'{}'::jsonb,$4,$5::enquiry_status,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
-               ON CONFLICT (id) DO UPDATE SET detected_language=EXCLUDED.detected_language, configuration_id=EXCLUDED.configuration_id,
-                 status=EXCLUDED.status, updated_at=EXCLUDED.updated_at, revision=EXCLUDED.revision, catalogue_version_id=EXCLUDED.catalogue_version_id,
-                 assigned_to=EXCLUDED.assigned_to, priority=EXCLUDED.priority, due_at=EXCLUDED.due_at, locale=EXCLUDED.locale,
-                 run_mode=EXCLUDED.run_mode, workspace_state=EXCLUDED.workspace_state""",
+        return (
             e.id, first or "(empty)", e.language if e.language in ("en", "ar", "mixed") else None, config, e.status, e.created_at, e.updated_at,
             e.owner_id, e.revision, e.catalogue_version_id, e.destination_warehouse_id, e.assigned_to, e.priority, e.due_at,
             e.idempotency_key, e.locale, e.mode, {k: v for k, v in self._enquiry_state(e).items() if k != "_core"},
         )
-        for m in e.messages:
-            if m.kind == "recommendation":
-                continue  # written with its decision (single-publication index)
-            await conn.execute(
-                "INSERT INTO messages(id,enquiry_id,revision,kind,body,author_id,idempotency_key,created_at) VALUES ($1,$2,$3,$4,$5,$6,$1,$7) ON CONFLICT (id) DO NOTHING",
-                m.id, e.id, m.revision, m.kind, m.body[:12000], e.owner_id if m.kind == "customer" else None, m.created_at,
-            )
-        for i in e.items:
-            detail = {k: getattr(i, k) for k in ("quantity_assumed", "config_code_text", "part_numbers", "configuration_label", "identification_note", "clarification_code", "clarification_text", "margin", "selection_source", "quoted_number_note", "plan_strategy", "shortage", "plan_message")}
-            detail["candidates"] = [asdict(c) for c in i.candidates]
-            detail["plan_lines"] = [asdict(p) for p in i.plan_lines]
-            await conn.execute(
-                """INSERT INTO enquiry_items(id,enquiry_id,ordinal,requested_text,quantity,model_text,serial_text,configuration_id,selected_part_id,status,revision,detail)
-                   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-                   ON CONFLICT (id) DO UPDATE SET requested_text=EXCLUDED.requested_text, quantity=EXCLUDED.quantity, model_text=EXCLUDED.model_text,
-                     serial_text=EXCLUDED.serial_text, configuration_id=EXCLUDED.configuration_id, selected_part_id=EXCLUDED.selected_part_id,
-                     status=EXCLUDED.status, revision=EXCLUDED.revision, detail=EXCLUDED.detail""",
-                i.id, e.id, i.ordinal, i.description or "item", i.quantity or Decimal(1), i.model_text, i.serial_text, i.configuration_id,
-                i.selected_part_id, i.status, e.revision, json.loads(dumps(detail)),
-            )
 
-    async def _write_run(self, conn: Any, ws: Any, r: Any) -> None:
+    @staticmethod
+    def _item_params(e: Any, i: Any) -> tuple:
+        detail = {k: getattr(i, k) for k in ("quantity_assumed", "config_code_text", "part_numbers", "configuration_label", "identification_note", "clarification_code", "clarification_text", "margin", "selection_source", "quoted_number_note", "plan_strategy", "shortage", "plan_message")}
+        detail["candidates"] = [asdict(c) for c in i.candidates]
+        detail["plan_lines"] = [asdict(x) for x in i.plan_lines]
+        return (i.id, e.id, i.ordinal, i.description or "item", i.quantity or Decimal(1), i.model_text, i.serial_text, i.configuration_id, i.selected_part_id, i.status, e.revision, json.loads(dumps(detail)))
+
+    @staticmethod
+    def _run_params(ws: Any, r: Any) -> tuple:
         carried = r.board.get("carried_from")
         board = {k: v for k, v in r.board.items() if k != "pending_spec"}
-        await conn.execute(
-            """INSERT INTO workflow_runs(id,enquiry_id,revision,mode,status,control,execution_source,created_by,catalogue_version_id,limits,
-                 agent_turns,tool_calls,input_tokens,output_tokens,estimated_usd,retries,active_seconds,state_version,fence,thread_id,carried_from,
-                 blocked_reason,terminal_reason,created_at,updated_at,completed_at,agenda,board,seen_signatures,next_seq,current_step)
-               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31)
-               ON CONFLICT (id) DO UPDATE SET status=EXCLUDED.status, control=EXCLUDED.control, agent_turns=EXCLUDED.agent_turns, tool_calls=EXCLUDED.tool_calls,
-                 input_tokens=EXCLUDED.input_tokens, output_tokens=EXCLUDED.output_tokens, estimated_usd=EXCLUDED.estimated_usd, retries=EXCLUDED.retries,
-                 active_seconds=EXCLUDED.active_seconds, state_version=EXCLUDED.state_version, fence=EXCLUDED.fence, blocked_reason=EXCLUDED.blocked_reason,
-                 terminal_reason=EXCLUDED.terminal_reason, updated_at=EXCLUDED.updated_at, completed_at=EXCLUDED.completed_at, agenda=EXCLUDED.agenda,
-                 board=EXCLUDED.board, seen_signatures=EXCLUDED.seen_signatures, next_seq=EXCLUDED.next_seq, current_step=EXCLUDED.current_step""",
+        return (
             r.id, r.enquiry_id, r.revision, r.mode, r.status, r.control, r.execution_source, r.created_by, r.catalogue_version_id,
             json.loads(dumps(r.limits)), r.usage.agent_turns, r.usage.tool_calls, r.usage.input_tokens, r.usage.output_tokens,
             r.usage.estimated_usd, r.usage.retries, round(r.usage.active_seconds, 2), r.state_version, r.fence, r.thread_id,
             UUID(carried) if carried and UUID(carried) in ws.runs else None, r.blocked_reason, (r.terminal_reason or None) and r.terminal_reason[:600],
-            r.created_at, r.updated_at, r.completed_at, [str(x) for x in r.agenda], json.loads(dumps(board)),
-            sorted(r.seen_signatures), r.next_seq, r.current_step,
+            r.created_at, r.updated_at, r.completed_at, [str(x) for x in r.agenda], json.loads(dumps(board)), sorted(r.seen_signatures), r.next_seq, r.current_step,
         )
-        for x in ws.exchanges.get(r.id, []):
-            await conn.execute(
-                """INSERT INTO agent_exchanges(id,run_id,seq,sender,recipient,kind,summary,payload,evidence_refs,source,correlation_id,reply_to,status,created_at)
-                   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) ON CONFLICT (id) DO UPDATE SET status=EXCLUDED.status""",
-                x.id, r.id, x.seq, x.sender, x.recipient, x.kind, x.summary[:600], json.loads(dumps(x.payload)), list(x.evidence_refs)[:12],
-                x.source, x.correlation_id, x.reply_to, x.status, x.created_at,
+
+    async def _write_decision(self, conn: Any, e: Any, d: Any) -> None:
+        verification_id = None
+        if d.kind == "approved" and e.facts is not None and e.draft_slots is not None and d.revision == e.revision:
+            draft_id = await conn.fetchval(
+                """INSERT INTO drafts(id,enquiry_id,revision,locale,prose,verified_facts,rendered_text) VALUES ($1,$2,$3,$4,$5,$6,$7)
+                   ON CONFLICT (enquiry_id,revision) DO UPDATE SET prose=EXCLUDED.prose, verified_facts=EXCLUDED.verified_facts, rendered_text=EXCLUDED.rendered_text RETURNING id""",
+                e.draft_id, e.id, e.revision, e.locale, e.draft_slots.model_dump(mode="json"), json.loads(e.facts.model_dump_json()), e.draft_rendered or "",
             )
-        for p in [p for p in ws.pending.values() if p.run_id == r.id]:
+            if e.verification is not None:
+                verification_id = await conn.fetchval(
+                    """INSERT INTO verification_results(id,enquiry_id,revision,draft_id,passed,failures,facts_sha256) VALUES ($1,$2,$3,$4,$5,$6,$7)
+                       ON CONFLICT (enquiry_id,revision) DO UPDATE SET draft_id=EXCLUDED.draft_id, passed=EXCLUDED.passed, failures=EXCLUDED.failures, facts_sha256=EXCLUDED.facts_sha256 RETURNING id""",
+                    e.verification_id, e.id, e.revision, draft_id, e.verification.passed,
+                    [json.loads(f.model_dump_json()) for f in e.verification.failures], e.verification.facts_sha256,
+                )
+        message = next((m for m in e.messages if m.id == d.message_id), None)
+        await conn.execute(
+            "INSERT INTO review_decisions(id,enquiry_id,reviewer,decision,final_reply,comment,decided_at,revision,reviewer_id,verification_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
+            d.id, e.id, str(d.actor_id), d.kind, message.body if message else None, d.reason, d.at, d.revision, d.actor_id, verification_id,
+        )
+        if message is not None:
             await conn.execute(
-                """INSERT INTO pending_actions(id,run_id,enquiry_id,revision,kind,requested_by,code,item_id,prompt,options,allowed_resolutions,status,exchange_id,resolved_by,resolved_at,resolution,created_at)
-                   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
-                   ON CONFLICT (id) DO UPDATE SET status=EXCLUDED.status, resolved_by=EXCLUDED.resolved_by, resolved_at=EXCLUDED.resolved_at, resolution=EXCLUDED.resolution""",
-                p.id, r.id, p.enquiry_id, p.revision, p.kind, p.requested_by, p.code, p.item_id, p.prompt[:1000], json.loads(dumps(p.options)),
-                p.allowed_resolutions, p.status, p.exchange_id, p.resolved_by if p.status == "resolved" else None,
-                p.resolved_at if p.status == "resolved" else None, (p.resolution or None) and p.resolution[:300], p.created_at,
+                "INSERT INTO messages(id,enquiry_id,revision,kind,body,author_id,decision_id,idempotency_key,created_at) VALUES ($1,$2,$3,'recommendation',$4,$5,$6,$1,$7)",
+                message.id, e.id, message.revision, message.body[:12000], d.actor_id, d.id, message.created_at,
             )
 
-    async def _write_decisions(self, conn: Any, e: Any) -> None:
-        for d in e.decisions:
-            if await conn.fetchval("SELECT 1 FROM review_decisions WHERE id=$1", d.id):
-                continue
-            verification_id = None
-            if d.kind == "approved" and e.facts is not None and e.draft_slots is not None and d.revision == e.revision:
-                draft_id = await conn.fetchval(
-                    """INSERT INTO drafts(id,enquiry_id,revision,locale,prose,verified_facts,rendered_text) VALUES ($1,$2,$3,$4,$5,$6,$7)
-                       ON CONFLICT (enquiry_id,revision) DO UPDATE SET prose=EXCLUDED.prose, verified_facts=EXCLUDED.verified_facts, rendered_text=EXCLUDED.rendered_text RETURNING id""",
-                    e.draft_id, e.id, e.revision, e.locale, e.draft_slots.model_dump(mode="json"), json.loads(e.facts.model_dump_json()), e.draft_rendered or "",
-                )
-                if e.verification is not None:
-                    verification_id = await conn.fetchval(
-                        """INSERT INTO verification_results(id,enquiry_id,revision,draft_id,passed,failures,facts_sha256) VALUES ($1,$2,$3,$4,$5,$6,$7)
-                           ON CONFLICT (enquiry_id,revision) DO UPDATE SET draft_id=EXCLUDED.draft_id, passed=EXCLUDED.passed, failures=EXCLUDED.failures, facts_sha256=EXCLUDED.facts_sha256 RETURNING id""",
-                        e.verification_id, e.id, e.revision, draft_id, e.verification.passed,
-                        [json.loads(f.model_dump_json()) for f in e.verification.failures], e.verification.facts_sha256,
-                    )
-            message = next((m for m in e.messages if m.id == d.message_id), None)
-            await conn.execute(
-                "INSERT INTO review_decisions(id,enquiry_id,reviewer,decision,final_reply,comment,decided_at,revision,reviewer_id,verification_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
-                d.id, e.id, str(d.actor_id), d.kind, message.body if message else None, d.reason, d.at, d.revision, d.actor_id, verification_id,
-            )
-            if message is not None:
-                await conn.execute(
-                    "INSERT INTO messages(id,enquiry_id,revision,kind,body,author_id,decision_id,idempotency_key,created_at) VALUES ($1,$2,$3,'recommendation',$4,$5,$6,$1,$7)",
-                    message.id, e.id, message.revision, message.body[:12000], d.actor_id, d.id, message.created_at,
-                )
-
-    async def _write_logs(self, conn: Any, ws: Any, persisted: dict[str, Any]) -> None:
+    def _log_rows(self, ws: Any, persisted: dict[str, Any]) -> dict[str, Any]:
+        """Copy the append-only rows to write NOW (before any await)."""
         audit_mark = persisted.get("audit", 0)
-        for a in ws.audit:
-            if a.seq <= audit_mark:
-                continue
-            new_id = await conn.fetchval(
-                "INSERT INTO audit_log(occurred_at,actor_type,actor_id,action,entity_type,entity_id,request_id,payload,enquiry_id,revision) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id",
-                a.created_at, a.actor_type, a.actor_id, a.action, a.entity_type, a.entity_id, str(a.request_id), json.loads(dumps(a.payload)),
-                a.enquiry_id if a.enquiry_id in ws.enquiries else None, a.revision,
-            )
-            if a.action == "assignment.changed" and a.enquiry_id in ws.enquiries:
-                to = a.payload.get("to")
-                await conn.execute("INSERT INTO assignment_events(enquiry_id,assigned_to,assigned_by,created_at) VALUES ($1,$2,$3,$4)", a.enquiry_id, UUID(to) if to else None, UUID(a.actor_id), a.created_at)
-            a.seq = new_id
-        ws.audit_seq = max([a.seq for a in ws.audit], default=0)
         known_cmds = persisted.get("commands", set())
-        for key, c in ws.commands.items():
-            if key in known_cmds or c.run_id not in ws.runs:
-                continue
-            await conn.execute(
-                "INSERT INTO run_commands(id,run_id,actor_id,type,expected_revision,expected_state_version,idempotency_key,payload_sha256,payload,accepted,result,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT DO NOTHING",
-                c.id, c.run_id, c.actor_id, c.type, c.expected_revision, c.expected_state_version, c.idempotency_key, c.payload_hash, json.loads(dumps(c.payload)), c.accepted, c.result[:300], c.created_at,
-            )
         known_notes = persisted.get("notes", set())
-        for notes in ws.notes.values():
-            for n in notes:
-                if n.id not in known_notes:
-                    await conn.execute("INSERT INTO internal_notes(id,enquiry_id,author_id,body,created_at) VALUES ($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING", n.id, n.enquiry_id, n.author_id, n.body, n.created_at)
         known_idem = persisted.get("idempotency", set())
-        for (scope, key), (request_hash, result) in ws.idempotency.items():
-            if (scope, key) in known_idem:
-                continue
-            await conn.execute(
+        return {
+            "audit": [a for a in ws.audit if a.seq > audit_mark],
+            "commands": [c for key, c in ws.commands.items() if key not in known_cmds and c.run_id in ws.runs],
+            "notes": [n for notes in ws.notes.values() for n in notes if n.id not in known_notes],
+            "idempotency": [(scope, key, h, r) for (scope, key), (h, r) in ws.idempotency.items() if (scope, key) not in known_idem],
+        }
+
+    async def _write_logs(self, conn: Any, ws: Any, persisted: dict[str, Any], rows: dict[str, Any]) -> None:
+        fresh = rows["audit"]
+        if fresh:
+            await conn.executemany(
+                "INSERT INTO audit_log(occurred_at,actor_type,actor_id,action,entity_type,entity_id,request_id,payload,enquiry_id,revision) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
+                [(a.created_at, a.actor_type, a.actor_id, a.action, a.entity_type, a.entity_id, str(a.request_id), json.loads(dumps(a.payload)), a.enquiry_id if a.enquiry_id in ws.enquiries else None, a.revision) for a in fresh],
+            )
+            assignments = [(a.enquiry_id, UUID(a.payload["to"]) if a.payload.get("to") else None, UUID(a.actor_id), a.created_at) for a in fresh if a.action == "assignment.changed" and a.enquiry_id in ws.enquiries]
+            if assignments:
+                await conn.executemany("INSERT INTO assignment_events(enquiry_id,assigned_to,assigned_by,created_at) VALUES ($1,$2,$3,$4)", assignments)
+        if rows["commands"]:
+            await conn.executemany(
+                "INSERT INTO run_commands(id,run_id,actor_id,type,expected_revision,expected_state_version,idempotency_key,payload_sha256,payload,accepted,result,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT DO NOTHING",
+                [(c.id, c.run_id, c.actor_id, c.type, c.expected_revision, c.expected_state_version, c.idempotency_key, c.payload_hash, json.loads(dumps(c.payload)), c.accepted, c.result[:300], c.created_at) for c in rows["commands"]],
+            )
+        if rows["notes"]:
+            await conn.executemany("INSERT INTO internal_notes(id,enquiry_id,author_id,body,created_at) VALUES ($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING", [(n.id, n.enquiry_id, n.author_id, n.body, n.created_at) for n in rows["notes"]])
+        if rows["idempotency"]:
+            await conn.executemany(
                 "INSERT INTO workspace_idempotency(scope,key,request_sha256,response) VALUES ($1,$2,$3,$4) ON CONFLICT (scope,key) DO UPDATE SET response=EXCLUDED.response",
-                scope[:40], key, str(request_hash)[:200], encode_value(result),
+                [(scope[:40], key, str(h)[:200], encode_value(r)) for scope, key, h, r in rows["idempotency"]],
             )
         known_machines = persisted.get("machines", {})
         for mid, m in ws.machines.items():
@@ -638,8 +659,10 @@ class PostgresWorkspaceStore:
                 c.id, c.enquiry_id, c.revision, c.author_id, {"value": c.before}, {"value": c.after}, c.field, c.reviewed, c.created_at,
             )
         known_evals = persisted.get("evaluations", set())
-        version = await conn.fetchval("SELECT id FROM catalogue_versions WHERE state='published'")
+        version = None
         for eid, ev in ws.evaluations.items():
+            if eid not in known_evals and version is None:
+                version = await conn.fetchval("SELECT id FROM catalogue_versions WHERE state='published'")
             if eid in known_evals or ev.state != "succeeded":
                 continue
             await conn.execute("INSERT INTO eval_runs(id,git_sha,model,dataset_sha256,started_at,completed_at,status) VALUES ($1,$2,$3,$4,$5,now(),$6)",
@@ -648,6 +671,35 @@ class PostgresWorkspaceStore:
                 await conn.execute("INSERT INTO eval_cases(id,scenario,input,expected,catalogue_version_id,language) VALUES ($1,$1,'{}'::jsonb,'{}'::jsonb,$2,'en') ON CONFLICT (id) DO NOTHING", res.case_id, version)
                 await conn.execute("INSERT INTO eval_results(run_id,case_id,actual,passed,duration_ms) VALUES ($1,$2,$3,$4,0) ON CONFLICT DO NOTHING", ev.id, res.case_id, res.actual.model_dump(mode="json"), res.passed)
 
+
+
+
+_ENQUIRY_SQL = """INSERT INTO enquiries(id,channel,raw_text,detected_language,extracted,configuration_id,status,created_at,updated_at,owner_id,revision,
+     catalogue_version_id,destination_warehouse_id,assigned_to,priority,due_at,idempotency_key,locale,run_mode,workspace_state)
+   VALUES ($1,'chat',$2,$3,'{}'::jsonb,$4,$5::enquiry_status,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+   ON CONFLICT (id) DO UPDATE SET detected_language=EXCLUDED.detected_language, configuration_id=EXCLUDED.configuration_id,
+     status=EXCLUDED.status, updated_at=EXCLUDED.updated_at, revision=EXCLUDED.revision, catalogue_version_id=EXCLUDED.catalogue_version_id,
+     assigned_to=EXCLUDED.assigned_to, priority=EXCLUDED.priority, due_at=EXCLUDED.due_at, locale=EXCLUDED.locale,
+     run_mode=EXCLUDED.run_mode, workspace_state=EXCLUDED.workspace_state"""
+_ITEM_SQL = """INSERT INTO enquiry_items(id,enquiry_id,ordinal,requested_text,quantity,model_text,serial_text,configuration_id,selected_part_id,status,revision,detail)
+   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+   ON CONFLICT (id) DO UPDATE SET requested_text=EXCLUDED.requested_text, quantity=EXCLUDED.quantity, model_text=EXCLUDED.model_text,
+     serial_text=EXCLUDED.serial_text, configuration_id=EXCLUDED.configuration_id, selected_part_id=EXCLUDED.selected_part_id,
+     status=EXCLUDED.status, revision=EXCLUDED.revision, detail=EXCLUDED.detail"""
+_RUN_SQL = """INSERT INTO workflow_runs(id,enquiry_id,revision,mode,status,control,execution_source,created_by,catalogue_version_id,limits,
+     agent_turns,tool_calls,input_tokens,output_tokens,estimated_usd,retries,active_seconds,state_version,fence,thread_id,carried_from,
+     blocked_reason,terminal_reason,created_at,updated_at,completed_at,agenda,board,seen_signatures,next_seq,current_step)
+   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31)
+   ON CONFLICT (id) DO UPDATE SET status=EXCLUDED.status, control=EXCLUDED.control, agent_turns=EXCLUDED.agent_turns, tool_calls=EXCLUDED.tool_calls,
+     input_tokens=EXCLUDED.input_tokens, output_tokens=EXCLUDED.output_tokens, estimated_usd=EXCLUDED.estimated_usd, retries=EXCLUDED.retries,
+     active_seconds=EXCLUDED.active_seconds, state_version=EXCLUDED.state_version, fence=EXCLUDED.fence, blocked_reason=EXCLUDED.blocked_reason,
+     terminal_reason=EXCLUDED.terminal_reason, updated_at=EXCLUDED.updated_at, completed_at=EXCLUDED.completed_at, agenda=EXCLUDED.agenda,
+     board=EXCLUDED.board, seen_signatures=EXCLUDED.seen_signatures, next_seq=EXCLUDED.next_seq, current_step=EXCLUDED.current_step"""
+_EXCHANGE_SQL = """INSERT INTO agent_exchanges(id,run_id,seq,sender,recipient,kind,summary,payload,evidence_refs,source,correlation_id,reply_to,status,created_at)
+   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) ON CONFLICT (id) DO UPDATE SET status=EXCLUDED.status"""
+_PENDING_SQL = """INSERT INTO pending_actions(id,run_id,enquiry_id,revision,kind,requested_by,code,item_id,prompt,options,allowed_resolutions,status,exchange_id,resolved_by,resolved_at,resolution,created_at)
+   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+   ON CONFLICT (id) DO UPDATE SET status=EXCLUDED.status, resolved_by=EXCLUDED.resolved_by, resolved_at=EXCLUDED.resolved_at, resolution=EXCLUDED.resolution"""
 
 __all__ = ["PostgresWorkspaceStore", "encode_value", "decode_value"]
 

@@ -428,7 +428,6 @@ class RunExecutor:
                     return
                 finally:
                     run.in_flight = False
-                await self.persist(ws)
             snapshot = await self._graph.aget_state(config)
             values = snapshot.values
             state = values if isinstance(values, EnquiryState) else EnquiryState.model_validate_json(EnquiryState.model_construct(**values).model_dump_json())
