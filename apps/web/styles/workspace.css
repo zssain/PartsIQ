@@ -2,10 +2,13 @@
 :root { --pq-ok:#8274db; }
 body:has(.pq-console) > .pq-site-footer { display:none; }
 .pq-console { display:grid; grid-template-columns:238px minmax(0,1fr); min-height:100vh; font-size:13px; }
+/* The console is a full-bleed app shell: opt out of the generic page wrapper
+   (main > :is(div,section,main):not(.pq-container) gets a centred 1184px width + margins). */
+#main-content > .pq-console { width:auto; margin:0; }
 .pq-console-rail { background:var(--pq-card); border-inline-end:1px solid var(--pq-border); padding:28px 18px; display:flex; flex-direction:column; gap:12px; }
-.pq-console-brand { display:flex; gap:9px; align-items:center; font-size:21px; font-weight:750; letter-spacing:-1px; flex-wrap:wrap; }
-.pq-console-brand > span:first-child { display:grid; place-items:center; color:#c0b4ff; background:#282541; width:34px; height:34px; border-radius:10px; }
-.pq-console-brand .pq-console-beta { font-size:8px; letter-spacing:1.6px; color:var(--pq-muted); margin-inline-start:43px; margin-top:-8px; }
+/* Brand row uses the supplied PartsIQ logo (inverted in dark theme by .pq-brand-logo rules). */
+.pq-console-brand { display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
+.pq-console-brand .pq-console-beta { font-size:8px; letter-spacing:1.6px; color:var(--pq-muted); }
 .pq-console-org { display:flex; align-items:center; gap:10px; padding:20px 0; margin:12px 0 4px; border-block:1px solid var(--pq-border); }
 .pq-console-org small { display:block; font-size:10px; color:var(--pq-muted); margin-top:3px; }
 .pq-console-avatar { width:32px; height:32px; border-radius:9px; display:grid; place-items:center; background:var(--pq-bg-2); border:1px solid var(--pq-border); }
@@ -73,5 +76,5 @@ body:has(.pq-console) > .pq-site-footer { display:none; }
 .pq-console-foot { display:flex; justify-content:space-between; gap:15px; margin-top:50px; border-top:1px solid var(--pq-border); padding-top:20px; color:var(--pq-muted); font-size:8px; letter-spacing:.7px; }
 @media(min-width:1100px) { .pq-console-rail { position:sticky; top:0; height:100vh; } }
 @media(max-width:1100px) { .pq-console { grid-template-columns:190px minmax(0,1fr); } .pq-console-content { padding:30px 22px; } .pq-console-grid { grid-template-columns:1fr; } .pq-console-context { display:none; } .pq-console-mode div > span { display:none; } .pq-console-heading { align-items:start; } }
-@media(max-width:700px) { .pq-console { display:block; } .pq-console-rail { padding:16px; border-bottom:1px solid var(--pq-border); } .pq-console-brand { flex-wrap:nowrap; } .pq-console-brand .pq-console-beta { margin:0 0 0 auto; } .pq-console-org,.pq-console-label,.pq-console-rail-note,.pq-console-back,.pq-console-rail nav[aria-label="Resources"] { display:none; } .pq-console-rail nav { display:flex; overflow-x:auto; margin-top:10px; } .pq-console nav button { font-size:10px; white-space:nowrap; padding:10px; gap:6px; } .pq-console nav button > svg:last-child:not(:first-child) { display:none; } .pq-console-top { height:55px; padding:0 18px; } .pq-console-content { padding:26px 16px; } .pq-console-heading { flex-wrap:wrap; } .pq-console-toolbar { flex-wrap:wrap; } .pq-console .pq-card,.pq-console-card { padding:18px; } .pq-console-overview { grid-template-columns:1fr; } .pq-console-foot { flex-direction:column; } }
+@media(max-width:700px) { .pq-console { display:block; } .pq-console-rail { padding:16px; border-bottom:1px solid var(--pq-border); } .pq-console-brand { flex-direction:row; align-items:center; flex-wrap:nowrap; } .pq-console-brand .pq-console-beta { margin:0 0 0 auto; } .pq-console-org,.pq-console-label,.pq-console-rail-note,.pq-console-back,.pq-console-rail nav[aria-label="Resources"] { display:none; } .pq-console-rail nav { display:flex; overflow-x:auto; margin-top:10px; } .pq-console nav button { font-size:10px; white-space:nowrap; padding:10px; gap:6px; } .pq-console nav button > svg:last-child:not(:first-child) { display:none; } .pq-console-top { height:auto; min-height:55px; padding:8px 16px; } .pq-console-top > span:first-child { display:none; } .pq-console-top > div { margin-inline-start:auto; gap:8px; } .pq-console-content { padding:26px 16px; } .pq-console-heading { flex-wrap:wrap; } .pq-console-toolbar { flex-wrap:wrap; } .pq-console .pq-card,.pq-console-card { padding:18px; } .pq-console-overview { grid-template-columns:1fr; } .pq-console-foot { flex-direction:column; } }
 @media(prefers-reduced-motion:reduce) { .pq-console * { animation:none!important; transition:none!important; scroll-behavior:auto; } }

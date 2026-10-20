@@ -9,6 +9,9 @@ import { ReviewerInbox } from "./ReviewerInbox";
 import { ReviewWorkspaceLive } from "./ReviewWorkspaceLive";
 import { SpecialistTimeline } from "@/components/visibility/SpecialistTimeline";
 import { ThemeControl } from "@/components/ui/ThemeControl";
+import { LocaleControl } from "@/components/ui/LocaleControl";
+import { BrandLogo } from "@/components/BrandLogo";
+import type { Locale } from "@/lib/features/f07_arabic_and_english_interface";
 
 type Screen = "overview" | "enquiry" | "activity" | "access";
 const NAV = [
@@ -31,8 +34,12 @@ export function LiveDemo(): JSX.Element {
   const [screen, setScreen] = useState<Screen>("enquiry");
   const [enquiryId, setEnquiryId] = useState<string | null>(null);
   const [openReview, setOpenReview] = useState<string | null>(null);
+  // The site header (which normally hosts the EN/AR control) is hidden on this full-screen
+  // workspace, so the console carries its own locale control, seeded from the server-set <html lang>.
+  const [locale, setLocale] = useState<Locale | null>(null);
   useEffect(() => {
     ensureDemoToken();
+    setLocale(document.documentElement.lang === "ar" ? "ar" : "en");
     try { setEnquiryId(sessionStorage.getItem("pq-active-enquiry")); } catch { /* storage optional */ }
     const sync = () => {
       const value = new URLSearchParams(window.location.search).get("view");
@@ -44,7 +51,10 @@ export function LiveDemo(): JSX.Element {
   }, []);
   function navigate(next: Screen) {
     setScreen(next);
-    window.history.pushState(null, "", `?view=${next}`);
+    // Skip duplicate history entries so Back always leaves the current screen.
+    if (new URLSearchParams(window.location.search).get("view") !== next) {
+      window.history.pushState(null, "", `?view=${next}`);
+    }
   }
   function remember(id: string) {
     setEnquiryId(id);
@@ -55,8 +65,9 @@ export function LiveDemo(): JSX.Element {
     try { sessionStorage.removeItem("pq-active-enquiry"); } catch { /* storage optional */ }
   }
   return <div className="pq-console">
+    <a className="pq-skip-link" href="#pq-console-content">Skip to workspace content</a>
     <aside className="pq-console-rail">
-      <a href="/" className="pq-console-brand"><span><GitBranch size={23} /></span>PartsIQ<span className="pq-console-beta">WORKSPACE</span></a>
+      <a href="/" className="pq-console-brand" aria-label="PartsIQ home"><BrandLogo compact /><span className="pq-console-beta">WORKSPACE</span></a>
       <div className="pq-console-org"><span className="pq-console-avatar">P</span><div><strong>Demo workspace</strong><small>Independent portfolio project</small></div></div>
       <p className="pq-console-label">WORKSPACE</p>
       <nav aria-label="Workspace">{NAV.map(({id,label,icon:Icon}) => <button key={id} aria-current={screen === id ? "page" : undefined} onClick={() => navigate(id)}><Icon size={18}/>{label}{screen === id && <ChevronRight size={15}/>}</button>)}</nav>
@@ -66,8 +77,8 @@ export function LiveDemo(): JSX.Element {
       <a href="/" className="pq-console-back"><ArrowLeft size={15}/> Back to website</a>
     </aside>
     <div className="pq-console-main">
-      <header className="pq-console-top"><span>Workspace <ChevronRight size={14}/> <strong>{NAV.find(n => n.id === screen)?.label}</strong></span><div><span className="pq-console-status"><Radio size={13}/>Synthetic demo</span><ThemeControl/></div></header>
-      <div className="pq-console-content">
+      <header className="pq-console-top"><span>Workspace <ChevronRight size={14}/> <strong>{NAV.find(n => n.id === screen)?.label}</strong></span><div><span className="pq-console-status"><Radio size={13}/>Synthetic demo</span>{locale && <LocaleControl initial={locale}/>}<ThemeControl/></div></header>
+      <div className="pq-console-content" id="pq-console-content" tabIndex={-1}>
         <div className="pq-console-heading"><div><span className="pq-console-kicker">PARTS INTELLIGENCE / HUMAN CONTROL</span><h1>{screen === "overview" ? "Your operations, in focus." : screen === "activity" ? "Follow the evidence." : screen === "access" ? "Clear roles. Clear boundaries." : role === "reviewer" ? "The decision is yours." : "Find the right part."}</h1><p>{screen === "enquiry" ? "From a customer request to a verified recommendation, in one workspace." : "A transparent view of the people, specialists and checks behind each enquiry."}</p></div><button className="pq-btn pq-btn-primary" onClick={newEnquiry}><Plus size={17}/>New enquiry</button></div>
         <div className="pq-console-mode"><div><Workflow size={19}/><strong>Guided workflow</strong><span>Code coordinates · specialists assist · you approve</span></div><span className="pq-console-pill">Available</span></div>
         {!ready ? <p data-testid="session-loading">Starting your demo session…</p> : screen === "enquiry" ? <>

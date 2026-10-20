@@ -29,3 +29,7 @@ Real staff screens still need session restoration, role-aware navigation from se
 86 Vitest tests passed; TypeScript noEmit passed; Next.js production build passed. Node 24.19.0 differs from pinned Node 22.22.0. Pins and lockfile unchanged. Installer linked packages but reported ignored lifecycle scripts; installed binaries ran tests/build. Browser download failed with a truncated archive, so visual browser checks are blocked. DuckDNS fetch timed out. No live model, Snowflake, Redis or Supabase validation; no production deployment.
 
 Rollback: revert implementation commit. No backend state or migration changes.
+
+## Integration addendum (2026-10-20)
+
+The checks above were the patch author's. After applying it to the repository, the following were re-run independently on pinned Node 22.22.0: 93 Vitest tests (86 + 7 new workspace-shell tests), TypeScript noEmit, production build, the existing browser journey at desktop and mobile, and 20 new browser checks (`apps/web/tests/e2e/workspace.mjs`) covering history navigation, refresh restore, non-destructive New enquiry, rejection re-fetch, keyboard/skip link, reduced motion, single `/v1` per request, themes and mobile layout. Visual browser checks are therefore no longer blocked. Integration fixes (locale control on `/demo/live`, brand logo, skip link, full-bleed shell, mobile top bar) are listed in docs/HANDOVER.md. Collaboration, pause/resume/cancel and real RBAC remain out of scope and unconnected.

@@ -351,3 +351,16 @@ Implementation commit: `bc072da` — `feat(web): revamp PartsIQ interface with e
 
 ## Command workspace update
 See docs/reviews/command-workspace.md for new workspace screens, API URL correction, measured checks and unfinished collaboration/RBAC scope. No package pins or migrations changed. Production is not updated by this commit.
+
+### Integration into this repository (branch `feat/command-workspace-integration`)
+- Applied `partsiq-workspace.patch` with `git am` on base `92a5c43` (clean; original author kept as commit `5a7bb30`). No commits existed after the base, so nothing newer was overwritten.
+- Follow-up fixes found during review/visual checks:
+  - `/demo/live` hides the site header, which removed the EN/AR control from that route → the console top bar now hosts `LocaleControl` (seeded from server `<html lang>`).
+  - Console brand mark used a generic icon → now the supplied PartsIQ logo (`BrandLogo`, dark-theme inversion via existing `.pq-brand-logo` rules).
+  - Hidden header also removed the skip link → console has its own "Skip to workspace content" link + focusable content anchor.
+  - A pre-existing generic wrapper rule (`main > :is(div,section,main):not(.pq-container)`) boxed the full-screen console with a 1184px width and margins → `#main-content > .pq-console { width:auto; margin:0 }`.
+  - Mobile top bar overflowed by 27px after adding the locale control → breadcrumb hidden ≤700px (it duplicates the nav strip), controls right-aligned.
+  - Re-selecting the current screen no longer pushes duplicate history entries.
+- Tests added: `apps/web/tests/features/live-workspace.test.tsx` (7: refresh restore, remember new id, history nav + popstate, no duplicate entries, non-destructive New enquiry, "Not connected" + no pause/resume/cancel, locale/logo/synthetic label) and `apps/web/tests/e2e/workspace.mjs` (20 browser checks).
+- Checks actually run here (Node **22.22.0** pinned runtime, checksum-verified binary in a scratch dir; lockfile and pins unchanged): vitest 93/93, `tsc --noEmit` clean, `next build` OK; Python 641 passed/15 skipped; browser journey 7/7 desktop and 7/7 mobile and workspace checks 20/20 against a local fixture backend + production web build. Live HTTP: foreign session → 404, stale revision → 409. 17 captured API requests each had exactly one `/v1`; all 45 `api()` callers use canonical `/v1/...` paths.
+- Not changed / still open: agent-to-agent collaboration, pause/resume/cancel, and real-account RBAC screens are not implemented and stay labelled "Not connected"; `/staff/inbox` is still the offline scenario list; new workspace strings are English-only (RTL layout mirrors correctly, strings not translated); no live Supabase/OpenAI/Snowflake/Redis validation; production at partsiq.duckdns.org is NOT updated by this branch.
