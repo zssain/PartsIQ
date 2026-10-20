@@ -23,7 +23,8 @@ from partsiq.core.errors import PartsIQError
 
 router = APIRouter(tags=["workspace"])
 
-_SAMPLE_PLATE = Path(__file__).resolve().parents[4] / "fixtures" / "nameplates" / "Corvane_Air_CA-110_800000.png"
+# Shipped inside the package so the API image has it (tools/demo/nameplates is the source).
+_SAMPLE_PLATE = Path(__file__).resolve().parents[1] / "workspace" / "assets" / "Corvane_Air_CA-110_800000.png"
 
 
 class _Body(BaseModel):

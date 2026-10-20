@@ -313,7 +313,7 @@ class PostgresWorkspaceStore:
                 record.verification = VerificationResult.model_validate_json(json.dumps(st["verification"])) if st.get("verification") else None
                 record.review_ready_at = _dt(st.get("review_ready_at"))
                 record.events = [R.ProgressEvent(step=v["step"], label=v["label"], at=_dt(v["at"]), status=v["status"], detail=v.get("detail"), revision=v["revision"], run_id=UUID(v["run_id"]) if v.get("run_id") else None) for v in st.get("events", [])]
-                record.attachments = [R.AttachmentRecord(id=UUID(a["id"]), media_type=a["media_type"], size_bytes=a["size_bytes"], status=a["status"], width=a.get("width"), height=a.get("height"), sha256=a.get("sha256"), error_code=a.get("error_code"), fixture_key=a.get("fixture_key"), created_at=_dt(a["created_at"])) for a in st.get("attachments", [])]
+                record.attachments = [R.AttachmentRecord(id=UUID(a["id"]), media_type=a["media_type"], size_bytes=a["size_bytes"], status=a["status"], width=a.get("width"), height=a.get("height"), sha256=a.get("sha256"), error_code=a.get("error_code"), fixture_key=a.get("fixture_key"), created_at=_dt(a["created_at"]), storage_key=a.get("storage_key")) for a in st.get("attachments", [])]
                 if st.get("nameplate"):
                     n = st["nameplate"]
                     record.nameplate = R.NameplateRecord(attachment_id=UUID(n["attachment_id"]), extraction_id=UUID(n["extraction_id"]), model_text=n.get("model_text"), serial_text=n.get("serial_text"), issues=n.get("issues", []), source=n["source"], confirmed=n.get("confirmed", False), confirmed_model=n.get("confirmed_model"), confirmed_serial=n.get("confirmed_serial"))

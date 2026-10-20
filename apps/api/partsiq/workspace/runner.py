@@ -366,13 +366,27 @@ class RunExecutor:
 
         return GraphHandlers(**{name: make(name) for name in NODE_NAMES})
 
+    async def _nameplate_reading(self, ws: Workspace, record: EnquiryRecord) -> dict | None:
+        """Database mode: the worker's reading of the stored photo (awaited, bounded, deduped).
+
+        ``None`` means in-process fixture vision (demo sandboxes, or no worker configured).
+        Called outside the workspace lock; a failed or timed-out job raises and blocks the run.
+        """
+        dispatcher = getattr(self, "nameplates", None)
+        if dispatcher is None or ws.store is None:
+            return None
+        attachment = next((a for a in record.attachments if a.status == "validated"), None)
+        if attachment is None or attachment.storage_key is None or (record.nameplate and record.nameplate.attachment_id == attachment.id):
+            return None
+        return await dispatcher.read(enquiry_id=record.id, revision=record.revision, attachment_id=attachment.id, object_key=attachment.storage_key)
+
     async def _guided_step(self, step: str, ctx: _Ctx, work: EnquiryRecord) -> StepReport:
         pipeline = ctx.pipeline
         started = time.monotonic()
         try:
             if step == "intake":
                 report = await pipeline.intake(work)
-                plate = pipeline.read_nameplate(work)
+                plate = pipeline.read_nameplate(work, await self._nameplate_reading(ctx.ws, work))
                 if plate is not None:
                     report = plate
             elif step == "identify":
@@ -531,10 +545,11 @@ class RunExecutor:
             specialist = specialists[message.recipient]
             ctx.fence = run.fence
             if message.recipient == "nameplate" and record.nameplate is None:
-                # The nameplate specialist's own capability: read the validated photo (fixture
-                # vision here). Identifiers still need the customer's confirmation.
+                # The nameplate specialist's own capability: read the validated photo (the
+                # worker in database mode, fixture vision otherwise). Identifiers still need
+                # the customer's confirmation.
                 work = copy.deepcopy(record)
-                plate = pipeline.read_nameplate(work)
+                plate = pipeline.read_nameplate(work, await self._nameplate_reading(ws, work))
                 self._guard(ctx)
                 _commit(record, work)
                 if plate is not None:

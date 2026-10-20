@@ -489,13 +489,25 @@ class WorkspaceRuntime:
         from partsiq.storage.images import validate_image
 
         ws = await self.workspace(actor)
+        attachment_id, storage_key = uuid4(), None
+        nameplates = getattr(self.executor, "nameplates", None)
+        if ws.store is not None and nameplates is not None:
+            # Database mode: check access, then keep the validated photo in the PRIVATE
+            # nameplates bucket (outside the lock: no network while holding it) so the worker
+            # can read it and it survives a restart.
+            async with ws.lock:
+                record = self._record(actor, ws, enquiry_id)
+                if record.status == "approved":
+                    raise PartsIQError("CONFLICT", detail="This enquiry is already answered.")
+            info = validate_image(data, media_type, settings=self.settings)
+            storage_key = await nameplates.stage(enquiry_id, attachment_id, data, info.media_type)
         async with ws.lock:
             record = self._record(actor, ws, enquiry_id)
             if record.status == "approved":
                 raise PartsIQError("CONFLICT", detail="This enquiry is already answered.")
             # Allowlist, size, magic bytes, decode and decoded-pixel cap — before anything is kept.
             info = validate_image(data, media_type, settings=self.settings)
-            attachment = AttachmentRecord(id=uuid4(), media_type=info.media_type, size_bytes=len(data), status="validated", width=info.width, height=info.height, sha256=info.sha256, fixture_key=fixture_key)
+            attachment = AttachmentRecord(id=attachment_id, media_type=info.media_type, size_bytes=len(data), status="validated", width=info.width, height=info.height, sha256=info.sha256, fixture_key=fixture_key, storage_key=storage_key)
             record.attachments.append(attachment)
             record.nameplate = None
             ws.append_audit(actor_type="user", actor_id=str(actor.user_id), action="attachment.validated", entity_type="attachment", entity_id=str(attachment.id), request_id=actor.request_id, enquiry_id=record.id, revision=record.revision, payload={"bytes": len(data)})

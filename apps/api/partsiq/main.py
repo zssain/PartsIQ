@@ -67,6 +67,15 @@ async def _lifespan(app: FastAPI):
         resumed = await runtime.attach_database(store, checkpoint_dsn=settings.database_url_workflow or settings.database_url_api)
         if container.fixture_adapters is not None:
             container.fixture_adapters.idempotency = PostgresIntakeIdempotency(store)  # type: ignore[assignment]
+        if settings.supabase_url and settings.supabase_service_role_key:
+            # Nameplate photos go to private Storage and are read by the background worker;
+            # Redis is only the wake-up channel (the worker's sweeper covers a Redis outage).
+            from .jobs.live import NameplateDispatcher, PostgresExportSource, RedisQueue, SupabaseStorage
+
+            queue = RedisQueue(settings.redis_url) if settings.redis_url else None
+            object_storage = SupabaseStorage(settings.supabase_url, settings.supabase_service_role_key)
+            runtime.executor.nameplates = NameplateDispatcher(store.pool, queue, object_storage)
+            container.exports = PostgresExportSource(store.pool, queue, object_storage)  # type: ignore[attr-defined]
         logger.info("database mode: account workspace loaded; resumed %s interrupted run(s)", resumed)
     app.state.container = container
     app.state.settings = settings

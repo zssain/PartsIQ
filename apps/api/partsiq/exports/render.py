@@ -37,9 +37,17 @@ _TEMPLATE_NAME = "enquiry.html"
 
 # Bundled licensed brand assets (logo + Noto Latin/Arabic fonts) shipped with the web app.
 # Chromium reads only these local files when it renders; the HTML never fetches the network.
-_ASSET_DIR = (
-    Path(__file__).resolve().parents[3] / "web" / "public" / "brand"
-)
+# In the image they are copied to /app/brand (apps/api/Dockerfile); PARTSIQ_BRAND_DIR overrides.
+def _default_asset_dir() -> Path:
+    import os
+
+    for candidate in (os.environ.get("PARTSIQ_BRAND_DIR"), "/app/brand"):
+        if candidate and Path(candidate, "logo-original.png").exists():
+            return Path(candidate)
+    return Path(__file__).resolve().parents[3] / "web" / "public" / "brand"
+
+
+_ASSET_DIR = _default_asset_dir()
 
 
 @lru_cache(maxsize=1)

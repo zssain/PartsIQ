@@ -158,6 +158,8 @@ class AttachmentRecord:
     error_code: str | None = None
     fixture_key: str | None = None
     created_at: datetime = field(default_factory=utcnow)
+    #: Private ``nameplates`` object key (database mode); the worker reads the photo from here.
+    storage_key: str | None = None
 
 
 @dataclass

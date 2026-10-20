@@ -326,23 +326,29 @@ class Pipeline:
 
     # ------------------------------------------------------------------ nameplate
 
-    def read_nameplate(self, record: EnquiryRecord) -> StepReport | None:
-        """Fixture vision: read the synthetic nameplate fixture; unknown images are 'unreadable'.
+    def read_nameplate(self, record: EnquiryRecord, reading: dict | None = None) -> StepReport | None:
+        """Apply a nameplate reading: the worker's (database mode) or in-process fixture vision.
 
-        Identifiers always require customer confirmation (F15); confidence is never accuracy.
+        Fixture vision recognises only the committed synthetic sample; unknown images are
+        'unreadable'. Identifiers always require customer confirmation (F15); confidence is
+        never accuracy.
         """
         attachment = next((a for a in record.attachments if a.status == "validated"), None)
         if attachment is None or (record.nameplate and record.nameplate.attachment_id == attachment.id):
             return None
-        model, serial, issues = fixture_nameplate(attachment.fixture_key)
+        if reading is not None:
+            model, serial, issues, source = reading.get("model_text"), reading.get("serial_text"), list(reading.get("issues") or []), str(reading.get("source") or "fixture")
+        else:
+            (model, serial, issues), source = fixture_nameplate(attachment.fixture_key), "fixture"
         record.nameplate = NameplateRecord(
             attachment_id=attachment.id,
             extraction_id=uuid4(),
             model_text=model,
             serial_text=serial,
             issues=issues,
-            source="fixture",
+            source=source,
         )
+        vision = "live vision" if source == "live" else "fixture vision"
         found = ", ".join(x for x in (model and f"model {model}", serial and f"serial {serial}") if x)
         pending = PendingSpec(
             kind="nameplate_confirmation",
@@ -359,8 +365,8 @@ class Pipeline:
             "nameplate",
             STEP_LABELS["nameplate"],
             "waiting",
-            f"Read {found or 'no identifiers'} from the photo (fixture vision){'; issues: ' + ', '.join(issues) if issues else ''}. Customer confirmation required.",
-            data={"model_text": model, "serial_text": serial, "issues": issues, "source": "fixture"},
+            f"Read {found or 'no identifiers'} from the photo ({vision}){'; issues: ' + ', '.join(issues) if issues else ''}. Customer confirmation required.",
+            data={"model_text": model, "serial_text": serial, "issues": issues, "source": source},
             pending=pending,
         )
 

@@ -96,3 +96,11 @@ __all__ = [
     "worker",
     "worker_main",
 ]
+
+
+if __name__ == "__main__":
+    # Deploy entrypoint (infra/compose.*.yml). With a database configured this runs the live
+    # PostgreSQL + Redis + Storage worker; without one it refuses to start rather than idling.
+    from .live import main as _live_main
+
+    _live_main()
