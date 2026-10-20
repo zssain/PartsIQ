@@ -108,6 +108,8 @@ class WorkspaceRuntime:
             step_delay_ms=settings.fixture_step_delay_ms,
         )
         self._account_ws: Workspace | None = None
+        self._store: Any = None
+        self._profiles: set[UUID] = set()
 
     # ================================================================== workspaces
 
@@ -120,10 +122,32 @@ class WorkspaceRuntime:
             self._account_ws = Workspace(key=ACCOUNT_KEY, kind="account", catalogue=self._new_catalogue())
         return self._account_ws
 
+    async def attach_database(self, store: Any, *, checkpoint_dsn: str) -> int:
+        """Database mode: make PostgreSQL the authoritative store of the ACCOUNT workspace.
+
+        Bootstraps the catalogue mirror on an empty database, loads every persisted aggregate,
+        moves LangGraph checkpoints to PostgreSQL and resumes runs interrupted by a restart.
+        Any failure propagates so the API refuses to start instead of serving memory.
+        """
+        from .catalogue import CatalogueContext, seed_stock
+
+        seed = self._snapshot_factory()
+        snapshot, ledger, versions = await store.bootstrap_catalogue(seed, seed_stock(seed))
+        ws = Workspace(key=ACCOUNT_KEY, kind="account", catalogue=CatalogueContext(snapshot=snapshot, stock=ledger, versions=versions))
+        ws.store = store
+        await store.load(ws)
+        self._account_ws = ws
+        self._store = store
+        await self.executor.use_postgres_checkpointer(checkpoint_dsn)
+        return self.executor.resume_interrupted(ws)
+
     async def workspace(self, actor: ActorContext) -> Workspace:
         """Resolve the caller's workspace. Demo callers get their own session-generation sandbox."""
         if actor_kind(actor) == "account":
             ws = self.account_workspace
+            if ws.store is not None and actor.user_id not in self._profiles:
+                await ws.store.ensure_profile(actor.user_id, getattr(actor, "display_name", None) or getattr(actor, "email", None))
+                self._profiles.add(actor.user_id)
             ws.touch()
             return ws
         if actor.session_id is None or actor.session_generation is None:

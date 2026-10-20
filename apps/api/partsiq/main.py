@@ -55,6 +55,19 @@ async def _lifespan(app: FastAPI):
     # Open pools only when a runtime DSN is configured; fixture/offline mode has none.
     if settings.database_url_api:
         container.database = await Database.connect(settings, roles=("api",))
+    # DATABASE MODE: the account workspace is persisted in PostgreSQL. Startup fails loudly if the
+    # database or schema is unavailable — it never falls back to in-memory state.
+    store = None
+    runtime = getattr(container, "runtime", None)
+    if settings.database_url_api and runtime is not None:
+        from .persistence.workspace_store import PostgresIntakeIdempotency, PostgresWorkspaceStore
+
+        store = PostgresWorkspaceStore(settings.database_url_api)
+        await store.open()
+        resumed = await runtime.attach_database(store, checkpoint_dsn=settings.database_url_workflow or settings.database_url_api)
+        if container.fixture_adapters is not None:
+            container.fixture_adapters.idempotency = PostgresIntakeIdempotency(store)  # type: ignore[assignment]
+        logger.info("database mode: account workspace loaded; resumed %s interrupted run(s)", resumed)
     app.state.container = container
     app.state.settings = settings
     # Wire the actor verifier so ``require_actor`` can resolve a trusted actor. Fixture mode
@@ -72,6 +85,10 @@ async def _lifespan(app: FastAPI):
     try:
         yield
     finally:
+        if runtime is not None:
+            await runtime.executor.close()
+        if store is not None:
+            await store.close()
         if container.database is not None:
             await container.database.close()
 

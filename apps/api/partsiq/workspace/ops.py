@@ -428,6 +428,9 @@ class OpsMixin:
                 raise PartsIQError("STALE_CATALOGUE", detail="Another version became active. Re-validate this batch against the current version.")
             job = JobRecord(id=uuid4(), kind="catalog_publish", status="succeeded", attempts=1, resource_id=batch.id, owner_id=actor.user_id, created_at=utcnow(), updated_at=utcnow())
             ws.jobs[job.id] = job
+            if ws.store is not None:
+                # Durable compare-and-set publication + catalogue mirror first; memory follows.
+                await ws.store.publish_version(batch.staged_snapshot, label=f"Import {batch.filename[:40]}", actor=actor.user_id)
             ws.catalogue.activate(batch.staged_snapshot, published_by=actor.user_id, import_id=batch.id, label=f"Import {batch.filename[:40]}")
             batch.state = "published"
             batch.updated_at = utcnow()

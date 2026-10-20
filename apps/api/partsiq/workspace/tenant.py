@@ -85,6 +85,47 @@ class CorrectionRecord:
     curated_case_id: str | None = None
 
 
+class PersistingLock:
+    """The workspace critical section. In database mode it is also the unit of work.
+
+    On a clean exit every changed aggregate is flushed to PostgreSQL BEFORE the caller can report
+    success. If the section raised, or the flush failed, the cache is reloaded from PostgreSQL so
+    no partially applied or unsaved change survives in memory (fail closed, never fall back).
+    """
+
+    def __init__(self, ws: "Workspace") -> None:
+        self._ws = ws
+        self._lock = asyncio.Lock()
+
+    async def __aenter__(self) -> "PersistingLock":
+        await self._lock.acquire()
+        return self
+
+    async def __aexit__(self, exc_type: Any, exc: Any, tb: Any) -> bool:
+        store = self._ws.store
+        try:
+            if store is None:
+                return False
+            if exc_type is None:
+                try:
+                    await store.flush(self._ws)
+                except Exception as error:  # noqa: BLE001
+                    from partsiq.core.errors import PartsIQError
+
+                    await store.load(self._ws)
+                    if isinstance(error, PartsIQError):
+                        raise
+                    raise PartsIQError("DEPENDENCY_UNAVAILABLE", internal_detail=f"flush failed: {type(error).__name__}") from error
+            else:
+                await store.load(self._ws)
+            return False
+        finally:
+            self._lock.release()
+
+    def locked(self) -> bool:
+        return self._lock.locked()
+
+
 @dataclass
 class Workspace:
     key: str
@@ -95,7 +136,10 @@ class Workspace:
     session_generation: int | None = None
     created_at: datetime = field(default_factory=utcnow)
     last_used: float = field(default_factory=time.monotonic)
-    lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+    #: PostgreSQL write-through store (account workspace in database mode only).
+    store: Any = None
+    persisted: dict[str, Any] = field(default_factory=dict)
+    lock: Any = field(init=False)
     enquiries: dict[UUID, EnquiryRecord] = field(default_factory=dict)
     runs: dict[UUID, RunRecord] = field(default_factory=dict)
     exchanges: dict[UUID, list[ExchangeRecord]] = field(default_factory=dict)  # run_id -> ordered
@@ -115,6 +159,9 @@ class Workspace:
     audit_seq: int = 0
     #: Server-measured operational samples for analytics (latency per stage, review seconds).
     stage_samples: dict[str, list[float]] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        self.lock = PersistingLock(self)
 
     def touch(self) -> None:
         self.last_used = time.monotonic()

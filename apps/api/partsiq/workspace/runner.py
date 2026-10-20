@@ -81,6 +81,40 @@ class RunExecutor:
         self._graph = build_graph(self._guided_handlers(), self._checkpointer, interrupt_before=NODE_NAMES)
         self.limits = RunLimits.from_settings(settings)
 
+    async def use_postgres_checkpointer(self, dsn: str) -> None:
+        """Database mode: LangGraph checkpoints in PostgreSQL so guided runs resume after restart."""
+        from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+        from psycopg.rows import dict_row
+        from psycopg_pool import AsyncConnectionPool
+
+        from partsiq.workflow.graph import ContractSerde
+
+        self._pg_pool = AsyncConnectionPool(conninfo=dsn, open=False, max_size=4, kwargs={"autocommit": True, "prepare_threshold": None, "row_factory": dict_row})
+        await self._pg_pool.open(wait=True, timeout=20)
+        saver = AsyncPostgresSaver(self._pg_pool, serde=ContractSerde())
+        await saver.setup()
+        self._checkpointer = saver
+        self._graph = build_graph(self._guided_handlers(), saver, interrupt_before=NODE_NAMES)
+
+    async def close(self) -> None:
+        pool = getattr(self, "_pg_pool", None)
+        if pool is not None:
+            await pool.close()
+
+    def resume_interrupted(self, ws: Workspace) -> int:
+        """After a restart, continue runs that were executing when the process stopped."""
+        resumed = 0
+        for run in ws.runs.values():
+            if run.status in ("queued", "running", "pausing"):
+                if run.control == "pause_requested" or run.status == "pausing":
+                    run.status, run.control = "paused", "paused"
+                    continue
+                run.status = "queued"
+                run.in_flight = False
+                self.schedule(ws, run)
+                resumed += 1
+        return resumed
+
     # ------------------------------------------------------------------ exchanges / events
 
     def emit(
@@ -151,6 +185,12 @@ class RunExecutor:
         """Invalidate any in-flight step for ``run`` (cancel / supersede / reset)."""
         run.fence += 1
 
+    async def persist(self, ws: Workspace) -> None:
+        """Database mode: write the committed step through to PostgreSQL (the lock flushes on exit)."""
+        if ws.store is not None:
+            async with ws.lock:
+                pass
+
     async def _drive(self, ws: Workspace, run: RunRecord) -> None:
         record = ws.enquiries.get(run.enquiry_id)
         if record is None:
@@ -178,6 +218,10 @@ class RunExecutor:
         finally:
             self._accrue(run)
             run.in_flight = False
+            try:
+                await self.persist(ws)
+            except Exception:  # noqa: BLE001 - the cache was reloaded from PostgreSQL by the lock
+                logger.warning("run %s: final flush failed; state reloaded from the database", run.id)
 
     def _accrue(self, run: RunRecord) -> None:
         if run.active_since is not None:
@@ -299,6 +343,10 @@ class RunExecutor:
                 ctx = self._contexts.get(state.enquiry_id)
                 if ctx is None:
                     raise Discarded()
+                # Restart recovery: if this run already committed this step (its result was saved
+                # but the checkpoint was not), replay the committed state instead of redoing work.
+                if any(e.kind == "step_completed" and e.payload.get("step") == step for e in ctx.ws.exchanges.get(ctx.run.id, [])):
+                    return _state_from_record(state, ctx.record)
                 work = copy.deepcopy(ctx.record)
                 report = await self._guided_step(step, ctx, work)
                 self._guard(ctx)
@@ -308,8 +356,11 @@ class RunExecutor:
                 self._event(ctx.record, ctx.run, report)
                 self.emit(ctx.ws, ctx.run, sender="workflow", recipient=None, kind="step_completed", summary=f"{report.label}: {report.detail}", data={"step": step, "status": report.status, **_scrub(report.data)}, refs=report.evidence_refs, source=ctx.run.execution_source)
                 if report.pending is not None:
-                    ctx.run.board["pending_spec"] = report.pending
+                    ctx.run.pending_spec = report.pending
                 ctx.ws.sample(f"step.{step}", 0.0)
+                # Durability order: the step's committed result reaches PostgreSQL BEFORE LangGraph
+                # writes the checkpoint that advances past this node (crash-safe replay above).
+                await self.persist(ctx.ws)
                 return _state_from_record(state, ctx.record)
             return handler
 
@@ -377,14 +428,17 @@ class RunExecutor:
                     return
                 finally:
                     run.in_flight = False
+                await self.persist(ws)
             snapshot = await self._graph.aget_state(config)
-            state = snapshot.values if isinstance(snapshot.values, EnquiryState) else EnquiryState.model_validate(snapshot.values)
+            values = snapshot.values
+            state = values if isinstance(values, EnquiryState) else EnquiryState.model_validate_json(EnquiryState.model_construct(**values).model_dump_json())
             self._finish_guided(ws, record, run, next_step(state))
         finally:
             self._contexts.pop(record.id, None)
 
     def _finish_guided(self, ws: Workspace, record: EnquiryRecord, run: RunRecord, step: WorkflowStep) -> None:
-        spec = run.board.pop("pending_spec", None)
+        spec = getattr(run, "pending_spec", None)
+        run.pending_spec = None
         if step == WorkflowStep.REVIEW:
             self._ready(ws, record, run)
         elif step in (WorkflowStep.CLARIFY, WorkflowStep.CONFIRM, WorkflowStep.AWAIT_OCR):
@@ -459,6 +513,7 @@ class RunExecutor:
             task = self.emit(ws, run, sender="controller", recipient="intake", kind="task", summary=summary, data={"revision": record.revision})
             self.emit(ws, run, sender="intake", recipient="controller", kind="finding", summary=f"Extracted {report.detail} (extractor: {report.data.get('source')}).", data={"items": report.data.get("items", [])}, reply_to=task.id, status="handled")
             run.agenda.append(task.id)
+            await self.persist(ws)
         self._bump(run, status="running", control="active")
         run.active_since = time.monotonic()
         rejections = 0
@@ -521,6 +576,7 @@ class RunExecutor:
                     return
             else:
                 rejections = 0
+            await self.persist(ws)
             if run.status != "running":
                 return
 

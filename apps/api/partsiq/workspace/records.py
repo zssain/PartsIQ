@@ -257,6 +257,8 @@ class RunRecord:
     thread_id: str | None = None
     #: Monotonic start of the current active slice (for wall-clock accounting).
     active_since: float | None = None
+    #: Question raised by the last guided step (transient; re-derived from the record on resume).
+    pending_spec: Any = None
 
 
 @dataclass

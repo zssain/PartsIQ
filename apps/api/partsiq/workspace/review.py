@@ -305,6 +305,11 @@ class ReviewMixin:
                 return replay
             if expected_revision != record.revision:
                 raise PartsIQError("STALE_REVISION", detail="The enquiry changed. Reload before reassigning.")
+            if assignee_id is not None and ws.store is not None and assignee_id not in ws.members and self.directory is not None:
+                for user in await self.directory.list_users():
+                    ws.members[user.id] = user
+            if assignee_id is not None and ws.store is not None and assignee_id in ws.members:
+                await ws.store.ensure_profile(assignee_id, ws.members[assignee_id].display_name)
             if assignee_id is not None:
                 member = ws.members.get(assignee_id)
                 if member is None or not any(r in member.roles for r in ("reviewer", "admin")):
