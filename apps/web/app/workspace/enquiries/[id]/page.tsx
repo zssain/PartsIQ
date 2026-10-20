@@ -47,6 +47,8 @@ function Detail({ d, runView, refresh }: { d: EnquiryDetail; runView: EnquiryDet
   const msg = useIdempotentAction(sendMessage);
   const startRun = useCallback(async (key: string, mode: RunMode) => ws.startRun(d.id, mode, d.revision, key), [d.id, d.revision]);
   const start = useIdempotentAction(startRun);
+  const repeatFn = useCallback(async (key: string) => ws.repeat(d.id, { locale: d.locale, destination_warehouse_id: d.destination.id }, key), [d.id, d.locale, d.destination.id]);
+  const repeat = useIdempotentAction(repeatFn);
   const active = runView && !["awaiting_review", "completed", "cancelled", "failed", "superseded", "needs_staff", "blocked"].includes(runView.status);
   const otherMode: RunMode = d.mode === "guided" ? "collaboration" : "guided";
 
@@ -143,6 +145,14 @@ function Detail({ d, runView, refresh }: { d: EnquiryDetail; runView: EnquiryDet
                 <button className="app-btn small" disabled={start.pending} onClick={async () => { const r = await start.run(otherMode); if (r) { toast("ok", `New ${otherMode} run started.`); router.push(`/workspace/runs/${r.id}`); } }} data-testid="start-other-mode">{otherMode === "collaboration" ? <Bot size={14} /> : <Workflow size={14} />}Try {otherMode === "collaboration" ? "agent collaboration" : "guided workflow"}</button>
               </div>
               {start.error && <Alert tone="danger">{errorMessage(start.error)}</Alert>}
+            </section>
+          )}
+          {d.status === "approved" && d.is_owner && can("enquiry.create") && (
+            <section className="app-card sunken app-stack">
+              <h2 className="app-card-title"><Repeat size={16} />Order this again</h2>
+              <p className="app-small app-muted">Creates a new enquiry from the same request. Compatibility and stock are checked again against today's catalogue — the earlier answer is not reused.</p>
+              <div><button className="app-btn small" disabled={repeat.pending} data-testid="repeat-enquiry" onClick={async () => { const r = await repeat.run(); if (r) { toast("ok", "New enquiry created from this one."); router.push(`/workspace/enquiries/${r.id}`); } }}><Repeat size={14} />Repeat this enquiry</button></div>
+              {repeat.error && <Alert tone="danger">{errorMessage(repeat.error)}</Alert>}
             </section>
           )}
           {d.runs.length > 1 && (

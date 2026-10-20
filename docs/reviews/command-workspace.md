@@ -33,3 +33,11 @@ Rollback: revert implementation commit. No backend state or migration changes.
 ## Integration addendum (2026-10-20)
 
 The checks above were the patch author's. After applying it to the repository, the following were re-run independently on pinned Node 22.22.0: 93 Vitest tests (86 + 7 new workspace-shell tests), TypeScript noEmit, production build, the existing browser journey at desktop and mobile, and 20 new browser checks (`apps/web/tests/e2e/workspace.mjs`) covering history navigation, refresh restore, non-destructive New enquiry, rejection re-fetch, keyboard/skip link, reduced motion, single `/v1` per request, themes and mobile layout. Visual browser checks are therefore no longer blocked. Integration fixes (locale control on `/demo/live`, brand logo, skip link, full-bleed shell, mobile top bar) are listed in docs/HANDOVER.md. Collaboration, pause/resume/cancel and real RBAC remain out of scope and unconnected.
+
+## Superseded (2026-10-20)
+
+The "not connected" items above are now implemented on branch `feat/complete-workspace`
+(ADR 0002): agent collaboration with persisted addressed exchanges, server-enforced
+pause/resume/cancel/instruct/consent, and account RBAC from server capabilities. `/demo/live`
+redirects to the unified `/workspace`. The earlier `tests/e2e/journey.mjs` and `workspace.mjs`
+were replaced by `workspace-app.mjs` and `accounts.mjs`. The records above are kept as history.

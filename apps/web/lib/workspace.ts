@@ -199,6 +199,7 @@ export const ws = {
   saveMachine: (body: { label: string; model_text: string; serial_text: string }, key: string) => api("/v1/machines", { method: "POST", headers: k(key), body: JSON.stringify(body) }),
   archiveMachine: (id: string) => api(`/v1/machines/${id}`, { method: "DELETE" }),
   checkMachine: (id: string) => api<{ state: string; configuration_label: string | null; note: string }>(`/v1/machines/${id}/check`),
+  repeat: (id: string, body: { locale: "en" | "ar"; destination_warehouse_id: number }, key: string) => api<{ id: string }>(`/v1/enquiries/${id}/repeat`, { method: "POST", headers: k(key), body: JSON.stringify(body) }),
   resetDemo: (sessionId: string, key: string) => api<{ id: string; generation: number; expires_at: string }>(`/v1/demo/sessions/${sessionId}/reset`, { method: "POST", headers: k(key), body: JSON.stringify({ expected_revision: 1 }) }),
 };
 
