@@ -29,6 +29,24 @@ from partsiq.core.settings import Settings
 class DemoStore(Protocol):
     async def create_session(self, owner_id: UUID) -> DemoSession: ...
 
+    async def resolve_session(self, owner_id: UUID) -> DemoSession:
+        """The owner's current session; a missing or expired one is replaced by a fresh one."""
+        current = self._sessions.get(owner_id)
+        if current is None or current.expires_at <= datetime.now(tz=timezone.utc):
+            self._sessions.pop(owner_id, None)
+            current = await self.create_session(owner_id)
+        return current
+
+    async def is_current(self, owner_id: UUID, session_id: UUID, generation: int) -> bool:
+        """True only for the owner's active (non-expired, non-reset) session generation."""
+        current = self._sessions.get(owner_id)
+        return (
+            current is not None
+            and current.id == session_id
+            and current.generation == generation
+            and current.expires_at > datetime.now(tz=timezone.utc)
+        )
+
     async def reset_session(self, owner_id: UUID, idempotency_key: UUID) -> DemoSession: ...
 
 
@@ -93,6 +111,24 @@ class InMemoryDemoStore:
         session = DemoSession(id=uuid4(), generation=1, expires_at=self._expiry())
         self._sessions[owner_id] = session
         return session
+
+    async def resolve_session(self, owner_id: UUID) -> DemoSession:
+        """The owner's current session; a missing or expired one is replaced by a fresh one."""
+        current = self._sessions.get(owner_id)
+        if current is None or current.expires_at <= datetime.now(tz=timezone.utc):
+            self._sessions.pop(owner_id, None)
+            current = await self.create_session(owner_id)
+        return current
+
+    async def is_current(self, owner_id: UUID, session_id: UUID, generation: int) -> bool:
+        """True only for the owner's active (non-expired, non-reset) session generation."""
+        current = self._sessions.get(owner_id)
+        return (
+            current is not None
+            and current.id == session_id
+            and current.generation == generation
+            and current.expires_at > datetime.now(tz=timezone.utc)
+        )
 
     async def reset_session(self, owner_id: UUID, idempotency_key: UUID) -> DemoSession:
         applied_key = (owner_id, idempotency_key)

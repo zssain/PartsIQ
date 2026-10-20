@@ -20,3 +20,10 @@ Run deterministic labelled suite with no provider calls. Report candidate recall
 
 ## Hosted checks
 After27,run hosted scenario suite over HTTPS against demo only. No destructive production fixtures. Record real environment,commit,latency and result. Free-plan expiry,paused project or unavailable credentials are blocked checks. A build-kit validation pass does not substitute for them.
+
+## Workspace release checks (ADR 0002)
+- [ ] `uv run --all-packages pytest apps/api/tests -q` (and the Postgres migration test with a disposable DSN)
+- [ ] `pnpm --dir apps/web exec vitest run` and `tsc --noEmit`, `next build`
+- [ ] Start API (fixture) + web, then `node apps/web/tests/e2e/workspace-app.mjs`
+- [ ] With Supabase Auth configured: provision with `--links-only` into E2E_INVITES, then `node apps/web/tests/e2e/accounts.mjs`
+- [ ] Record whether AI execution was live or fixture; never count fixture runs as live evidence

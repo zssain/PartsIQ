@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type JSX } from "react";
+import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 
 import { ApiError } from "@/lib/api";
 import { listInbox } from "@/lib/live";
@@ -22,18 +22,25 @@ export function ReviewerInbox({ onOpen }: { onOpen: (id: string) => void }): JSX
   const [items, setItems] = useState<EnquiryView[] | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
 
-  const load = useCallback(async () => {
-    setError(null);
-    try {
-      const result = await listInbox("awaiting_review");
-      setItems(result.items);
-    } catch (err) {
-      if (err instanceof ApiError) setError(err);
-    }
+  // Results are applied only if the request is still current (no update after unmount/retry).
+  const generation = useRef(0);
+  const load = useCallback(() => {
+    const mine = ++generation.current;
+    return listInbox("awaiting_review").then(
+      (result) => {
+        if (mine !== generation.current) return;
+        setError(null);
+        setItems(result.items);
+      },
+      (err) => {
+        if (mine === generation.current && err instanceof ApiError) setError(err);
+      },
+    );
   }, []);
 
   useEffect(() => {
     void load();
+    return () => { generation.current += 1; };
   }, [load]);
 
   if (error && PERMISSION.has(error.status)) {

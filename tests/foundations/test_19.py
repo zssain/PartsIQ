@@ -81,11 +81,17 @@ class Ocr(unittest.TestCase):
 
 class Demo(unittest.TestCase):
     def test_four_scenarios_and_reset_clears_cache(self):
-        demo = _read("app/demo/page.tsx")
+        # The four scripted walkthroughs (secondary to the live workspace sandbox).
+        engine = _read("lib/demo/engine.ts")
         for scenario in ("mixed_photo", "missing_serial", "incompatible_number", "local_shortage"):
-            self.assertIn(scenario, demo)
-        self.assertIn("/v1/demo/reset", demo)
-        self.assertIn("sessionStorage.clear", demo)
+            self.assertIn(scenario, engine)
+        self.assertIn("SCENARIOS", _read("app/demo/scenarios/page.tsx"))
+        # Reset starts a new server-side session generation...
+        self.assertIn("/reset", _read("lib/workspace.ts"))
+        # ...and the generation is part of the identity key, so every cached screen is dropped.
+        session = _read("lib/session.tsx")
+        self.assertIn("me.demo_session_generation", session)
+        self.assertIn("drop every cached screen", session)
 
 
 if __name__ == "__main__":

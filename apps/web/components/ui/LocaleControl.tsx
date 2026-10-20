@@ -3,12 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useState, type JSX } from "react";
 
+import { useT } from "@/lib/app-i18n";
 import type { Locale } from "@/lib/features/f07_arabic_and_english_interface";
 
 // Compact EN / العربية toggle. Persists the preference cookie (F07) and refreshes the route so
 // the server layout re-reads it and flips <html lang/dir> — no full reload, draft state survives.
 export function LocaleControl({ initial = "en" }: { initial?: Locale }): JSX.Element {
   const router = useRouter();
+  const t = useT(); // outside the workspace provider this resolves to English
   const [locale, setLocale] = useState<Locale>(initial);
 
   function choose(next: Locale) {
@@ -24,7 +26,7 @@ export function LocaleControl({ initial = "en" }: { initial?: Locale }): JSX.Ele
   }
 
   return (
-    <div className="pq-badge" role="group" aria-label="Language" style={{ padding: "0.25rem", gap: "0.15rem" }}>
+    <div className="pq-badge" role="group" aria-label={t("common.language")} style={{ padding: "0.25rem", gap: "0.15rem" }}>
       <button
         type="button"
         onClick={() => choose("en")}

@@ -89,6 +89,8 @@ _COMPLETED_FEATURE_MODULES: tuple[str, ...] = (
     "partsiq.api.f67_traces",
     # Demo-journey loop closers (timeline + in-demo review approval) over the fixture journey.
     "partsiq.api.demo_journey",
+    # Workspace runtime (ADR 0002): runs, exchanges, commands, composed reads and admin.
+    "partsiq.api.workspace_api",
 )
 
 _FEATURES_INCLUDED = False

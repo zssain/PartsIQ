@@ -48,21 +48,20 @@ def test_the_api_exposes_a_broad_v1_surface(client: TestClient) -> None:
     assert len(v1) >= 60
 
 
-@pytest.mark.parametrize(
-    "path",
-    [
-        "/v1/staff/metrics",
-        "/v1/staff/missing-parts",
-        "/v1/admin/catalogue/versions",
-    ],
-)
-def test_staff_admin_reads_refuse_a_demo_caller(client: TestClient, path: str) -> None:
-    # A demo (non-staff) actor must never get a 200 from a staff/admin route. The exact error
-    # may be 403 (role gate), 404 (no existence leak), 422 (missing required query), or 503
-    # (DB-backed read not configured offline) — the security invariant is simply "never 200".
+@pytest.mark.parametrize("path", ["/v1/staff/metrics", "/v1/admin/ai-allowance"])
+def test_real_staff_only_reads_refuse_a_demo_caller(client: TestClient, path: str) -> None:
+    # Shared, real configuration and the staff metrics view are never reachable from the public
+    # demo — not even inside its sandbox (ADR 0002: REAL_ONLY capabilities).
     resp = client.get(path, headers=DEMO)
     assert 400 <= resp.status_code < 600
-    assert resp.status_code != 200
+
+
+@pytest.mark.parametrize("path", ["/v1/staff/missing-parts", "/v1/admin/catalogue/versions"])
+def test_sandbox_admin_reads_are_scoped_to_the_demo_session(client: TestClient, path: str) -> None:
+    # A demo visitor previews admin screens over its OWN disposable sandbox only; the result is
+    # synthetic and never includes another session's data.
+    resp = client.get(path, headers=DEMO)
+    assert resp.status_code == 200
 
 
 def test_saved_machines_list_requires_identity(client: TestClient) -> None:

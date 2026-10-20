@@ -57,26 +57,29 @@ def _create(client: TestClient, text: str, token: str = "journey") -> str:
 def _approve(client: TestClient, enquiry_id: str, token: str = "journey"):
     """Approve via the CANONICAL review endpoint (own-demo-session scope, F03 role switch)."""
     ws = client.get(f"/v1/staff/enquiries/{enquiry_id}", headers=_demo(token))
-    revision = ws.json()["enquiry"]["revision"] if ws.status_code == 200 else 1
-    from uuid import uuid4 as _uuid4
-
+    body = ws.json() if ws.status_code == 200 else {}
+    revision = body.get("enquiry", {}).get("revision", 1)
+    # Approval binds to the exact server-side draft (a random id is a 409).
+    draft_id = body.get("draft_id") or str(uuid4())
     return client.post(
         f"/v1/staff/enquiries/{enquiry_id}/approve",
         headers=_demo(token, key=True),
-        json={"enquiry_id": enquiry_id, "expected_revision": revision, "draft_id": str(_uuid4())},
+        json={"enquiry_id": enquiry_id, "expected_revision": revision, "draft_id": draft_id},
     )
 
 
 # --- the happy-path loop ----------------------------------------------
 
 def test_full_loop_create_progress_review_approve(client: TestClient) -> None:
-    enquiry_id = _create(client, "need oil filter for CAT 320")
+    enquiry_id = _create(client, "Need 1 air filter element CA-AF-8973 for Corvane Air CA-110 serial 800123")
     # Progress reflects the real LangGraph run paused at human review.
     prog = client.get(f"/v1/enquiries/{enquiry_id}/progress", headers=_demo()).json()
     assert prog["step"] == "review"
     timeline = client.get(f"/v1/enquiries/{enquiry_id}/timeline", headers=_demo()).json()
     steps = [e["step"] for e in timeline["events"]]
     assert steps[:6] == ["intake", "identify", "search", "plan", "draft", "verify"]
+    # Every event carries the concise evidence line recorded when the step actually ran.
+    assert all(e.get("detail") for e in timeline["events"][:6])
     assert steps[-1] == "review"
     # The reviewer workspace assembles real seed-42 content (facts/draft/verification).
     ws = client.get(f"/v1/staff/enquiries/{enquiry_id}", headers=_demo()).json()
@@ -108,7 +111,7 @@ def test_all_four_demo_scenarios_run_through_the_workflow(client: TestClient) ->
 # --- resilience -------------------------------------------------------
 
 def test_refresh_resume_is_consistent(client: TestClient) -> None:
-    enquiry_id = _create(client, "need filter")
+    enquiry_id = _create(client, "Need 1 air filter element CA-AF-8973 for Corvane Air CA-110 serial 800123")
     first = client.get(f"/v1/enquiries/{enquiry_id}/timeline", headers=_demo()).json()
     second = client.get(f"/v1/enquiries/{enquiry_id}/timeline", headers=_demo()).json()
     # A re-read (page refresh / resume) returns the same persisted sequence — no re-run drift.
@@ -124,7 +127,7 @@ def test_duplicate_submission_is_one_enquiry(client: TestClient) -> None:
 
 
 def test_duplicate_approval_publishes_once(client: TestClient) -> None:
-    enquiry_id = _create(client, "need filter")
+    enquiry_id = _create(client, "Need 1 air filter element CA-AF-8973 for Corvane Air CA-110 serial 800123")
     first = _approve(client, enquiry_id).json()
     second = _approve(client, enquiry_id).json()
     assert first["already_applied"] is False and second["already_applied"] is True
@@ -151,5 +154,5 @@ def test_fixture_mode_completes_without_live_credits(client: TestClient) -> None
     # live results. If live credits were exhausted this is exactly the preserved fallback.
     settings = client.app.state.settings
     assert settings.ai_mode == "fixture"
-    enquiry_id = _create(client, "need filter")
+    enquiry_id = _create(client, "Need 1 air filter element CA-AF-8973 for Corvane Air CA-110 serial 800123")
     assert client.get(f"/v1/enquiries/{enquiry_id}/progress", headers=_demo()).json()["step"] == "review"

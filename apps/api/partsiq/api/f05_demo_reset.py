@@ -46,4 +46,14 @@ async def reset_session(
     container: AppContainer = Depends(get_container),
     key: UUID = Depends(idempotency_key),
 ) -> DemoSession:
-    return await facade.reset_session(actor, session_id, key, store=_demo_store(container))
+    from partsiq.auth.actors import actor_kind
+
+    if actor_kind(actor) != "demo":
+        raise PartsIQError("FORBIDDEN", detail="Only a public demo session can be reset.")
+    previous = actor.session_generation
+    session = await facade.reset_session(actor, session_id, key, store=_demo_store(container))
+    runtime = getattr(container, "runtime", None)
+    if runtime is not None and session.generation != previous:
+        # Abandon the previous generation's sandbox: fence its runs, drop its data.
+        await runtime.reset_demo(actor, previous)
+    return session

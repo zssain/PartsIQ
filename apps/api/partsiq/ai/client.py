@@ -72,6 +72,35 @@ def build_openai_client(
     return AsyncOpenAI(max_retries=0, timeout=timeout, api_key=api_key)
 
 
+def strict_json_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """Make a Pydantic JSON schema acceptable to OpenAI strict structured outputs.
+
+    Strict mode requires every object to list ALL its properties in ``required`` and to set
+    ``additionalProperties: false``, and rejects ``default``. Fields that have a Pydantic default
+    become required (the model must then emit them); the response is still re-validated against
+    the Pydantic contract, so nothing outside the contract is accepted.
+    """
+    def fix(node: Any) -> Any:
+        if isinstance(node, dict):
+            node = {k: fix(v) for k, v in node.items() if k != "default"}
+            if isinstance(node.get("anyOf"), list):
+                # Pydantic renders Decimal as number | pattern-string; the pattern uses a lookahead
+                # that strict grammars cannot compile (the model then emits nothing). Keep number.
+                branches = node["anyOf"]
+                if any(b.get("type") in ("number", "integer") for b in branches if isinstance(b, dict)):
+                    node["anyOf"] = [b for b in branches if not (isinstance(b, dict) and b.get("type") == "string" and "pattern" in b)]
+            if node.get("type") == "object" or "properties" in node:
+                props = node.get("properties", {})
+                node["required"] = list(props)
+                node["additionalProperties"] = False
+            return node
+        if isinstance(node, list):
+            return [fix(v) for v in node]
+        return node
+
+    return fix(schema)
+
+
 def _schema_for(output_schema_name: str) -> type:
     schema = _SCHEMAS.get(output_schema_name)
     if schema is None:
@@ -133,7 +162,7 @@ async def call_structured(
         "type": "json_schema",
         "json_schema": {
             "name": request.output_schema_name,
-            "schema": _SCHEMAS[request.output_schema_name].model_json_schema(),
+            "schema": strict_json_schema(_SCHEMAS[request.output_schema_name].model_json_schema()),
             "strict": True,
         },
     }

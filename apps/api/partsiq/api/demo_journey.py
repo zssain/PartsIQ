@@ -29,6 +29,8 @@ class ProgressEventView(BaseModel):
     label: str
     at: datetime
     status: str
+    # Concise evidence line recorded when the step ran (never hidden reasoning).
+    detail: str | None = None
 
 
 class ProgressTimeline(BaseModel):

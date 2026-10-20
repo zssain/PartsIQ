@@ -4,8 +4,8 @@
 #   * API     -> uvicorn partsiq.main:create_app --factory --host 0.0.0.0 --port 8000 --workers 1
 #   * worker  -> python -m partsiq.jobs.main
 # The two roles differ ONLY by the container `command` (see infra/compose.*.yml); the image
-# itself is identical, so a single release SHA pins both. No multi-agent framework, no
-# LangGraph/LangChain/CrewAI. The API never imports the optional encoder on startup; the
+# itself is identical, so a single release SHA pins both. The guided workflow uses LangGraph
+# (ADR 0002); there is no other agent framework. The API never imports the optional encoder; the
 # optional sentence-transformers + CPU torch wheel are loaded by the worker only and are
 # NOT baked into this base image (see the semantic profile in infra/compose.production.yml).
 #
@@ -50,6 +50,14 @@ COPY --from=builder /opt/venv /opt/venv
 
 # The single `partsiq` package (API factory + worker entrypoint live here).
 COPY apps/api/partsiq ./partsiq
+# Bundled OFL fonts + logo for the PDF export (read locally by Chromium; no network).
+COPY apps/web/public/brand ./brand
+# Headless Chromium for the export_pdf worker job, at a fixed path readable by appuser.
+# --only-shell installs the small headless shell (not full Chrome); --with-deps adds its libs.
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
+RUN playwright install --with-deps --only-shell chromium \
+    && rm -rf /var/lib/apt/lists/* \
+    && chmod -R o+rx /opt/ms-playwright
 # The pinned dependency manifest for the in-image healthcheck/readiness tooling.
 COPY tools/healthcheck.py ./tools/healthcheck.py
 

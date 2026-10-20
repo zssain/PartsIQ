@@ -289,6 +289,8 @@ class ReviewView(Contract):
     draft: ReplySlots | None
     verification: VerificationResult | None
     assigned_to: UUID | None
+    # Additive (ADR 0002): approval must name the exact draft it approves (409 on change).
+    draft_id: UUID | None = None
 class DemoScenario(Contract):
     id: Literal['mixed_photo','missing_serial','incompatible_number','local_shortage']
     text: str

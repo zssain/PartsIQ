@@ -55,16 +55,57 @@ async def _lifespan(app: FastAPI):
     # Open pools only when a runtime DSN is configured; fixture/offline mode has none.
     if settings.database_url_api:
         container.database = await Database.connect(settings, roles=("api",))
+    # DATABASE MODE: the account workspace is persisted in PostgreSQL. Startup fails loudly if the
+    # database or schema is unavailable — it never falls back to in-memory state.
+    store = None
+    runtime = getattr(container, "runtime", None)
+    if settings.database_url_api and runtime is not None:
+        from .persistence.workspace_store import PostgresIntakeIdempotency, PostgresWorkspaceStore
+
+        store = PostgresWorkspaceStore(settings.database_url_api)
+        await store.open()
+        resumed = await runtime.attach_database(store, checkpoint_dsn=settings.database_url_workflow or settings.database_url_api)
+        if container.fixture_adapters is not None:
+            container.fixture_adapters.idempotency = PostgresIntakeIdempotency(store, memory=container.fixture_adapters.idempotency)  # type: ignore[assignment]
+        if getattr(runtime, "_ledger", None) is not None:
+            # Live AI in database mode: the confirmed allowance is tracked in PostgreSQL so a
+            # restart can never forget spend and exceed the cap.
+            from .ai.ledger_pg import PostgresBudgetLedger
+
+            ledger = PostgresBudgetLedger(store.pool, runtime._ledger.allowance)
+            await ledger.ensure()
+            runtime._ledger = ledger
+        if settings.supabase_url and settings.supabase_service_role_key:
+            # Nameplate photos go to private Storage and are read by the background worker;
+            # Redis is only the wake-up channel (the worker's sweeper covers a Redis outage).
+            from .jobs.live import NameplateDispatcher, PostgresExportSource, RedisQueue, SupabaseStorage
+
+            queue = RedisQueue(settings.redis_url) if settings.redis_url else None
+            object_storage = SupabaseStorage(settings.supabase_url, settings.supabase_service_role_key)
+            runtime.executor.nameplates = NameplateDispatcher(store.pool, queue, object_storage)
+            container.exports = PostgresExportSource(store.pool, queue, object_storage)  # type: ignore[attr-defined]
+        logger.info("database mode: account workspace loaded; resumed %s interrupted run(s)", resumed)
     app.state.container = container
     app.state.settings = settings
     # Wire the actor verifier so ``require_actor`` can resolve a trusted actor. Fixture mode
     # resolves an anonymous demo actor from an ``X-Demo-Token`` header; DB mode wires the real
     # Supabase JWT verifier (owner work; left unset here so protected routes refuse cleanly).
-    if settings.data_source == "fixture" and getattr(app.state, "actor_verifier", None) is None:
-        app.state.actor_verifier = build_fixture_verifier()
+    if getattr(app.state, "actor_verifier", None) is None:
+        from .auth.supabase import CompositeVerifier, build_account_verifier
+
+        account = build_account_verifier(settings, container.directory)
+        demo = None
+        if settings.data_source == "fixture" and settings.demo_enabled:
+            demo = build_fixture_verifier(container.demo_store)
+        if account is not None or demo is not None:
+            app.state.actor_verifier = CompositeVerifier(account=account, demo=demo)
     try:
         yield
     finally:
+        if runtime is not None:
+            await runtime.executor.close()
+        if store is not None:
+            await store.close()
         if container.database is not None:
             await container.database.close()
 

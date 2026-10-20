@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, type JSX } from "react";
 import { ArrowLeft, ArrowUpRight, Bot, CheckCheck, ChevronRight, CircleHelp, ClipboardCheck, Database, Fingerprint, GitBranch, LayoutDashboard, MessageSquare, Plus, Radio, ShieldCheck, Workflow } from "lucide-react";
 import { ensureDemoToken } from "@/lib/live";
@@ -39,6 +40,7 @@ export function LiveDemo(): JSX.Element {
   const [locale, setLocale] = useState<Locale | null>(null);
   useEffect(() => {
     ensureDemoToken();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- <html lang> and sessionStorage are browser-only; read once after hydration so SSR stays deterministic
     setLocale(document.documentElement.lang === "ar" ? "ar" : "en");
     try { setEnquiryId(sessionStorage.getItem("pq-active-enquiry")); } catch { /* storage optional */ }
     const sync = () => {
@@ -67,14 +69,14 @@ export function LiveDemo(): JSX.Element {
   return <div className="pq-console">
     <a className="pq-skip-link" href="#pq-console-content">Skip to workspace content</a>
     <aside className="pq-console-rail">
-      <a href="/" className="pq-console-brand" aria-label="PartsIQ home"><BrandLogo compact /><span className="pq-console-beta">WORKSPACE</span></a>
+      <Link href="/" className="pq-console-brand" aria-label="PartsIQ home"><BrandLogo compact /><span className="pq-console-beta">WORKSPACE</span></Link>
       <div className="pq-console-org"><span className="pq-console-avatar">P</span><div><strong>Demo workspace</strong><small>Independent portfolio project</small></div></div>
       <p className="pq-console-label">WORKSPACE</p>
       <nav aria-label="Workspace">{NAV.map(({id,label,icon:Icon}) => <button key={id} aria-current={screen === id ? "page" : undefined} onClick={() => navigate(id)}><Icon size={18}/>{label}{screen === id && <ChevronRight size={15}/>}</button>)}</nav>
       <p className="pq-console-label">EXPLORE</p>
-      <nav aria-label="Resources"><a href="/demo"><GitBranch size={18}/>Guided scenarios<ArrowUpRight size={14}/></a><a href="/architecture"><CircleHelp size={18}/>Architecture<ArrowUpRight size={14}/></a><a href="/login"><ShieldCheck size={18}/>Staff sign in<ArrowUpRight size={14}/></a></nav>
+      <nav aria-label="Resources"><Link href="/demo"><GitBranch size={18}/>Guided scenarios<ArrowUpRight size={14}/></Link><a href="/architecture"><CircleHelp size={18}/>Architecture<ArrowUpRight size={14}/></a><a href="/login"><ShieldCheck size={18}/>Staff sign in<ArrowUpRight size={14}/></a></nav>
       <div className="pq-console-rail-note"><ShieldCheck size={20}/><strong>You have the final say.</strong><p>Recommendations stay in review until a human approves.</p></div>
-      <a href="/" className="pq-console-back"><ArrowLeft size={15}/> Back to website</a>
+      <Link href="/" className="pq-console-back"><ArrowLeft size={15}/> Back to website</Link>
     </aside>
     <div className="pq-console-main">
       <header className="pq-console-top"><span>Workspace <ChevronRight size={14}/> <strong>{NAV.find(n => n.id === screen)?.label}</strong></span><div><span className="pq-console-status"><Radio size={13}/>Synthetic demo</span>{locale && <LocaleControl initial={locale}/>}<ThemeControl/></div></header>

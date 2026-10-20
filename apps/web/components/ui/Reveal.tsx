@@ -22,6 +22,7 @@ export function Reveal({
     const el = ref.current;
     if (!el) return;
     if (typeof IntersectionObserver === "undefined") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- no IntersectionObserver (jsdom/old browsers): show immediately; the server render must stay hidden to match
       setShown(true); // no observer (SSR/jsdom): show content immediately
       return;
     }

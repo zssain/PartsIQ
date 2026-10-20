@@ -25,10 +25,14 @@ def _create(client: TestClient, token: str) -> str:
     r = client.post(
         "/v1/enquiries",
         headers={"X-Demo-Token": token, "Idempotency-Key": str(uuid4())},
-        json={"text": "need oil filter for CAT 320", "locale": "en", "destination_warehouse_id": 1},
+        json={"text": "Need 1 air filter element CA-AF-8973 for Corvane Air CA-110 serial 800123", "locale": "en", "destination_warehouse_id": 1},
     )
     assert r.status_code == 202
     return r.json()["id"]
+
+
+def _draft(client: TestClient, token: str, enquiry_id: str) -> str:
+    return client.get(f"/v1/staff/enquiries/{enquiry_id}", headers={"X-Demo-Token": token}).json()["draft_id"]
 
 
 def _revision(client: TestClient, token: str, enquiry_id: str) -> int:
@@ -52,7 +56,7 @@ def test_workspace_assembles_real_seed42_review_content(client: TestClient) -> N
 def test_approve_returns_approval_result_and_is_idempotent(client: TestClient) -> None:
     eid = _create(client, "rev")
     rev = _revision(client, "rev", eid)
-    body = {"enquiry_id": eid, "expected_revision": rev, "draft_id": str(uuid4())}
+    body = {"enquiry_id": eid, "expected_revision": rev, "draft_id": _draft(client, "rev", eid)}
     first = client.post(
         f"/v1/staff/enquiries/{eid}/approve",
         headers={"X-Demo-Token": "rev", "Idempotency-Key": str(uuid4())}, json=body,
@@ -88,6 +92,18 @@ def test_inbox_is_own_session_only(client: TestClient) -> None:
     assert any(e["id"] == eid for e in mine["items"])  # owner sees their own enquiry
     other = client.get("/v1/staff/enquiries", headers={"X-Demo-Token": "stranger"}).json()
     assert all(e["id"] != eid for e in other["items"])  # a different session never sees it
+
+
+def test_approval_with_a_different_draft_id_is_409(client: TestClient) -> None:
+    eid = _create(client, "rev")
+    res = client.post(
+        f"/v1/staff/enquiries/{eid}/approve",
+        headers={"X-Demo-Token": "rev", "Idempotency-Key": str(uuid4())},
+        json={"enquiry_id": eid, "expected_revision": _revision(client, "rev", eid), "draft_id": str(uuid4())},
+    )
+    assert res.status_code == 409
+    enq = client.get(f"/v1/enquiries/{eid}", headers={"X-Demo-Token": "rev"}).json()
+    assert enq["status"] == "awaiting_review"  # nothing was published
 
 
 def test_stale_revision_approval_is_409(client: TestClient) -> None:

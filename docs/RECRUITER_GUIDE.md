@@ -1,5 +1,47 @@
 # PartsIQ — recruiter guide
 
+## Current state and 10-minute walkthrough (2026-10-20)
+
+**What it is.** A spare-parts desk for industrial machines. A customer writes in English, Arabic
+or both (optionally with a nameplate photo). The system identifies the exact machine
+configuration, considers only parts the catalogue lists as compatible, plans stock from
+warehouse data, drafts a reply from verified facts, and a person approves it. Independent
+portfolio project, synthetic catalogue, no affiliation implied.
+
+**How it runs now.** One FastAPI app (`apps/api/partsiq`) and one Next.js app
+(`apps/web`), deployed on a single small VM. The workflow engine is LangGraph with code-owned
+routing (ADR 0001). The workspace runtime (ADR 0002) serves two execution modes over the same
+deterministic services. The public demo needs no account; invited accounts use Supabase Auth.
+
+**Walkthrough.**
+1. *The problem* — open **Try demo** and send “I need a hydraulic filter for a Corvane Air
+   CA-110.” The model has two configurations with different parts, so the app asks for the
+   serial instead of guessing.
+2. *Guided mode* — answer with a serial. A new revision runs identify → compatible search →
+   stock plan → draft → seven-rule verification, then stops at human review. Every step is
+   recorded with its evidence line.
+3. *Collaboration mode* — send “Need 1 CA-AF-1828 for my Corvane Air CA-110 (A)” with **Agent
+   collaboration**. Open *Specialist exchanges*: Intake, Parts and Reply exchange addressed
+   messages and call deterministic services. Parts finds the quoted number is not compatible
+   and asks *your consent* before searching alternatives.
+4. *Evidence and safeguards* — switch **Preview as → Reviewer** and open the review. Three
+   separate regions: the AI proposal (fact-free prose), the database evidence (fitment source,
+   candidates, stock, the seven rules) and the human decision.
+5. *Human control* — start another collaboration run and press **Pause**: nothing new is
+   dispatched until **Resume**. **Cancel** fences late results, so they can never publish.
+6. *Approval* — approve. Stock is re-read and verification re-run at that moment, and the
+   customer view shows exactly one published recommendation.
+7. *Operational visibility* — **Preview as → Administrator**: analytics (unmeasured values say
+   so), audit trail, jobs, CSV catalogue import with a row-level dry run, and evaluation on the
+   labelled set (currently 8 of 10 labelled synthetic cases pass through the real pipeline).
+8. *Honest limits* — runs here use fixture specialists (no live model calls). State lives in
+   process memory (a restart clears it; the durable schema exists but is not wired). Semantic
+   search, live OCR, PDF export and conversation summaries need services not installed in this
+   deployment. See `docs/FEATURE_STATUS.md`.
+
+> The sections below describe the original multi-service build plan and are kept as history.
+
+
 A concise, honest walkthrough of what this project is, how it is built, and exactly what is and
 is not working. Everything below is a measured fact from this repository or an explicit
 configuration note — there are no invented metrics, uptime figures, client relationships or

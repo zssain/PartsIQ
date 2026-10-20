@@ -19,6 +19,7 @@ export function ThemeControl(): JSX.Element {
 
   useEffect(() => {
     const t = resolve_theme({ saved: readSavedTheme(), prefersDark: systemPrefersDark() }).theme;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- saved theme and prefers-color-scheme exist only in the browser; read once after hydration so SSR stays deterministic
     setTheme(t);
     applyTheme(t);
   }, []);

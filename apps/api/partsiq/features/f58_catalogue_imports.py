@@ -38,7 +38,11 @@ def require_catalogue_admin(actor: ActorContext) -> None:
     Role comes only from the server-trusted ``actor.roles``; a demo caller has an empty role list
     and is refused, so a public demo can never create or validate a real catalogue batch.
     """
-    if not any(role in actor.roles for role in CATALOGUE_ADMIN_ROLES):
+    # Capability model (ADR 0002): accounts need catalogue_admin/admin; a demo visitor may run
+    # imports only inside its own disposable sandbox catalogue (never the shared one).
+    from partsiq.auth.actors import has_capability
+
+    if not has_capability(actor, "catalogue.import"):
         raise PartsIQError(
             "FORBIDDEN", internal_detail="catalogue import requires catalogue_admin or admin"
         )

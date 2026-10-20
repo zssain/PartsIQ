@@ -56,6 +56,56 @@ _CHECKPOINT_TYPES = [
 ]
 
 
+class ContractSerde:
+    """Checkpoint serializer that round-trips the strict contract models through JSON mode.
+
+    The contracts are ``strict=True`` pydantic models; a checkpointer that stores them as plain
+    data (PostgreSQL saver) would hand back dicts/strings that strict validation rejects. Contract
+    values (and lists of them) are therefore stored as tagged JSON and rebuilt with
+    ``model_validate_json``; everything else goes to the standard serializer.
+    """
+
+    _TAG = "partsiq-contract"
+
+    def __init__(self) -> None:
+        from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
+
+        self._inner = JsonPlusSerializer(allowed_msgpack_modules=_CHECKPOINT_TYPES)
+
+    def dumps_typed(self, obj: Any) -> tuple[str, bytes]:
+        import json as _json
+
+        from pydantic import BaseModel
+
+        from uuid import UUID as _UUID
+
+        if isinstance(obj, _UUID):
+            return self._TAG, _json.dumps({"uuid": str(obj)}).encode()
+        if isinstance(obj, BaseModel):
+            return self._TAG, _json.dumps({"c": type(obj).__name__, "v": obj.model_dump_json()}).encode()
+        if isinstance(obj, list) and obj and all(isinstance(x, BaseModel) for x in obj):
+            return self._TAG, _json.dumps({"c": type(obj[0]).__name__, "list": [x.model_dump_json() for x in obj]}).encode()
+        return self._inner.dumps_typed(obj)
+
+    def loads_typed(self, data: tuple[str, bytes]) -> Any:
+        import json as _json
+
+        from ..core import contracts
+
+        kind, payload = data
+        if kind != self._TAG:
+            return self._inner.loads_typed(data)
+        body = _json.loads(payload)
+        if "uuid" in body:
+            from uuid import UUID as _UUID
+
+            return _UUID(body["uuid"])
+        cls = getattr(contracts, body["c"])
+        if "list" in body:
+            return [cls.model_validate_json(x) for x in body["list"]]
+        return cls.model_validate_json(body["v"])
+
+
 def memory_checkpointer():
     """An InMemorySaver whose serializer explicitly allows the PartsIQ contract types.
 
@@ -76,7 +126,7 @@ def _make_node(handler):
     return node
 
 
-def build_graph(handlers: GraphHandlers, checkpointer: Any):
+def build_graph(handlers: GraphHandlers, checkpointer: Any, *, interrupt_before: list[str] | None = None):
     """Compile the workflow graph against a checkpointer (Postgres in prod, memory in tests).
 
     Every required node handler must be present; the readiness gate refuses to run a graph with a
@@ -104,4 +154,8 @@ def build_graph(handlers: GraphHandlers, checkpointer: Any):
     builder.set_conditional_entry_point(route_step, route_map)
     for name in node_handlers:
         builder.add_conditional_edges(name, route_step, route_map)
+    # ``interrupt_before`` (optional) pauses before the named nodes so a caller can drive the
+    # graph one node per call and apply pause/cancel at a safe boundary (workspace runner).
+    if interrupt_before:
+        return builder.compile(checkpointer=checkpointer, interrupt_before=interrupt_before)
     return builder.compile(checkpointer=checkpointer)

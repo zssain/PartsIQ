@@ -364,3 +364,72 @@ See docs/reviews/command-workspace.md for new workspace screens, API URL correct
 - Tests added: `apps/web/tests/features/live-workspace.test.tsx` (7: refresh restore, remember new id, history nav + popstate, no duplicate entries, non-destructive New enquiry, "Not connected" + no pause/resume/cancel, locale/logo/synthetic label) and `apps/web/tests/e2e/workspace.mjs` (20 browser checks).
 - Checks actually run here (Node **22.22.0** pinned runtime, checksum-verified binary in a scratch dir; lockfile and pins unchanged): vitest 93/93, `tsc --noEmit` clean, `next build` OK; Python 641 passed/15 skipped; browser journey 7/7 desktop and 7/7 mobile and workspace checks 20/20 against a local fixture backend + production web build. Live HTTP: foreign session → 404, stale revision → 409. 17 captured API requests each had exactly one `/v1`; all 45 `api()` callers use canonical `/v1/...` paths.
 - Not changed / still open: agent-to-agent collaboration, pause/resume/cancel, and real-account RBAC screens are not implemented and stay labelled "Not connected"; `/staff/inbox` is still the offline scenario list; new workspace strings are English-only (RTL layout mirrors correctly, strings not translated); no live Supabase/OpenAI/Snowflake/Redis validation; production at partsiq.duckdns.org is NOT updated by this branch.
+
+## 2026-10-20 — Unified workspace, collaboration mode, run control, accounts (`feat/complete-workspace`)
+
+Checkpoint: branch `feat/complete-workspace` from `183ded7`. Commits `5ab1126` (API runtime),
+`2f21dea` (web workspace), `51566ae` (migration, provisioning, invite sign-in), then docs.
+Production was **not** deployed by this work; see `docs/DEPLOY_WORKSPACE.md`.
+
+What changed (details: ADR 0002, `docs/API_WORKSPACE.md`, `docs/RBAC.md`, `docs/RUN_LIMITS.md`,
+`docs/FEATURE_STATUS.md`):
+- `partsiq.workspace` runtime implements the existing intake / staff-review / ops ports over the
+  real identification, compatible search, fulfilment, verification and renderer services. The
+  old hardcoded fixture outcome no longer serves traffic.
+- Guided runs drive LangGraph one node per dispatch. Collaboration runs use the specialist
+  controller. Run commands are idempotent and revision-checked, and late results are fenced.
+- Demo visitors get isolated session sandboxes. Invited accounts are verified via Supabase JWKS
+  (or HS256 with a server secret), with roles from the Auth admin API.
+- `/workspace` is the single app shell; legacy routes redirect.
+
+Commands run and results (this machine, Node 22.22.0, CPython 3.12.12):
+- `uv run --all-packages pytest apps/api/tests -q` → 675 passed, 16 skipped (one skip = Postgres test without DSN).
+- Same Postgres test with a disposable `postgres:16` (`PARTSIQ_TEST_PG_DSN=…`) → 1 passed.
+- `ruff check apps/api tools/provision_accounts.py` → clean.
+- `vitest run` → 101 passed (21 files); `tsc --noEmit` → clean; `next build` → 31 routes.
+- `node tests/e2e/workspace-app.mjs` (local API, fixture execution, real HTTP, no mocks) → 40/40.
+- `node tests/e2e/accounts.mjs` against a local Supabase Auth (GoTrue v2.174 + supabase/postgres,
+  disposable; HS256 secret; invite links from `tools/provision_accounts.py --links-only`) → 21/21.
+- Labelled evaluation through the real pipeline → 8/10 (`serial-boundary` and
+  `ambiguity-close-scores` fail; actual outputs recorded).
+
+Not verified / blocked (exact action needed):
+- Live OpenAI: no confirmed allowance is configured, and `gpt-4o-mini` has no entry in `ai/prices.json`.
+- Hosted Supabase project: the account flow was verified only against a local GoTrue. Needs
+  SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY (API) and NEXT_PUBLIC_SUPABASE_* (web build) set by the owner.
+- Durable persistence: runtime state is in memory; the PostgreSQL adapter for the new tables
+  and the LangGraph Postgres checkpointer are not wired.
+- Not installed: BGE-M3 semantic search, live vision OCR, Chromium PDF export, Redis worker, Snowflake.
+- GitHub Actions workflow setup is still broken (setup-uv SHA, pnpm version); suites pass locally.
+- Workspace page-body copy is English (shell/nav/status strings are bilingual; RTL verified).
+
+## 2026-10-20 (later): database mode, worker, CI, invitation-only accounts
+
+What changed (branch `feat/complete-workspace`, PR #2):
+
+- **Database mode.** With `DATABASE_URL_API` set, the account workspace, LangGraph checkpoints,
+  jobs and the AI allowance ledger persist in PostgreSQL. A failure refuses startup instead of
+  falling back to memory. See ADR 0002 "Persistence" and `docs/FEATURE_STATUS.md`.
+- **Worker.** `python -m partsiq.jobs.main`: PostgreSQL jobs, Redis wake-ups, sweeper; the
+  `--sweeper` flag runs sweep-only. Nameplate jobs store photos in the private bucket. Export
+  jobs render the approved snapshot with Chromium into the `exports` bucket.
+  EC2 unit: `infra/ec2/partsiq-worker.service`.
+- **Accounts are invitation-only in the API**, even though public signup is still enabled in
+  the Supabase project.
+- **CI is green** on both workflows. The integration job now runs real RLS, budget-race and
+  append-only tests on `supabase/postgres`. Lint runs for the first time.
+- `infra/ec2/bootstrap.sh` permission check fixed for Linux. It refused every valid env file.
+
+How to verify locally (values are read from `.env.prod.local`, never printed):
+
+- `apps/api/tests/integration/restart_recovery.py` (disposable stack): 20 checks.
+- `apps/api/tests/integration/worker_e2e.py` (dev Supabase + local Redis on 6390): 24 checks.
+  It creates synthetic rows only and gives its test user a temporary admin role, then removes
+  the role.
+
+Owner inputs still needed (nothing else blocks):
+
+1. Free/promotional OpenAI credit **amount and expiry**, to enable a bounded live smoke test.
+2. Supabase dashboard: add the redirect URLs and turn off public signup (DEPLOY_WORKSPACE.md).
+3. The email address of the first administrator to invite.
+4. Go-ahead to deploy (EC2: Redis, Chromium and the worker unit; optional database mode).

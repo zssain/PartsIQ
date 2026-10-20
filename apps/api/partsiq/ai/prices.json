@@ -1,9 +1,28 @@
 {
   "currency": "USD",
   "unit": "per_1m_tokens",
-  "note": "Prices are used only to estimate and cap spend against a confirmed free-credit allowance. An unknown model here BLOCKS the call (CONSTRAINTS rule 13); it is never a licence to guess a price or to spend paid budget.",
+  "note": "Prices are used only to estimate and cap spend against a confirmed free-credit allowance. An unknown model here BLOCKS the call (CONSTRAINTS rule 13); it is never a licence to guess a price or to spend paid budget. Budget reservations use the uncached input rate (worst case); cached_input is recorded for reference only.",
   "models": {
-    "gpt-4.1-mini-2025-04-14": {"input": 0.40, "output": 1.60},
-    "gpt-4.1-mini": {"input": 0.40, "output": 1.60}
-  }
+    "gpt-4.1-mini-2025-04-14": {
+      "input": 0.4,
+      "output": 1.6,
+      "cached_input": 0.1
+    },
+    "gpt-4.1-mini": {
+      "input": 0.4,
+      "output": 1.6,
+      "cached_input": 0.1
+    },
+    "gpt-4o-mini": {
+      "input": 0.15,
+      "output": 0.6,
+      "cached_input": 0.075
+    },
+    "gpt-4o": {
+      "input": 2.5,
+      "output": 10.0,
+      "cached_input": 1.25
+    }
+  },
+  "source": "https://developers.openai.com/api/docs/pricing (Standard tier, short context), verified 2026-10-20"
 }
