@@ -16,7 +16,8 @@ if [[ ! -f "${ENV_FILE}" ]]; then
   exit 2
 fi
 # The env file must be owner-only (0600/0400); refuse a world/group-readable secrets file.
-perm="$(stat -f '%Lp' "${ENV_FILE}" 2>/dev/null || stat -c '%a' "${ENV_FILE}")"
+# GNU stat first: on Linux `stat -f` is *filesystem* status and succeeds with the wrong output.
+perm="$(stat -c '%a' "${ENV_FILE}" 2>/dev/null || stat -f '%Lp' "${ENV_FILE}")"
 if [[ "${perm}" != "600" && "${perm}" != "400" ]]; then
   echo "refusing: env file ${ENV_FILE} must be chmod 600/400 (got ${perm})" >&2
   exit 3
